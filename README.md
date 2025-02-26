@@ -1,25 +1,25 @@
-## Estoque Web
+# Estoque Web
 
 Projeto realizado na faculdade Católica de Santa catarina, no curso de engenharia de software para a matéria do PAC em 2025.
 O site web de estoque tem como publico alvo pequenas empresas, sendo realizado atualmente para a empresa RENOVA RETIFICA DE MOTORES.
 
 ## Ferramentas ultilizadas
 
-# Front-end:
+### Front-end:
 
 React (https://pt-br.react.dev/reference/react);
 
 Next.js (https://nextjs.org);
 
-# Back-end:
+### Back-end:
 
 Next.js API Routes (https://nextjs.org/docs/app/building-your-application/routing/route-handlers);
 
-# Banco de Dados e Autenticação:
+### Banco de Dados e Autenticação:
 
 Supabase (https://supabase.com/docs/guides/getting-started/quickstarts/nextjs);
 
-# Hospedagem do site:
+### Hospedagem do site:
 
 Vercel (https://vercel.com/);
 
