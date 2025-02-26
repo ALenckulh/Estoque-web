@@ -22,15 +22,21 @@ Vercel (https://vercel.com/)
 
 No terminal use o comando:
 
-bash
+```bash
 npm run dev
+```
 # ou
+```bash
 yarn dev
+```
 # ou
+```bash
 pnpm dev
+```
 # ou
+```bash
 bun dev
-
+```
 
 Abra o (http://localhost:30000) e veja o resultado.
 
