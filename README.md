@@ -5,21 +5,21 @@ O site web de estoque tem como publico alvo pequenas empresas, sendo realizado a
 
 ## Ferramentas ultilizadas
 
-Front-end:
+# Front-end:
 
 React (https://pt-br.react.dev/reference/react);
 
 Next.js (https://nextjs.org);
 
-Back-end:
-Next.js API Routes (http
-s://nextjs.org/docs/app/building-your-application/routing/route-handlers);
+# Back-end:
 
-Banco de Dados e Autenticação:
+Next.js API Routes (https://nextjs.org/docs/app/building-your-application/routing/route-handlers);
+
+# Banco de Dados e Autenticação:
 
 Supabase (https://supabase.com/docs/guides/getting-started/quickstarts/nextjs);
 
-Hospedagem do site:
+# Hospedagem do site:
 
 Vercel (https://vercel.com/);
 
