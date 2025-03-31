@@ -1,0 +1,1 @@
+// TODO função de criar e autenticar usuario com JWT - sem supabase
