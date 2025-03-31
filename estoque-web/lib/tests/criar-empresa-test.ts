@@ -1,10 +1,13 @@
 import {criarEmpresa} from "@/lib/data_base/criar-empresa";
 
-
-
 async function teste(){
-    let empresa = await criarEmpresa('teste');
-    console.log(empresa);
+    try {
+        let empresa = await criarEmpresa("");
+        console.log("Empresa criada:", empresa);
+    } catch (error) {
+        console.error("Erro ao criar empresa:", error);
+    }
 }
 
 teste();
+

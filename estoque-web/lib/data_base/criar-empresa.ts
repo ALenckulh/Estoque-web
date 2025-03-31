@@ -1,5 +1,9 @@
 import { supabase } from "../supabase";
 
 export async function criarEmpresa(nome: String){
-    supabase.from('empresas').insert({nome: nome}).select()
+    try {
+        return await supabase.from('empresas').insert([{ nome }]).select();
+    } catch (error){
+        return ("Erro ao criar empresa: " + error);
+    }
 }
