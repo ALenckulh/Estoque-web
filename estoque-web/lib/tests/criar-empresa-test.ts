@@ -1,4 +1,4 @@
-import {criarEmpresa} from "@/lib/data_base/criar-empresa";
+import {criarEmpresa} from "@/lib/data-base/criar-empresa";
 
 async function teste(){
     try {

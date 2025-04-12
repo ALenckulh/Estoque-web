@@ -1,1 +1,0 @@
-// TODO função de auth com JWT - sem supabase

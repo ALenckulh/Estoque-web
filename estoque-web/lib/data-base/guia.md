@@ -1,0 +1,1 @@
+# /data-base -> Apenas chamadas ao banco de dados do supabase
