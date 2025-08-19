@@ -1,7 +1,7 @@
 # Estoque Web
 
 Projeto realizado na faculdade Católica de Santa catarina, no curso de engenharia de software para a matéria do PAC em 2025.
-O site web de estoque tem como publico alvo pequenas empresas, sendo realizado atualmente para a empresa RENOVA RETIFICA DE MOTORES.
+O site web de estoque tem como publico alvo pequenas empresas que fazer o uso de peças automotivas, sendo realizado atualmente para a empresa RENOVA RETIFICA DE MOTORES.
 
 ## Ferramentas ultilizadas
 
