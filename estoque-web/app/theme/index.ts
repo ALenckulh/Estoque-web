@@ -6,6 +6,15 @@ import { typography } from "./typography";
 const theme = createTheme({
   palette,
   typography,
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 500,  // antes era ~600
+      md: 800,  // antes era ~900
+      lg: 1100, // antes era ~1200
+      xl: 1400, // antes era ~1536
+    },
+  },
   components: {
     MuiButton: {
       styleOverrides: {
@@ -175,6 +184,9 @@ const theme = createTheme({
     },
     MuiMenu: {
       styleOverrides: {
+        root: {
+          marginTop: 4,
+        },
         paper: {
           maxHeight: 200, // altura máxima padrão
         },
@@ -195,9 +207,93 @@ const theme = createTheme({
     },
     MuiAutocomplete: {
       styleOverrides: {
+        paper: {
+          maxHeight: 200,       // altura máxima do menu
+          marginTop: 4,         // espaçamento do menu em relação ao input
+        },
         option: {
           fontSize: "1rem",
           padding: "4px 15px",
+        },
+        noOptions: {
+          fontSize: "1rem",    // tamanho da fonte
+        },
+      },
+    },
+    MuiAvatar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: palette.secondary.main,
+          color: palette.grey[700],
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          height: 64,
+          boxShadow: "var(--shadow-sm)",
+          backgroundColor: "var(--neutral-0)",
+        },
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        fullWidth: true,
+        maxWidth: "sm",
+        BackdropProps: {
+          sx: {
+            backgroundColor: "var(--neutral-90/20)",
+          },
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          // Body1
+          fontSize: "24px", 
+          fontWeight: 500,
+        },
+      },
+    },
+    MuiDialogContentText: {
+      styleOverrides: {
+        root: {
+          // Subtitle2
+          fontSize: "16px",
+          fontWeight: 500,
+        },
+      },
+    },
+    MuiPopover: {
+      styleOverrides: {
+        paper: {
+          marginTop: 4,
+          boxShadow: "var(--shadow-sm)",
+          padding: 24,
+          border: `1px solid ${palette.grey[100]}`,
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          width: 450,
+          padding: 24,
         },
       },
     },

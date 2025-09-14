@@ -16,7 +16,22 @@ import {
   Select,
   InputAdornment,
   Fade,
+  Tooltip,
+  Avatar,
+  AppBar,
+  Menu,
+  Toolbar,
+  alpha,
+  DialogContentText,
 } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import { Popover } from "@mui/material";
+import { Drawer, List, ListItem, ListItemText } from "@mui/material";
 import { useState } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
 import React from "react";
@@ -24,7 +39,9 @@ import { DateField } from "@/components/ui/date-field";
 import { ToastBar } from "@/components/ui/ToastBar/ToastBar";
 import { Icon } from "@/components/ui/Icon/Icon";
 import { Tab } from "@/components/ui/Tab/Tab";
-import { url } from "inspector";
+import Image from "next/image";
+import Link from "next/link";
+import { palette } from "@/app/theme/palette";
 
 type Option = {
   label: string;
@@ -45,6 +62,18 @@ export default function DesignSystem() {
   const [password, setPassword] = useState<string>(""); // PasswordField
   const [showPassword, setShowPassword] = React.useState(false);
   const [toasts, setToasts] = useState<ToastType[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
 
   const options: Option[] = [
     { label: "Opção 1", value: 1 },
@@ -59,9 +88,9 @@ export default function DesignSystem() {
   const [selectedTab, setSelectedTab] = useState("items");
 
   const tabItems = [
-    { id: "items", label: "Itens", url: "" },
-    { id: "products", label: "Produtos", url: "" },
-    { id: "categories", label: "Categorias", url: "" },
+    { id: "itens", label: "Itens", url: "" },
+    { id: "entidade", label: "Entidades", url: "" },
+    { id: "historico", label: "Histórico", url: "" },
   ];
 
   const showToast = (type: "success" | "error") => {
@@ -257,24 +286,102 @@ export default function DesignSystem() {
             Icon Button
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <IconButton color="primary">
-              <Icon name="Smile" />
-            </IconButton>
-            <Button
-              sx={{ minWidth: 0, width: 40, padding: 0 }}
-              color="primary"
-              variant="outlined"
-            >
-              <Icon name="Smile" />
-            </Button>
-            <Button
-              sx={{ minWidth: 0, width: 40, padding: 0 }}
-              color="primary"
-              variant="contained"
-            >
-              <Icon name="Smile" />
-            </Button>
+            <Tooltip title="Icon Button">
+              <IconButton color="primary">
+                <Icon name="Smile" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Icon Button">
+              <Button
+                sx={{ minWidth: 0, width: 34, padding: 0 }}
+                color="primary"
+                variant="outlined"
+              >
+                <Icon name="Smile" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Icon Button">
+              <Button
+                sx={{ minWidth: 0, width: 34, padding: 0 }}
+                color="primary"
+                variant="contained"
+              >
+                <Icon name="Smile" />
+              </Button>
+            </Tooltip>
           </Box>
+        </Card>
+
+        <Card sx={{ display: "flex", flexDirection: "column", p: 2, gap: 2 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            AppBar
+          </Typography>
+          <Divider />
+          <AppBar position="static" color="default">
+            <Toolbar
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              {/* Logo */}
+              <Link href="/" passHref style={{ height: 30 }}>
+                <Image
+                  src="/estoqueWeb.svg"
+                  alt="Logo"
+                  width={200}
+                  height={30}
+                  style={{ cursor: "pointer" }}
+                />
+              </Link>
+
+              {/* Tabs */}
+              <Tab
+                items={tabItems}
+                selectedTab={selectedTab}
+                onTabChange={setSelectedTab}
+              />
+
+              {/* Avatar + Menu */}
+              <IconButton onClick={handleOpenMenu} sx={{ p: 0 }}>
+                <Avatar>
+                  <Icon name="User" size={26} strokeWidth={1.3} />
+                </Avatar>
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                sx={{
+                  mt: 2,
+                }}
+              >
+                <MenuItem onClick={handleCloseMenu}>Perfil</MenuItem>
+                <MenuItem onClick={handleCloseMenu}>Configurações</MenuItem>
+                <MenuItem
+                  onClick={handleCloseMenu}
+                  sx={{
+                    color: "error.main",
+                    "&:hover": {
+                      backgroundColor: alpha(palette.error.light, 0.1),
+                    },
+                  }}
+                >
+                  Sair
+                </MenuItem>
+              </Menu>
+            </Toolbar>
+          </AppBar>
         </Card>
 
         <Card sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -398,12 +505,13 @@ export default function DesignSystem() {
         {/* Toasts*/}
         <Card sx={{ p: 2 }}>
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Toast
+            Toast, Modal, Page aside e Popover
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Box
             sx={{
               display: "flex",
+              flexDirection: "column",
               justifyContent: "center",
               gap: 2,
               mb: 4,
@@ -423,20 +531,87 @@ export default function DesignSystem() {
             >
               Toast de Erro
             </Button>
+            <Button variant="outlined" onClick={() => setOpenModal(true)}>
+              Abrir Modal
+            </Button>
+
+            <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+              <DialogTitle>Exemplo de Modal</DialogTitle>
+              <DialogContent>
+                <DialogContentText sx={{ mb: 2 }}>
+                  Conteúdo do modal aqui.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpenModal(false)}>Fechar</Button>
+                <Button variant="contained">Salvar</Button>
+              </DialogActions>
+            </Dialog>
+
+            <Button
+              variant="outlined"
+              onClick={(e) => setAnchorPopover(e.currentTarget)}
+            >
+              Abrir Popover
+            </Button>
+
+            <Popover
+              open={Boolean(anchorPopover)}
+              anchorEl={anchorPopover}
+              onClose={() => setAnchorPopover(null)}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              PaperProps={{
+                sx: {
+                  width: anchorPopover ? anchorPopover.clientWidth : "auto",
+                },
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                Lorem Ipsum is simply dummy text of the printing and typesetting
+                industry. Lorem Ipsum has been the industry's standard dummy
+                text ever since the 1500s, when an unknown printer took a galley
+                of type and scrambled it to make a type specimen book. It has
+                survived not only five centuries, but also the leap into
+                electronic typesetting, remaining essentially unchanged. It was
+                popularised in the 1960s with the release of Letraset sheets
+                containing Lorem Ipsum passages, and more recently with desktop
+                publishing software like Aldus PageMaker including versions of
+                Lorem Ipsum.
+              </Typography>
+            </Popover>
+            <Button variant="outlined" onClick={() => setOpenDrawer(true)}>
+              Abrir Page Aside
+            </Button>
+
+            <Drawer
+              anchor="right"
+              open={openDrawer}
+              onClose={() => setOpenDrawer(false)}
+            >
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Page Aside
+                </Typography>
+                <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                  Lorem Ipsum is simply dummy text of the printing and
+                  typesetting industry. Lorem Ipsum has been the industry's
+                  standard dummy text ever since the 1500s, when an unknown
+                  printer took a galley of type and scrambled it to make a type
+                  specimen book. It has survived not only five centuries, but
+                  also the leap into electronic typesetting, remaining
+                  essentially unchanged. It was popularised in the 1960s with
+                  the release of Letraset sheets containing Lorem Ipsum
+                  passages, and more recently with desktop publishing software
+                  like Aldus PageMaker including versions of Lorem Ipsum.
+                </Typography>
+            </Drawer>
           </Box>
-        </Card>
-
-        <Card sx={{ p: 2 }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>
-            Tab
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-
-          <Tab
-            items={tabItems}
-            selectedTab={selectedTab}
-            onTabChange={setSelectedTab}
-          />
         </Card>
       </Box>
     </Box>

@@ -9,6 +9,9 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Estoque Web",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 const geistSans = Geist({

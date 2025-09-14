@@ -32,6 +32,7 @@
   --alert-30: #DE7514;
 
   --shadow-md: 0 4px 16px rgba(27, 29, 32, 0.24);
+  --shadow-sm: 0 4px 8px rgba(27, 29, 32, 0.08);
   
   .h1 {
   font-size: 96px;
