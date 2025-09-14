@@ -1,0 +1,43 @@
+/* components/Tab/Tab.css */
+.tab-container {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  position: relative;
+  height: 36px;
+}
+
+.tab-item {
+  height: 36px;
+  padding: 0 10px;
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+}
+
+.tab-item:not(.tab-selected) {
+  color: var(--neutral-70);
+}
+
+.tab-item:hover {
+  color: var(--neutral-80);
+}
+
+.tab-selected {
+  color: var(--neutral-80);
+}
+
+.tab-indicator {
+  width: 5px;
+  height: 5px;
+  background: var(--primary-10, #6AADEB);
+  border-radius: 9999px;
+  position: absolute;
+  bottom: 0;
+}

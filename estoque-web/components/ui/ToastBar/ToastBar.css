@@ -1,0 +1,19 @@
+/* components/ToastBar/ToastBar.css */
+.toast {
+  width: fit-content;
+  padding: 12px 40px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(27, 29, 32, 0.24);
+  border-radius: 6px;
+
+}
+
+.success {
+  background-color: var(--success-10);
+  color: var(--neutral-20);
+}
+
+.error {
+  background-color: var(--danger-0);
+  color: var(--neutral-20);
+}

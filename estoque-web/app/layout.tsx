@@ -1,6 +1,9 @@
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./theme/providers";
+import { DateProvider } from "./theme/dateProvider";
+import { LucideIcon } from "lucide-react";
+import { IconProps } from "@mui/material/Icon";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -21,11 +24,13 @@ export default function RootLayout({ children }: { children: React.ReactNode })
     <html lang="pt-BR" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
           <Providers>
+            <DateProvider>
           <main className="min-h-screen flex flex-col items-center">
             <div className="flex-1 w-full flex flex-col gap-20 items-center">
               {children}
             </div>
           </main>
+          </DateProvider>
           </Providers>
       </body>
     </html>
