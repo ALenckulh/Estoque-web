@@ -1,3 +1,3 @@
-import { supabase } from "../supabase";
+import { createClient } from "@/utils/supabase/client";
 
-console.log(supabase);
+console.log(createClient);

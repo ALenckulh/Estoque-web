@@ -1,5 +1,4 @@
-import { supabase } from "../supabase";
-
+import { createClient } from "@/utils/supabase/client";
 interface Parametros{
     nomeDeUsuario: string,
     email: string,
@@ -11,7 +10,7 @@ interface Parametros{
 
 export async function inserirUsuario({ nomeDeUsuario, email, senha, admin, safeDelete, empresa } : Parametros){
 
-    const { error } = await supabase.from('usuarios').insert([{
+    const { error } = await createClient().from('usuarios').insert([{
         nome: nomeDeUsuario,
         email: email,
         senha: senha,

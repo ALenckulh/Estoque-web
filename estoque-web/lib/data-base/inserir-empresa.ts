@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { createClient } from "@/utils/supabase/client";
 
 interface Parametros{
     nomeDaEmpresa: string;
@@ -6,7 +6,7 @@ interface Parametros{
 
 export async function inserirEmpresa({nomeDaEmpresa}: Parametros){
 
-    const { data, error } = await supabase
+    const { data, error } = await createClient()
         .from('empresas')
         .insert([{ nome: nomeDaEmpresa }]).select('id');
 
