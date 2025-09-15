@@ -37,11 +37,13 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import React from "react";
 import { DateField } from "@/components/ui/date-field";
 import { ToastBar } from "@/components/ui/ToastBar/ToastBar";
-import { Icon } from "@/components/ui/Icon/Icon";
+import { Icon } from "@/components/ui/Icon";
 import { Tab } from "@/components/ui/Tab/Tab";
 import Image from "next/image";
 import Link from "next/link";
 import { palette } from "@/app/theme/palette";
+import { Car } from "lucide-react";
+import AgGridExample from "@/components/TableExample/table-example";
 
 type Option = {
   label: string;
@@ -612,6 +614,9 @@ export default function DesignSystem() {
                 </Typography>
             </Drawer>
           </Box>
+        </Card>
+        <Card sx={{ p: 2 }}>
+          <AgGridExample />
         </Card>
       </Box>
     </Box>
