@@ -12,6 +12,7 @@ import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
 import { ICellRendererParams } from "ag-grid-community";
 import { Icon } from "../ui/Icon";
+import { Tooltip } from "@mui/material";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -44,16 +45,39 @@ export default function AgGridExample() {
         "cell-disabled": (params) => !!params.data?.disabled, // garante boolean
       },
       cellRenderer: (params: ICellRendererParams<RowData, number>) => (
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {params.data?.disabled && (
-            <Icon
-              name="Circle"
-              size={13}
-              style={{ fill: "var(--neutral-40)", color: "var(--neutral-40)", position: "absolute", left: -8 }}
-            />
-          )}
-          {params.value}
-        </span>
+        <Tooltip
+          title={params.data?.disabled ? "Usuario inativo" : ""}
+          arrow
+          disableHoverListener={!params.data?.disabled}
+          slotProps={{
+            popper: {
+              modifiers: [
+                {
+                  name: "offset",
+                  options: {
+                    offset: [0, -6],
+                  },
+                },
+              ],
+            },
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {params.data?.disabled && (
+              <Icon
+                name="Circle"
+                size={13}
+                style={{
+                  fill: "var(--neutral-40)",
+                  color: "var(--neutral-40)",
+                  position: "absolute",
+                  left: -8,
+                }}
+              />
+            )}
+            {params.value}
+          </span>
+        </Tooltip>
       ),
     },
     {

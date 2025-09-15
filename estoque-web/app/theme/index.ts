@@ -9,8 +9,8 @@ const theme = createTheme({
   breakpoints: {
     values: {
       xs: 0,
-      sm: 500,  // antes era ~600
-      md: 800,  // antes era ~900
+      sm: 500, // antes era ~600
+      md: 800, // antes era ~900
       lg: 1100, // antes era ~1200
       xl: 1400, // antes era ~1536
     },
@@ -208,15 +208,15 @@ const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
-          maxHeight: 200,       // altura máxima do menu
-          marginTop: 4,         // espaçamento do menu em relação ao input
+          maxHeight: 200, // altura máxima do menu
+          marginTop: 4, // espaçamento do menu em relação ao input
         },
         option: {
           fontSize: "1rem",
           padding: "4px 15px",
         },
         noOptions: {
-          fontSize: "1rem",    // tamanho da fonte
+          fontSize: "1rem", // tamanho da fonte
         },
       },
     },
@@ -265,7 +265,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           // Body1
-          fontSize: "24px", 
+          fontSize: "24px",
           fontWeight: 500,
         },
       },
@@ -294,6 +294,31 @@ const theme = createTheme({
         paper: {
           width: 450,
           padding: 24,
+        },
+      },
+    },
+
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: "var(--neutral-70)",
+          padding: "4px 8px",
+          borderRadius: 4,
+        },
+        arrow: {
+          color: "var(--neutral-70)",
+        },
+      },
+      defaultProps: {
+        PopperProps: {
+          modifiers: [
+            {
+              name: "offset",
+              options: {
+                offset: [0, -10],
+              },
+            },
+          ],
         },
       },
     },
