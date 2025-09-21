@@ -1,27 +1,14 @@
 import { supabase } from "../supabase";
+import { User } from "../models/user_model";
 
-interface Parametros{
-    nomeDeUsuario: string,
-    email: string,
-    senha: string,
-    admin: boolean,
-    safeDelete: boolean,
-    empresa: number,
-}
+export async function insertUser(user: User) {
 
-export async function inserirUsuario({ nomeDeUsuario, email, senha, admin, safeDelete, empresa } : Parametros){
-
-    const { error } = await supabase.from('usuarios').insert([{
-        nome: nomeDeUsuario,
-        email: email,
-        senha: senha,
-        admin: admin,
-        safe_delete: safeDelete,
-        empresa: empresa,
-    }])
+    const { error } = await supabase
+        .from('users')
+        .insert(user)
 
     // codigo '23505' significa que campo único já existe
-    if (error?.code === '23505') {throw new Error('Essse email já existe');}
+    if (error?.code === '23505') { throw new Error('Esse email já existe'); }
 
-    console.log(`Usuario ${nomeDeUsuario} inserido com sucesso!`)
+    console.log(`Usuario ${user.name} inserido com sucesso!`)
 }

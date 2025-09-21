@@ -1,4 +1,4 @@
-import {criarEmpresa} from "@/lib/service/criar-empresa";
+import {criarEmpresa} from "@/lib/services/create-user";
 
 
 const nomeDaEmpresa: string = 'Nome qualquer fodase';

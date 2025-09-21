@@ -1,6 +1,6 @@
-import {inserirEmpresa} from "@/lib/data-base/inserir-empresa";
+import { inserirEmpresa } from "@/lib/data-base/selecionar-usuario";
 
 
 const nomeDaEmpresa = "Empresa Teste 3"
 
-inserirEmpresa({nomeDaEmpresa: nomeDaEmpresa})
+inserirEmpresa({ nomeDaEmpresa: nomeDaEmpresa })
