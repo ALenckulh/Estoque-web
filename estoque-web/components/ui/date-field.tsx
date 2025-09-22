@@ -1,7 +1,7 @@
 // components/DateField.tsx
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
-import { useRifm } from 'rifm';
+//import { useRifm } from 'rifm';
 import { createDateFromParts, formatDateToDisplay, isValidDate, parseDateString } from '@/utils/dateFormatter';
 
 interface DateFieldProps {
@@ -100,11 +100,11 @@ export const DateField: React.FC<DateFieldProps> = ({
     };
   }, [format]);
 
-  const rifmProps = useRifm({
-    value: inputValue,
-    onChange: handleInputValueChange,
-    format: rifmFormat,
-  });
+  //const rifmProps = useRifm({
+  //  value: inputValue,
+  //  onChange: handleInputValueChange,
+  //  format: rifmFormat,
+  //});
 
   return (
     <TextField
@@ -116,7 +116,7 @@ export const DateField: React.FC<DateFieldProps> = ({
       helperText={helperText}
       disabled={disabled}
       required={required}
-      {...rifmProps}
+      //{...rifmProps}
     />
   );
 };
