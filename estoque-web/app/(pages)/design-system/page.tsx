@@ -44,6 +44,7 @@ import Link from "next/link";
 import { palette } from "@/app/theme/palette";
 import { Car } from "lucide-react";
 import AgGridExample from "@/components/TableExample/table-example";
+import { Appbar } from "@/components/ui/Appbar";
 
 type Option = {
   label: string;
@@ -68,6 +69,8 @@ export default function DesignSystem() {
   const [openModal, setOpenModal] = useState(false);
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [showTabs, setShowTabs] = useState(true);
+  const [showAvatar, setShowAvatar] = useState(true);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -319,71 +322,39 @@ export default function DesignSystem() {
             AppBar
           </Typography>
           <Divider />
-          <AppBar position="static" color="default">
-            <Toolbar
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "100%",
-              }}
+
+          {/* Controles */}
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant={showTabs ? "contained" : "outlined"}
+              onClick={() => setShowTabs(!showTabs)}
+              size="small"
             >
-              {/* Logo */}
-              <Link href="/" passHref style={{ height: 30 }}>
-                <Image
-                  src="/estoqueWeb.svg"
-                  alt="Logo"
-                  width={200}
-                  height={30}
-                  style={{ cursor: "pointer" }}
-                />
-              </Link>
+              {showTabs ? "Esconder Tabs" : "Mostrar Tabs"}
+            </Button>
 
-              {/* Tabs */}
-              <Tab
-                items={tabItems}
-                selectedTab={selectedTab}
-                onTabChange={setSelectedTab}
-              />
+            <Button
+              variant={showAvatar ? "contained" : "outlined"}
+              onClick={() => setShowAvatar(!showAvatar)}
+              size="small"
+              color="secondary"
+            >
+              {showAvatar ? "Esconder Avatar" : "Mostrar Avatar"}
+            </Button>
+          </Box>
 
-              {/* Avatar + Menu */}
-              <IconButton onClick={handleOpenMenu} sx={{ p: 0 }}>
-                <Avatar>
-                  <Icon name="User" size={26} strokeWidth={1.3} />
-                </Avatar>
-              </IconButton>
+          {/* AppBar */}
+          <Appbar
+            showTabs={showTabs}
+            showAvatar={showAvatar}
+            selectedTab={selectedTab}
+            onTabChange={setSelectedTab}
+          />
 
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                sx={{
-                  mt: 2,
-                }}
-              >
-                <MenuItem onClick={handleCloseMenu}>Perfil</MenuItem>
-                <MenuItem onClick={handleCloseMenu}>Configurações</MenuItem>
-                <MenuItem
-                  onClick={handleCloseMenu}
-                  sx={{
-                    color: "error.main",
-                    "&:hover": {
-                      backgroundColor: alpha(palette.error.light, 0.1),
-                    },
-                  }}
-                >
-                  Sair
-                </MenuItem>
-              </Menu>
-            </Toolbar>
-          </AppBar>
+          {/* Status */}
+          <Typography variant="body2" color="text.secondary">
+            Tabs: {showTabs ? "Visível" : "Oculta"} | Avatar: {showAvatar ? "Visível" : "Oculta"}
+          </Typography>
         </Card>
 
         <Card sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -597,21 +568,21 @@ export default function DesignSystem() {
               open={openDrawer}
               onClose={() => setOpenDrawer(false)}
             >
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Page Aside
-                </Typography>
-                <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                  Lorem Ipsum is simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley of type and scrambled it to make a type
-                  specimen book. It has survived not only five centuries, but
-                  also the leap into electronic typesetting, remaining
-                  essentially unchanged. It was popularised in the 1960s with
-                  the release of Letraset sheets containing Lorem Ipsum
-                  passages, and more recently with desktop publishing software
-                  like Aldus PageMaker including versions of Lorem Ipsum.
-                </Typography>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Page Aside
+              </Typography>
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                Lorem Ipsum is simply dummy text of the printing and
+                typesetting industry. Lorem Ipsum has been the industry's
+                standard dummy text ever since the 1500s, when an unknown
+                printer took a galley of type and scrambled it to make a type
+                specimen book. It has survived not only five centuries, but
+                also the leap into electronic typesetting, remaining
+                essentially unchanged. It was popularised in the 1960s with
+                the release of Letraset sheets containing Lorem Ipsum
+                passages, and more recently with desktop publishing software
+                like Aldus PageMaker including versions of Lorem Ipsum.
+              </Typography>
             </Drawer>
           </Box>
         </Card>

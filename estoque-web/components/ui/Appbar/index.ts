@@ -1,1 +1,1 @@
-export * from "./Appbar";
+export { Appbar, type AppbarProps } from './Appbar';

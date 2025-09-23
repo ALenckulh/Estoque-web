@@ -2,106 +2,214 @@ import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
-  Tabs,
-  Tab,
   Avatar,
-  Typography,
+  Menu,
+  MenuItem,
+  IconButton,
+  alpha,
   Box,
-  styled
 } from "@mui/material";
-import ViewInArIcon from "@mui/icons-material/ViewInAr";
+import Link from "next/link";
+import Image from "next/image";
+import { Icon } from "@/components/ui/Icon";
+import { Tab } from "@/components/ui/Tab/Tab";
+import { palette } from "@/app/theme/palette";
 
-// Estilização personalizada para o Toolbar
-const StyledToolbar = styled(Toolbar)({
-  display: "grid",
-  gridTemplateColumns: "auto 1fr auto",
-  alignItems: "center",
-  width: "100%",
-  gap: "20px"
-});
-
-// Interface para as props do componente
-interface AppbarProps {
-  /**
-   * Controla se mostra as tabs (Itens, Entidade, Histórico)
-   * @default true
-   */
-  showTabs?: boolean;
-  
-  /**
-   * Controla se mostra o avatar do usuário
-   * @default true
-   */
-  showAvatar?: boolean;
-  
-  /**
-   * Nome do usuário para o avatar
-   * @default "User"
-   */
-  userName?: string;
-  
-  /**
-   * URL da imagem do avatar
-   * @default "/avatar.png"
-   */
-  userAvatar?: string;
+interface TabItem {
+  id: string;
+  label: string;
+  url: string;
 }
 
-export function Appbar({ 
-  showTabs = true, 
-  showAvatar = true,
-  userName = "User",
-  userAvatar = "/avatar.png"
-}: AppbarProps) {
-  const [activeTab, setActiveTab] = useState(0);
+interface AppbarProps {
+  showTabs?: boolean;
+  showAvatar?: boolean;
+  tabItems?: TabItem[];
+  selectedTab?: string;
+  onTabChange?: (tabId: string) => void;
+  logoUrl?: string;
+  logoAlt?: string;
+  logoWidth?: number;
+  logoHeight?: number;
+}
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
+export function Appbar({
+  showTabs = true,
+  showAvatar = true,
+  tabItems = [
+    { id: "itens", label: "Itens", url: "" },
+    { id: "entidade", label: "Entidades", url: "" },
+    { id: "historico", label: "Histórico", url: "" },
+  ],
+  selectedTab = "itens",
+  onTabChange,
+  logoUrl = "/estoqueWeb.svg",
+  logoAlt = "Logo",
+  logoWidth = 200,
+  logoHeight = 30,
+}: AppbarProps) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleTabChange = (tabId: string) => {
+    if (onTabChange) {
+      onTabChange(tabId);
+    }
   };
 
   return (
-    <AppBar
-      position="static"
-      elevation={1}
-      sx={{ backgroundColor: "white", color: "black" }}
-    >
-      <StyledToolbar>
-        {/* Logo e título à esquerda */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <ViewInArIcon />
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            ESTOQUE WEB
-          </Typography>
-        </Box>
+    <AppBar position="static" color="default">
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: '1392px',
+          margin: '0 auto',
+        }}
+      >
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            height: "48px",
+            padding: "0 24px",
+            gap: "20px",
+            boxSizing: 'border-box',
+          }}
+        >
+          {/* Logo */}
+          <Box sx={{ flexShrink: 0 }}>
+            <Link href="/" passHref style={{ height: logoHeight, display: 'block' }}>
+              <Image
+                src={logoUrl}
+                alt={logoAlt}
+                width={logoWidth}
+                height={logoHeight}
+                style={{ cursor: "pointer" }}
+              />
+            </Link>
+          </Box>
 
-        {/* Tabs deslocadas para a direita (apenas se showTabs for true) */}
-        {showTabs && (
+          {/* Tabs e Avatar */}
           <Box sx={{ 
-            display: "flex", 
-            justifyContent: "flex-end", 
-            width: "90%",
-            marginRight: "20px"
+            display: 'flex', 
+            alignItems: 'center',
+            gap: '20px',
+            flexShrink: 0,
           }}>
-            <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
-              textColor="primary"
-              indicatorColor="primary"
-            >
-              <Tab label="Itens" />
-              <Tab label="Entidade" />
-              <Tab label="Histórico" />
-            </Tabs>
-          </Box>
-        )}
+            {showTabs && (
+              <Tab
+                items={tabItems}
+                selectedTab={selectedTab}
+                onTabChange={handleTabChange}
+              />
+            )}
 
-        {/* Avatar alinhado à direita (apenas se showAvatar for true) */}
-        {showAvatar && (
-          <Box>
-            <Avatar alt={userName} src={userAvatar} />
+            {/* Avatar */}
+            {showAvatar && (
+              <IconButton 
+                onClick={handleOpenMenu} 
+                sx={{ p: 0 }}
+              >
+                <Avatar sx={{ width: 32, height: 32 }}>
+                  <Icon name="User" size={20} strokeWidth={1.3} />
+                </Avatar>
+              </IconButton>
+            )}
           </Box>
-        )}
-      </StyledToolbar>
+
+          {/* Menu Dropdown */}
+          {showAvatar && (
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              sx={{
+                mt: 1,
+                '& .MuiPaper-root': {
+                  width: '300px',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  '& .MuiList-root': {
+                    padding: '0',
+                  },
+                },
+              }}
+            >
+              <MenuItem 
+                onClick={handleCloseMenu}
+                sx={{
+                  height: '47px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '0',
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                  },
+                }}
+              >
+                <Icon name="User" size={18} />
+                Gerenciar conta
+              </MenuItem>
+              <MenuItem 
+                onClick={handleCloseMenu}
+                sx={{
+                  height: '47px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '0',
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                  },
+                }}
+              >
+                <Icon name="Users" size={18} />
+                Gerenciar usuários
+              </MenuItem>
+              <MenuItem
+                onClick={handleCloseMenu}
+                sx={{
+                  height: '47px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '0',
+                  color: "error.main",
+                  '&:hover': {
+                    backgroundColor: alpha(palette.error.light, 0.1),
+                  },
+                }}
+              >
+                <Icon name="LogOut" size={18} />
+                Sair da conta
+              </MenuItem>
+            </Menu>
+          )}
+        </Toolbar>
+      </Box>
     </AppBar>
   );
 }
+
+export default Appbar;
