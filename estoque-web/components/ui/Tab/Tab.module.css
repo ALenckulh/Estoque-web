@@ -40,4 +40,10 @@
   border-radius: 9999px;
   position: absolute;
   bottom: 0;
+  transform: scale(0);
+  transition: transform 0.3s ease;
+}
+
+.tab-selected .tab-indicator {
+  transform: scale(1);
 }

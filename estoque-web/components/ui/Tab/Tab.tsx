@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import "./Tab.css";
+import styles from "./Tab.module.css";
 
 interface TabItem {
   id: string;
@@ -24,7 +24,7 @@ export const Tab: React.FC<TabProps> = ({
   className,
 }) => {
   return (
-    <div className={`tab-container button ${className || ""}`}>
+    <div className={`${styles["tab-container"]} button ${className || ""}`}>
       {items.map((item) => {
         const isSelected = selectedTab === item.id;
 
@@ -32,11 +32,13 @@ export const Tab: React.FC<TabProps> = ({
           <Link
             key={item.id}
             href={item.url}
-            className={`tab-item ${isSelected ? "tab-selected" : ""}`}
+            className={`${styles["tab-item"]} ${isSelected ? styles["tab-selected"] : ""}`}
             onClick={() => onTabChange(item.id)}
           >
-            <span className="tab-label">{item.label}</span>
-            {isSelected && <div className="tab-indicator" />}
+            <span className={styles["tab-label"]}>{item.label}</span>
+            <div
+              className={`${styles["tab-indicator"]} ${isSelected ? styles.active : ""}`}
+            />
           </Link>
         );
       })}

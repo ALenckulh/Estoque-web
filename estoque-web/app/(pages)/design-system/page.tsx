@@ -6,7 +6,6 @@ import {
   Typography,
   Card,
   Checkbox,
-  IconButton,
   MenuItem,
   Divider,
   FormControl,
@@ -14,37 +13,24 @@ import {
   Autocomplete,
   Box,
   Select,
-  InputAdornment,
-  Fade,
-  Tooltip,
-  Avatar,
-  AppBar,
-  Menu,
-  Toolbar,
-  alpha,
   DialogContentText,
-} from "@mui/material";
-import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Popover,
+  Drawer,
+  SelectChangeEvent,
 } from "@mui/material";
-import { Popover } from "@mui/material";
-import { Drawer, List, ListItem, ListItemText } from "@mui/material";
 import { useState } from "react";
-import { SelectChangeEvent } from "@mui/material/Select";
 import React from "react";
-import { DateField } from "@/components/ui/date-field";
-import { ToastBar } from "@/components/ui/ToastBar/ToastBar";
-import { Icon } from "@/components/ui/Icon";
-import { Tab } from "@/components/ui/Tab/Tab";
-import Image from "next/image";
-import Link from "next/link";
-import { palette } from "@/app/theme/palette";
-import { Car } from "lucide-react";
+import { DateField } from "@/components/ui/DateField";
 import AgGridExample from "@/components/TableExample/table-example";
-import { Appbar } from "@/components/ui/Appbar";
+import { Icon } from "@/components/ui/Icon";
+import Appbar from "@/components/Appbar/appbar";
+import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
+import { IconButton } from "@/components/ui/IconButton";
+import { PasswordField } from "@/components/ui/PasswordField";
 
 type Option = {
   label: string;
@@ -62,23 +48,13 @@ export default function DesignSystem() {
   const [valor, setValor] = useState<string | number>(""); // Select
   const [selectedOption, setSelectedOption] = useState<Option | null>(null); // Autocomplete
   const [date, setDate] = React.useState<Date | null>(null);
-  const [password, setPassword] = useState<string>(""); // PasswordField
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [toasts, setToasts] = useState<ToastType[]>([]);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { toasts, showToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [showTabs, setShowTabs] = useState(true);
   const [showAvatar, setShowAvatar] = useState(true);
-
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
+  const [password, setPassword] = useState("");
 
   const options: Option[] = [
     { label: "Opção 1", value: 1 },
@@ -91,38 +67,6 @@ export default function DesignSystem() {
   };
 
   const [selectedTab, setSelectedTab] = useState("items");
-
-  const tabItems = [
-    { id: "itens", label: "Itens", url: "" },
-    { id: "entidade", label: "Entidades", url: "" },
-    { id: "historico", label: "Histórico", url: "" },
-  ];
-
-  const showToast = (type: "success" | "error") => {
-    const id = Date.now();
-    const message =
-      type === "success"
-        ? "Operação realizada com sucesso!"
-        : "Ocorreu um erro na operação.";
-
-    // Adiciona o toast com show: true para animação de entrada
-    setToasts((prev) => [...prev, { id, type, message, show: true }]);
-
-    // Remove automaticamente após 3 segundos
-    setTimeout(() => {
-      // Primeiro esconde o toast com animação
-      setToasts((prev) =>
-        prev.map((toast) =>
-          toast.id === id ? { ...toast, show: false } : toast
-        )
-      );
-
-      // Depois de dar tempo para a animação de saída, remove completamente
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
-      }, 300); // Tempo da animação de saída
-    }, 3000);
-  };
 
   return (
     <Box
@@ -287,33 +231,26 @@ export default function DesignSystem() {
               Contained
             </Button>
           </Box>
+
+          {/* Icon Button */}
           <Typography variant="h6" sx={{ mb: 1 }}>
             Icon Button
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <Tooltip title="Icon Button">
-              <IconButton color="primary">
-                <Icon name="Smile" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Icon Button">
-              <Button
-                sx={{ minWidth: 0, width: 34, padding: 0 }}
-                color="primary"
-                variant="outlined"
-              >
-                <Icon name="Smile" />
-              </Button>
-            </Tooltip>
-            <Tooltip title="Icon Button">
-              <Button
-                sx={{ minWidth: 0, width: 34, padding: 0 }}
-                color="primary"
-                variant="contained"
-              >
-                <Icon name="Smile" />
-              </Button>
-            </Tooltip>
+            <IconButton
+              type="default"
+              tooltip="Botão padrão"
+              icon="Smile"
+              onClick={() => {}}
+            />
+
+            {/* Variante circle (IconButton) */}
+            <IconButton
+              type="circle"
+              tooltip="Botão circle"
+              icon="ThumbsUp"
+              onClick={() => {}}
+            />
           </Box>
         </Card>
 
@@ -324,11 +261,10 @@ export default function DesignSystem() {
           <Divider />
 
           {/* Controles */}
-          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
             <Button
               variant={showTabs ? "contained" : "outlined"}
               onClick={() => setShowTabs(!showTabs)}
-              size="small"
             >
               {showTabs ? "Esconder Tabs" : "Mostrar Tabs"}
             </Button>
@@ -336,7 +272,6 @@ export default function DesignSystem() {
             <Button
               variant={showAvatar ? "contained" : "outlined"}
               onClick={() => setShowAvatar(!showAvatar)}
-              size="small"
               color="secondary"
             >
               {showAvatar ? "Esconder Avatar" : "Mostrar Avatar"}
@@ -353,7 +288,8 @@ export default function DesignSystem() {
 
           {/* Status */}
           <Typography variant="body2" color="text.secondary">
-            Tabs: {showTabs ? "Visível" : "Oculta"} | Avatar: {showAvatar ? "Visível" : "Oculta"}
+            Tabs: {showTabs ? "Visível" : "Oculta"} | Avatar:{" "}
+            {showAvatar ? "Visível" : "Oculta"}
           </Typography>
         </Card>
 
@@ -410,32 +346,10 @@ export default function DesignSystem() {
           />
 
           {/* PasswordField */}
-          <TextField
-            fullWidth
-            type={showPassword ? "text" : "password"}
+          <PasswordField
             label="Senha"
             value={password}
-            placeholder="Digite sua senha"
             onChange={(e) => setPassword(e.target.value)}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      edge="end"
-                      size="small"
-                    >
-                      {showPassword ? (
-                        <Icon name="Smile" />
-                      ) : (
-                        <Icon name="Smile" />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
           />
 
           <TextField
@@ -445,35 +359,6 @@ export default function DesignSystem() {
             placeholder="Digite sua descrição aqui..."
           />
         </Card>
-
-        {/* Container para os toasts (fixo no topo) */}
-        <Box
-          sx={{
-            position: "fixed",
-            top: 20,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 9999,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          {toasts.map((toast) => (
-            <Fade
-              key={toast.id}
-              in={toast.show}
-              timeout={300} // Duração da animação
-              mountOnEnter
-              unmountOnExit
-            >
-              <div>
-                <ToastBar type={toast.type}>{toast.message}</ToastBar>
-              </div>
-            </Fade>
-          ))}
-        </Box>
 
         {/* Toasts*/}
         <Card sx={{ p: 2 }}>
@@ -490,24 +375,27 @@ export default function DesignSystem() {
               mb: 4,
             }}
           >
+            {/* Toast */}
+            <ToastContainer toasts={toasts} />
             <Button
               variant="contained"
               color="success"
-              onClick={() => showToast("success")}
+              onClick={() => showToast("Toast de Sucesso!", "success")}
             >
               Toast de Sucesso
             </Button>
             <Button
               variant="contained"
               color="error"
-              onClick={() => showToast("error")}
+              onClick={() => showToast("Toast de Erro!", "error")}
             >
               Toast de Erro
             </Button>
+
+            {/* Modal */}
             <Button variant="outlined" onClick={() => setOpenModal(true)}>
               Abrir Modal
             </Button>
-
             <Dialog open={openModal} onClose={() => setOpenModal(false)}>
               <DialogTitle>Exemplo de Modal</DialogTitle>
               <DialogContent>
@@ -521,13 +409,13 @@ export default function DesignSystem() {
               </DialogActions>
             </Dialog>
 
+            {/* Popover */}
             <Button
               variant="outlined"
               onClick={(e) => setAnchorPopover(e.currentTarget)}
             >
               Abrir Popover
             </Button>
-
             <Popover
               open={Boolean(anchorPopover)}
               anchorEl={anchorPopover}
@@ -540,9 +428,12 @@ export default function DesignSystem() {
                 vertical: "top",
                 horizontal: "left",
               }}
-              PaperProps={{
-                sx: {
-                  width: anchorPopover ? anchorPopover.clientWidth : "auto",
+              slotProps={{
+                paper: {
+                  sx: {
+                    width: anchorPopover ? anchorPopover.clientWidth : "auto",
+                    padding: 3,
+                  },
                 },
               }}
             >
@@ -559,10 +450,11 @@ export default function DesignSystem() {
                 Lorem Ipsum.
               </Typography>
             </Popover>
+
+            {/* Page Aside */}
             <Button variant="outlined" onClick={() => setOpenDrawer(true)}>
               Abrir Page Aside
             </Button>
-
             <Drawer
               anchor="right"
               open={openDrawer}
@@ -572,16 +464,16 @@ export default function DesignSystem() {
                 Page Aside
               </Typography>
               <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                Lorem Ipsum is simply dummy text of the printing and
-                typesetting industry. Lorem Ipsum has been the industry's
-                standard dummy text ever since the 1500s, when an unknown
-                printer took a galley of type and scrambled it to make a type
-                specimen book. It has survived not only five centuries, but
-                also the leap into electronic typesetting, remaining
-                essentially unchanged. It was popularised in the 1960s with
-                the release of Letraset sheets containing Lorem Ipsum
-                passages, and more recently with desktop publishing software
-                like Aldus PageMaker including versions of Lorem Ipsum.
+                Lorem Ipsum is simply dummy text of the printing and typesetting
+                industry. Lorem Ipsum has been the industry's standard dummy
+                text ever since the 1500s, when an unknown printer took a galley
+                of type and scrambled it to make a type specimen book. It has
+                survived not only five centuries, but also the leap into
+                electronic typesetting, remaining essentially unchanged. It was
+                popularised in the 1960s with the release of Letraset sheets
+                containing Lorem Ipsum passages, and more recently with desktop
+                publishing software like Aldus PageMaker including versions of
+                Lorem Ipsum.
               </Typography>
             </Drawer>
           </Box>

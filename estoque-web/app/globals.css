@@ -1,36 +1,59 @@
 :root {
   /* Primary */
   --primary-0: #98C7F3;
+  --primary-0-rgb: 152, 199, 243;
   --primary-10: #6AADEB;
+  --primary-10-rgb: 106, 173, 235;
   --primary-20: #54A2EA;
+  --primary-20-rgb: 84, 162, 234;
 
   /* Neutral */
   --neutral-0: #FFFFFF;
+  --neutral-0-rgb: 255, 255, 255;
   --neutral-10: #F8FBFF;
+  --neutral-10-rgb: 248, 251, 255;
   --neutral-20: #F2F8FF;
+  --neutral-20-rgb: 242, 248, 255;
   --neutral-30: #E5EEFA;
+  --neutral-30-rgb: 229, 238, 250;
   --neutral-40: #D2DBE7;
+  --neutral-40-rgb: 210, 219, 231;
   --neutral-50: #A6AEBA;
+  --neutral-50-rgb: 166, 174, 186;
   --neutral-60: #717984;
+  --neutral-60-rgb: 113, 121, 132;
   --neutral-70: #484D52;
+  --neutral-70-rgb: 72, 77, 82;
   --neutral-80: #282B2E;
+  --neutral-80-rgb: 40, 43, 46;
   --neutral-90: #1B1D20;
+  --neutral-90-rgb: 27, 29, 32;
 
   /* Success */
   --success-0: #ACE588;
+  --success-0-rgb: 172, 229, 136;
   --success-10: #7CCC4B;
+  --success-10-rgb: 124, 204, 75;
   --success-20: #61BB29;
+  --success-20-rgb: 97, 187, 41;
 
   /* Danger */
   --danger-0: #FF6969;
+  --danger-0-rgb: 255, 105, 105;
   --danger-10: #FF4646;
+  --danger-10-rgb: 255, 70, 70;
   --danger-30: #E42D2D;
+  --danger-30-rgb: 228, 45, 45;
 
   /* Alert */
   --alert-0: #FFB774;
+  --alert-0-rgb: 255, 183, 116;
   --alert-10: #EE8A2E;
+  --alert-10-rgb: 238, 138, 46;
   --alert-30: #DE7514;
+  --alert-30-rgb: 222, 117, 20;
 
+  /* Shadows */
   --shadow-md: 0 4px 16px rgba(27, 29, 32, 0.24);
   --shadow-sm: 0 4px 8px rgba(27, 29, 32, 0.08);
 }

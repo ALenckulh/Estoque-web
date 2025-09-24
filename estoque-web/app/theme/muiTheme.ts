@@ -1,11 +1,11 @@
 // theme.ts
-import { alpha, createTheme } from "@mui/material/styles";
-import { palette } from "./palette";
+import { createTheme } from "@mui/material/styles";
 import { typography } from "./typography";
+import { palette } from "./palette";
 
 const theme = createTheme({
-  palette,
   typography,
+  palette,
   breakpoints: {
     values: {
       xs: 0,
@@ -16,6 +16,51 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          variants: [
+            //sucess
+            {
+              props: { color: "success" },
+              style: {
+                "&:hover": {
+                  backgroundColor: "rgba(var(--success-20-rgb), 0.1)",
+                },
+              },
+            },
+            //secondary
+            {
+              props: { color: "secondary" },
+              style: {
+                color: "var(--neutral-70)",
+                "&:hover": {
+                  backgroundColor: "rgba(var(--neutral-30-rgb), 0.4)",
+                },
+              },
+            },
+            //primary
+            {
+              props: { color: "primary" },
+              style: {
+                "&:hover": {
+                  backgroundColor: "rgba(var(--primary-20-rgb), 0.1)",
+                },
+              },
+            },
+            //error
+            {
+              props: { color: "error" },
+              style: {
+                "&:hover": {
+                  backgroundColor: "rgba(var(--danger-30-rgb), 0.1)",
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
@@ -27,7 +72,7 @@ const theme = createTheme({
                 color: "#fff",
                 boxShadow: "none",
                 "&:hover": {
-                  backgroundColor: palette.success.light,
+                  backgroundColor: "var(--success-20)",
                   boxShadow: "none",
                 },
                 "&:focus": {
@@ -41,7 +86,7 @@ const theme = createTheme({
                 paddingLeft: 16,
                 paddingRight: 16,
                 "&:hover": {
-                  backgroundColor: alpha(palette.success.light, 0.1),
+                  backgroundColor: "rgba(var(--success-20-rgb), 0.1)",
                 },
               },
             },
@@ -49,28 +94,34 @@ const theme = createTheme({
             {
               props: { variant: "outlined", color: "secondary" },
               style: {
-                borderColor: palette.secondary.dark,
-                color: palette.secondary.light,
+                borderColor: "var(--neutral-40)",
+                color: "var(--neutral-80)",
                 "&:hover": {
-                  backgroundColor: alpha(palette.secondary.dark, 0.2),
+                  backgroundColor: "rgba(var(--neutral-40-rgb), 0.2)",
                 },
                 "&:focus": {
                   boxShadow: "none",
+                },
+                "& .MuiButton-startIcon, & .MuiButton-endIcon": {
+                  color: "var(--neutral-70)", // força só o ícone
                 },
               },
             },
             {
               props: { variant: "contained", color: "secondary" },
               style: {
-                backgroundColor: palette.secondary.main,
-                color: palette.secondary.light,
+                backgroundColor: "var(--neutral-20)",
+                color: "var(--neutral-80)",
                 boxShadow: "none",
                 "&:hover": {
-                  backgroundColor: palette.grey[200],
+                  backgroundColor: "var(--neutral-30)",
                   boxShadow: "none",
                 },
                 "&:focus": {
                   boxShadow: "none",
+                },
+                "& .MuiButton-startIcon, & .MuiButton-endIcon": {
+                  color: "var(--neutral-70)", // força só o ícone
                 },
               },
             },
@@ -79,9 +130,12 @@ const theme = createTheme({
               style: {
                 paddingLeft: 16,
                 paddingRight: 16,
-                color: palette.secondary.light,
+                color: "var(--neutral-80)",
                 "&:hover": {
-                  backgroundColor: alpha(palette.grey[200], 0.4),
+                  backgroundColor: "rgba(var(--neutral-30-rgb), 0.4)",
+                },
+                "& .MuiButton-startIcon, & .MuiButton-endIcon": {
+                  color: "var(--neutral-70)", // força só o ícone
                 },
               },
             },
@@ -92,7 +146,7 @@ const theme = createTheme({
                 color: "#fff",
                 boxShadow: "none",
                 "&:hover": {
-                  backgroundColor: palette.primary.light,
+                  backgroundColor: "var(--primary-20)",
                   boxShadow: "none",
                 },
                 "&:focus": {
@@ -106,7 +160,7 @@ const theme = createTheme({
                 paddingLeft: 16,
                 paddingRight: 16,
                 "&:hover": {
-                  backgroundColor: alpha(palette.primary.light, 0.1),
+                  backgroundColor: "rgba(var(--primary-20-rgb), 0.1)",
                 },
               },
             },
@@ -116,7 +170,7 @@ const theme = createTheme({
               style: {
                 boxShadow: "none",
                 "&:hover": {
-                  backgroundColor: palette.error.light,
+                  backgroundColor: "var(--danger-30)",
                   boxShadow: "none",
                 },
                 "&:focus": {
@@ -130,7 +184,7 @@ const theme = createTheme({
                 paddingLeft: 16,
                 paddingRight: 16,
                 "&:hover": {
-                  backgroundColor: alpha(palette.error.light, 0.1),
+                  backgroundColor: "rgba(var(--danger-30-rgb), 0.1)",
                 },
               },
             },
@@ -146,10 +200,10 @@ const theme = createTheme({
           alignItems: "center",
           fontSize: "1rem",
           "& fieldset": {
-            borderColor: palette.secondary.dark,
+            borderColor: "var(--neutral-40)",
           },
           "&:hover:not(.Mui-focused) fieldset": {
-            borderColor: palette.grey[400],
+            borderColor: "var(--neutral-50)",
           },
         },
       },
@@ -157,10 +211,10 @@ const theme = createTheme({
     MuiCheckbox: {
       styleOverrides: {
         root: {
-          color: palette.secondary.dark,
+          color: "var(--neutral-40)",
           padding: 12,
           "& .MuiSvgIcon-root": {
-            fontSize: 28, // aumenta o quadradinho
+            fontSize: 28,
           },
         },
       },
@@ -172,24 +226,12 @@ const theme = createTheme({
         },
       },
     },
-    MuiTextField: {
-      defaultProps: {
-        size: "small", // mantém small como padrão
-      },
-    },
-    MuiSelect: {
-      defaultProps: {
-        size: "small", // mantém small como padrão
-      },
-    },
+    MuiTextField: { defaultProps: { size: "small" } },
+    MuiSelect: { defaultProps: { size: "small" } },
     MuiMenu: {
       styleOverrides: {
-        root: {
-          marginTop: 4,
-        },
-        paper: {
-          maxHeight: 200, // altura máxima padrão
-        },
+        root: { marginTop: 4 },
+        paper: { maxHeight: 200 },
       },
     },
     MuiMenuItem: {
@@ -200,31 +242,19 @@ const theme = createTheme({
         },
       },
     },
-    MuiFormControl: {
-      defaultProps: {
-        size: "small", // todos os FormControls por padrão serão small
-      },
-    },
+    MuiFormControl: { defaultProps: { size: "small" } },
     MuiAutocomplete: {
       styleOverrides: {
-        paper: {
-          maxHeight: 200, // altura máxima do menu
-          marginTop: 4, // espaçamento do menu em relação ao input
-        },
-        option: {
-          fontSize: "1rem",
-          padding: "4px 15px",
-        },
-        noOptions: {
-          fontSize: "1rem", // tamanho da fonte
-        },
+        paper: { maxHeight: 200, marginTop: 4 },
+        option: { fontSize: "1rem", padding: "4px 15px" },
+        noOptions: { fontSize: "1rem" },
       },
     },
     MuiAvatar: {
       styleOverrides: {
         root: {
-          backgroundColor: palette.secondary.main,
-          color: palette.grey[700],
+          backgroundColor: "var(--neutral-20)",
+          color: "var(--neutral-60)",
         },
       },
     },
@@ -246,9 +276,7 @@ const theme = createTheme({
         fullWidth: true,
         maxWidth: "sm",
         BackdropProps: {
-          sx: {
-            backgroundColor: "var(--neutral-90/20)",
-          },
+          sx: { backgroundColor: "var(--neutral-90/20)" },
         },
       },
     },
@@ -262,42 +290,25 @@ const theme = createTheme({
       },
     },
     MuiDialogTitle: {
-      styleOverrides: {
-        root: {
-          // Body1
-          fontSize: "24px",
-          fontWeight: 500,
-        },
-      },
+      styleOverrides: { root: { fontSize: "24px", fontWeight: 500 } },
     },
     MuiDialogContentText: {
-      styleOverrides: {
-        root: {
-          // Subtitle2
-          fontSize: "16px",
-          fontWeight: 500,
-        },
-      },
+      styleOverrides: { root: { fontSize: "16px", fontWeight: 500 } },
     },
     MuiPopover: {
       styleOverrides: {
         paper: {
           marginTop: 4,
           boxShadow: "var(--shadow-sm)",
-          padding: 24,
-          border: `1px solid ${palette.grey[100]}`,
+          border: "1px solid var(--neutral-20)",
         },
       },
     },
     MuiDrawer: {
       styleOverrides: {
-        paper: {
-          width: 450,
-          padding: 24,
-        },
+        paper: { width: 450, padding: 24 },
       },
     },
-
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
@@ -305,20 +316,11 @@ const theme = createTheme({
           padding: "4px 8px",
           borderRadius: 4,
         },
-        arrow: {
-          color: "var(--neutral-70)",
-        },
+        arrow: { color: "var(--neutral-70)" },
       },
       defaultProps: {
         PopperProps: {
-          modifiers: [
-            {
-              name: "offset",
-              options: {
-                offset: [0, -10],
-              },
-            },
-          ],
+          modifiers: [{ name: "offset", options: { offset: [0, -10] } }],
         },
       },
     },

@@ -41,6 +41,8 @@ export default function AgGridExample() {
       field: "id",
       sortable: true,
       filter: "agNumberColumnFilter",
+      suppressMovable: true,
+      lockPosition: 'left',
       cellClassRules: {
         "cell-disabled": (params) => !!params.data?.disabled, // garante boolean
       },
@@ -117,6 +119,7 @@ export default function AgGridExample() {
         paginationPageSize={20}
         theme={myTheme}
         enableCellTextSelection={true}
+        suppressDragLeaveHidesColumns={true}
       />
     </div>
   );
