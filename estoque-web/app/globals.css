@@ -1,69 +1,135 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+:root {
+  /* Primary */
+  --primary-0: #98C7F3;
+  --primary-0-rgb: 152, 199, 243;
+  --primary-10: #6AADEB;
+  --primary-10-rgb: 106, 173, 235;
+  --primary-20: #54A2EA;
+  --primary-20-rgb: 84, 162, 234;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
+  /* Neutral */
+  --neutral-0: #FFFFFF;
+  --neutral-0-rgb: 255, 255, 255;
+  --neutral-10: #F8FBFF;
+  --neutral-10-rgb: 248, 251, 255;
+  --neutral-20: #F2F8FF;
+  --neutral-20-rgb: 242, 248, 255;
+  --neutral-30: #E5EEFA;
+  --neutral-30-rgb: 229, 238, 250;
+  --neutral-40: #D2DBE7;
+  --neutral-40-rgb: 210, 219, 231;
+  --neutral-50: #A6AEBA;
+  --neutral-50-rgb: 166, 174, 186;
+  --neutral-60: #717984;
+  --neutral-60-rgb: 113, 121, 132;
+  --neutral-70: #484D52;
+  --neutral-70-rgb: 72, 77, 82;
+  --neutral-80: #282B2E;
+  --neutral-80-rgb: 40, 43, 46;
+  --neutral-90: #1B1D20;
+  --neutral-90-rgb: 27, 29, 32;
 
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
+  /* Success */
+  --success-0: #ACE588;
+  --success-0-rgb: 172, 229, 136;
+  --success-10: #7CCC4B;
+  --success-10-rgb: 124, 204, 75;
+  --success-20: #61BB29;
+  --success-20-rgb: 97, 187, 41;
+
+  /* Danger */
+  --danger-0: #FF6969;
+  --danger-0-rgb: 255, 105, 105;
+  --danger-10: #FF4646;
+  --danger-10-rgb: 255, 70, 70;
+  --danger-30: #E42D2D;
+  --danger-30-rgb: 228, 45, 45;
+
+  /* Alert */
+  --alert-0: #FFB774;
+  --alert-0-rgb: 255, 183, 116;
+  --alert-10: #EE8A2E;
+  --alert-10-rgb: 238, 138, 46;
+  --alert-30: #DE7514;
+  --alert-30-rgb: 222, 117, 20;
+
+  /* Shadows */
+  --shadow-md: 0 4px 16px rgba(27, 29, 32, 0.24);
+  --shadow-sm: 0 4px 8px rgba(27, 29, 32, 0.08);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.h1 {
+  font-size: 96px;
+  font-weight: 400;
+}
+
+.h2 {
+  font-size: 60px;
+  font-weight: 400;
+}
+
+.h3 {
+  font-size: 48px;
+  font-weight: 400;
+}
+
+.h4 {
+  font-size: 34px;
+  font-weight: 500;
+}
+
+.body1 {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.body2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.body3 {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.subtitle1 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.subtitle2 {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.detail1 {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.detail2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.detail3 {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.detail4 {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.button {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.0625rem;
+}
+
+.ag-theme-alpine .cell-disabled {
+  opacity: 0.5;
+  pointer-events: auto;
 }
