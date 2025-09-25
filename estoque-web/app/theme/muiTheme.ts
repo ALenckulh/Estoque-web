@@ -64,6 +64,7 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
+          marginLeft: "0 !important",
           variants: [
             //sucess
             {
@@ -321,6 +322,27 @@ const theme = createTheme({
       defaultProps: {
         PopperProps: {
           modifiers: [{ name: "offset", options: { offset: [0, -10] } }],
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          padding: "24px",
+          clipping: "border-box",
+          boxShadow: "var(--shadow-sm)",
+        },
+      },
+    },
+    MuiContainer: {
+      defaultProps: {
+        disableGutters: true,
+      },
+      styleOverrides: {
+        root: {
+          margin: 0,
+          maxWidth: "100% !important",
         },
       },
     },

@@ -33,7 +33,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
     <Tooltip title={tooltip} {...tooltipProps}>
       {type === "default" ? (
         <Button
-          sx={{ minWidth: 0, width: 34, height: 34, padding: 0 }}
+          sx={{ minWidth: 0, width: 40, height: 40, padding: 0 }}
           onClick={onClick}
           {...buttonProps}
         >

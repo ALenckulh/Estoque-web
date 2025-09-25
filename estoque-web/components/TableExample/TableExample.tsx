@@ -40,6 +40,7 @@ export default function AgGridExample() {
       headerName: "ID",
       field: "id",
       sortable: true,
+      width: 80,
       filter: "agNumberColumnFilter",
       suppressMovable: true,
       lockPosition: 'left',
@@ -87,18 +88,21 @@ export default function AgGridExample() {
       field: "name",
       sortable: true,
       filter: "agTextColumnFilter",
+      flex: 1,
     },
     {
       headerName: "Idade",
       field: "age",
       sortable: true,
       filter: "agNumberColumnFilter",
+      flex: 1,
     },
     {
       headerName: "Email",
       field: "email",
       sortable: true,
       filter: "agTextColumnFilter",
+      flex: 1,
     },
   ]);
 
@@ -109,11 +113,12 @@ export default function AgGridExample() {
   };
 
   return (
-    <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+    <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
       <AgGridReact
         rowData={rowData}
         columnDefs={columnDefs}
         rowSelection="single"
+        colResizeDefault="shift"
         onRowSelected={handleRowSelected}
         pagination={true}
         paginationPageSize={20}

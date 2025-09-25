@@ -27,21 +27,14 @@ import React from "react";
 import { DateField } from "@/components/ui/DateField";
 import AgGridExample from "@/components/TableExample/TableExample";
 import { Icon } from "@/components/ui/Icon";
-import Appbar from "@/components/Appbar/Appbar";
 import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
 import { IconButton } from "@/components/ui/IconButton";
 import { PasswordField } from "@/components/ui/PasswordField";
+import Appbar from "@/components/Appbar/Appbar";
 
 type Option = {
   label: string;
   value: string | number;
-};
-
-type ToastType = {
-  id: number;
-  type: "success" | "error";
-  message: string;
-  show: boolean;
 };
 
 export default function DesignSystem() {
@@ -243,12 +236,32 @@ export default function DesignSystem() {
               icon="Smile"
               onClick={() => {}}
             />
-
-            {/* Variante circle (IconButton) */}
             <IconButton
-              type="circle"
-              tooltip="Botão circle"
-              icon="ThumbsUp"
+              type="default"
+              buttonProps={{ color: "secondary", variant: "contained" }}
+              tooltip="Botão padrão"
+              icon="Smile"
+              onClick={() => {}}
+            />
+            <IconButton
+              type="default"
+              buttonProps={{ color: "error", variant: "outlined" }}
+              tooltip="Botão padrão"
+              icon="Smile"
+              onClick={() => {}}
+            />
+            <IconButton
+              type="default"
+              buttonProps={{ disabled: true }}
+              tooltip="Botão padrão"
+              icon="Smile"
+              onClick={() => {}}
+            />
+            <IconButton
+              type="default"
+              buttonProps={{ color: "success", variant: "outlined" }}
+              tooltip="Botão padrão"
+              icon="Smile"
               onClick={() => {}}
             />
           </Box>

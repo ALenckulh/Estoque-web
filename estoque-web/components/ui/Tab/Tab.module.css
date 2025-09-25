@@ -21,6 +21,12 @@
 
 }
 
+.tab-item:focus-visible {
+  outline: none;
+  background-color: var(--neutral-20);
+  border-radius: 4px;
+}
+
 .tab-item:not(.tab-selected) {
   color: var(--neutral-70);
 }

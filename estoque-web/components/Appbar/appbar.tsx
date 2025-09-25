@@ -73,7 +73,7 @@ export function Appbar({
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: "20px",
+            gap: "24px",
             flexShrink: 0,
           }}
         >
