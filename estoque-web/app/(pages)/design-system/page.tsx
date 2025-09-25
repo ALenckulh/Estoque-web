@@ -25,9 +25,9 @@ import {
 import { useState } from "react";
 import React from "react";
 import { DateField } from "@/components/ui/DateField";
-import AgGridExample from "@/components/TableExample/table-example";
+import AgGridExample from "@/components/TableExample/TableExample";
 import { Icon } from "@/components/ui/Icon";
-import Appbar from "@/components/Appbar/appbar";
+import Appbar from "@/components/Appbar/Appbar";
 import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
 import { IconButton } from "@/components/ui/IconButton";
 import { PasswordField } from "@/components/ui/PasswordField";

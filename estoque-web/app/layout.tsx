@@ -14,6 +14,10 @@ export const metadata = {
   },
 };
 
+export const config = {
+  matcher: ["/protected/:path*"],
+};
+
 const geistSans = Geist({
   display: "swap",
   subsets: ["latin"],
