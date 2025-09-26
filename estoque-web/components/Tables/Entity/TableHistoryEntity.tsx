@@ -365,7 +365,12 @@ export default function TableHistoryEntity() {
       filter: "agDateColumnFilter",
       flex: 1,
       minWidth: 160,
-      cellRenderer: (params: any) => {
+      cellRenderer: (
+        params: ICellRendererParams<RowData, string | null | undefined>
+      ) => {
+        if (!params.value) {
+          return <span>-</span>;
+        }
         const date = new Date(params.value);
 
         const formattedDate = date.toLocaleDateString("pt-BR");
@@ -375,10 +380,18 @@ export default function TableHistoryEntity() {
         });
 
         return (
-          <div style={{ display: "flex", flexDirection: "row", gap: 4, color: "var(--neutral-60)" }}>
-            <span style={{ color: "var(--neutral-90)" }}>{`${formattedDate}`}</span>
-            -
-            <span>{`${formattedTime}`}</span>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 4,
+              color: "var(--neutral-60)",
+            }}
+          >
+            <span
+              style={{ color: "var(--neutral-90)" }}
+            >{`${formattedDate}`}</span>
+            -<span>{`${formattedTime}`}</span>
           </div>
         );
       },

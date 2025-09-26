@@ -330,7 +330,6 @@ const theme = createTheme({
         root: {
           borderRadius: 8,
           padding: "24px",
-          clipping: "border-box",
           boxShadow: "var(--shadow-sm)",
         },
       },
