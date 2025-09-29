@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import styles from "./Tab.module.css";
+import { ButtonText } from "../Typograph";
 
 interface TabItem {
   id: string;
@@ -24,7 +25,7 @@ export const Tab: React.FC<TabProps> = ({
   className,
 }) => {
   return (
-    <div className={`${styles["tab-container"]} button ${className || ""}`}>
+    <div className={`${styles["tab-container"]} ${className || ""}`}>
       {items.map((item) => {
         const isSelected = selectedTab === item.id;
 
@@ -35,7 +36,7 @@ export const Tab: React.FC<TabProps> = ({
             className={`${styles["tab-item"]} ${isSelected ? styles["tab-selected"] : ""}`}
             onClick={() => onTabChange(item.id)}
           >
-            <span className={styles["tab-label"]}>{item.label}</span>
+            <ButtonText className={styles["tab-label"]}>{item.label}</ButtonText>
             <div
               className={`${styles["tab-indicator"]} ${isSelected ? styles.active : ""}`}
             />

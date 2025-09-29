@@ -1,4 +1,5 @@
-import { Geist } from "next/font/google";
+
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./theme/providers";
 
@@ -18,7 +19,7 @@ export const config = {
   matcher: ["/protected/:path*"],
 };
 
-const geistSans = Geist({
+const montserrat = Montserrat({
   display: "swap",
   subsets: ["latin"],
 });
@@ -28,12 +29,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
-    <html lang="pt-BR" className={geistSans.className} suppressHydrationWarning>
-      <body className="bg-background text-foreground">
+    <html lang="pt-BR" className={montserrat.className} suppressHydrationWarning>
+      <body className="bg-background">
         <Providers>
-          <main className="min-h-screen flex flex-col items-center">
-            <div className="flex-1 w-full flex flex-col gap-20 items-center">
+          <main>
+            <div>
               {children}
             </div>
           </main>

@@ -81,6 +81,7 @@
 .body1 {
   font-size: 24px;
   font-weight: 500;
+  color: var(--neutral-90);
 }
 
 .body2 {
@@ -132,4 +133,109 @@
 .ag-theme-alpine .cell-disabled {
   opacity: 0.5;
   pointer-events: auto;
+}
+
+.bg-background {
+  background-color: var(--neutral-10);
+}
+
+/* Visualização única */
+
+.container {
+  margin: 24px !important;
+  display: flex !important;
+  gap: 12px !important;
+  flex-direction: column !important;
+  height: calc(100vh - 112px) !important;
+}
+
+.card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  min-height: 244px !important;
+  max-height: 344px !important;
+  overflow-y: auto !important;
+  border: 1px solid var(--neutral-30) !important;
+}
+
+.header {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.actions {
+  width: fit-content !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 32px !important;
+  align-items: center !important;
+}
+
+.dateInfo {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+}
+
+.actionButtons {
+  width: fit-content !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.status {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.contactInfo {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+}
+
+.contactField {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 20% !important;
+  border-right: 1px solid var(--neutral-40) !important;
+  padding-right: 8px !important;
+}
+
+.contactField:last-child {
+  width: 60% !important;
+  border-right: none !important;
+}
+
+.description {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.historyContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 500px !important;
+  background-color: var(--neutral-30) !important;
+  border-radius: 8px !important;
+}
+
+.historyHeader {
+  padding-left: 16px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  gap: 4px !important;
 }
