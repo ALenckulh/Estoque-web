@@ -1,4 +1,4 @@
-import { insertUser } from "@/lib/data-base/users/insert-user";
+import { insertUser } from "@/lib/data-base/user/insert-user";
 import { User } from "../../models/user_model";
 
 
