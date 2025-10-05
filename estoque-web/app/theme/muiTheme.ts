@@ -273,6 +273,12 @@ const theme = createTheme({
       },
     },
     MuiDialog: {
+      styleOverrides: {
+        paper: {
+          padding: "24px",
+          borderRadius: "24px",
+        },
+      },
       defaultProps: {
         fullWidth: true,
         maxWidth: "sm",
@@ -284,6 +290,8 @@ const theme = createTheme({
     MuiDialogActions: {
       styleOverrides: {
         root: {
+          padding: "0px",
+          paddingTop: "24px",
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
@@ -291,10 +299,19 @@ const theme = createTheme({
       },
     },
     MuiDialogTitle: {
-      styleOverrides: { root: { fontSize: "24px", fontWeight: 500 } },
+      styleOverrides: {
+        root: { fontSize: "24px", fontWeight: 500, padding: "0px" },
+      },
     },
     MuiDialogContentText: {
-      styleOverrides: { root: { fontSize: "16px", fontWeight: 500 } },
+      styleOverrides: { root: { fontSize: "16px", fontWeight: 500, paddingTop: "20px", } },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          padding: "0px",
+        },
+      },
     },
     MuiPopover: {
       styleOverrides: {
@@ -318,11 +335,6 @@ const theme = createTheme({
           borderRadius: 4,
         },
         arrow: { color: "var(--neutral-70)" },
-      },
-      defaultProps: {
-        PopperProps: {
-          modifiers: [{ name: "offset", options: { offset: [0, -10] } }],
-        },
       },
     },
     MuiCard: {

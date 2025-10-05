@@ -30,7 +30,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
 import { IconButton } from "@/components/ui/IconButton";
 import { PasswordField } from "@/components/ui/PasswordField";
-import Appbar from "@/components/Appbar/Appbar";
+import { Appbar } from "@/components/Appbar/appbar";
 
 type Option = {
   label: string;
@@ -364,8 +364,8 @@ export default function DesignSystem() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-
-          <TextField
+          {/* TextFieldArea */}
+          <TextField 
             multiline
             rows={4}
             label="Textarea"

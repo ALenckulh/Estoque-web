@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { ICellRendererParams } from "ag-grid-community";
 import { Tooltip } from "@mui/material";
 import { Icon } from "@/components/ui/Icon";
+import CopyTooltip from "@/components/ui/CopyTooltip";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -289,32 +290,20 @@ export default function TableHistoryEntity() {
         const spanRef = React.createRef<HTMLSpanElement>();
 
         return (
-          <Tooltip
-            title={params.value}
+          <CopyTooltip
+            title={params.value || ""}
             arrow
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: { offset: [0, -6] },
-                  },
-                ],
-              },
-            }}
+            offset={[0,-6]}
+            placement="bottom"
           >
             <span
               ref={spanRef}
-              style={{
-                display: "block",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
+              className="ellipsis"
+              style={{display:"block"}}
             >
               {params.value}
             </span>
-          </Tooltip>
+          </CopyTooltip>
         );
       },
     },
@@ -329,32 +318,20 @@ export default function TableHistoryEntity() {
         const spanRef = React.createRef<HTMLSpanElement>();
 
         return (
-          <Tooltip
-            title={params.value}
+          <CopyTooltip
+            title={params.value || ""}
             arrow
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: { offset: [0, -6] },
-                  },
-                ],
-              },
-            }}
+            offset={[0,-6]}
+            placement="bottom"
           >
             <span
               ref={spanRef}
-              style={{
-                display: "block",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
+              className="ellipsis"
+              style={{display:"block"}}
             >
               {params.value}
             </span>
-          </Tooltip>
+          </CopyTooltip>
         );
       },
     },
@@ -372,27 +349,12 @@ export default function TableHistoryEntity() {
           return <span>-</span>;
         }
         const date = new Date(params.value);
-
         const formattedDate = date.toLocaleDateString("pt-BR");
-        const formattedTime = date.toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
 
         return (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: 4,
-              color: "var(--neutral-60)",
-            }}
-          >
-            <span
-              style={{ color: "var(--neutral-90)" }}
-            >{`${formattedDate}`}</span>
-            -<span>{`${formattedTime}`}</span>
-          </div>
+          <span
+            style={{ color: "var(--neutral-90)" }}
+          >{`${formattedDate}`}</span>
         );
       },
     },

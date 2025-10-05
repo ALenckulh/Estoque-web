@@ -25,7 +25,7 @@ export function Appbar({
   showAvatar = true,
   tabItems = [
     { id: "itens", label: "Itens", url: "" },
-    { id: "entidade", label: "Entidades", url: "" },
+    { id: "entidade", label: "Entidades", url: "/entity" },
     { id: "historico", label: "Histórico", url: "" },
   ],
   selectedTab = "itens",
@@ -48,7 +48,7 @@ export function Appbar({
   };
 
   return (
-    <AppBar position="static" color="default">
+    <AppBar position="fixed" color="default">
       <Toolbar
         sx={{
           display: "flex",
@@ -128,5 +128,3 @@ export function Appbar({
     </AppBar>
   );
 }
-
-export default Appbar;
