@@ -11,7 +11,7 @@ import React, { useState } from "react";
 export default function Page() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("entidade");
-  const [openDrawer, setOpenDrawer] = useState(Boolean);
+  const [openDrawer, setOpenDrawer] = useState(false);
 
   const handleCreatedEntity = (id: number) => {
     router.push(`/entity/${id}`);
