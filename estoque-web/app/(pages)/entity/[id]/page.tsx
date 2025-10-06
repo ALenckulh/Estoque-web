@@ -46,8 +46,6 @@ export default function Page() {
     { label: "Endereço", value: entity?.address },
   ];
 
-    
-
   useEffect(() => {
     if (id) {
       const found = entityList.find((entity) => {
