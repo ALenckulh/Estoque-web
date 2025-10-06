@@ -6,7 +6,7 @@ import { RowDataEntity } from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
 import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typograph";
-import { entityList } from "@/utils/entintyExampleList";
+import { entityList } from "@/utils/entityExampleList";
 import {
   Box,
   Button,
