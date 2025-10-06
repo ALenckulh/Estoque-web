@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { ICellRendererParams } from "ag-grid-community";
 import { Tooltip } from "@mui/material";
 import { Icon } from "@/components/ui/Icon";
-import { entityList } from "@/utils/entintyExampleList";
+import { entityList } from "@/utils/entityExampleList";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
