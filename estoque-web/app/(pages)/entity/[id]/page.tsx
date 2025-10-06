@@ -34,8 +34,8 @@ export default function Page() {
   const [entity, setEntity] = useState<RowDataEntity | null>(null);
   const params = useParams();
   const id = params.id;
-  const [openDrawer, setOpenDrawer] = useState(Boolean);
-  const [notFound, setNotFound] = useState(Boolean);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const { toasts, showToast } = useToast();
