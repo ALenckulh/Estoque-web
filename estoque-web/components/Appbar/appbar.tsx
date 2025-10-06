@@ -87,7 +87,7 @@ export function Appbar({
 
           {/* Avatar */}
           {showAvatar && (
-            <IconButton onClick={handleOpenMenu} sx={{ p: 0 }}>
+            <IconButton onClick={handleOpenMenu} >
               <Avatar>
                 <Icon name="User" size={26} strokeWidth={1.3} />
               </Avatar>
@@ -108,9 +108,6 @@ export function Appbar({
             transformOrigin={{
               vertical: "top",
               horizontal: "right",
-            }}
-            sx={{
-              mt: 1,
             }}
           >
             <MenuItem onClick={handleCloseMenu} icon="User">

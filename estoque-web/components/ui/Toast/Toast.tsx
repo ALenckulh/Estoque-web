@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import { Box, Fade, Button } from "@mui/material";
 import styles from "./Toast.module.css"; // Importa o CSS Module
+import { Icon } from "../Icon";
+import { icons } from 'lucide-react';
+
 
 // ------------------ Tipagem ------------------
 export type ToastType = {
@@ -9,21 +12,24 @@ export type ToastType = {
   type?: "success" | "error" | undefined;
   show: boolean;
   message: string;
+  icon?: keyof typeof icons;
 };
 
 // ------------------ Toast ------------------
 interface ToastProps {
   type?: "success" | "error" | undefined;
   message: string;
+  icon?: keyof typeof icons;
 }
 
 export const Toast: React.FC<ToastProps> = ({
   type = "success",
   message,
+  icon,
 }) => {
   const toastClass = `${styles.toast} body3 ${styles[type]}`;
 
-  return <div className={toastClass.trim()}>{message}</div>;
+  return <div className={toastClass.trim()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>{icon && <Icon name={icon} />} {message}</div>;
 };
 
 // ------------------ Toast Container ------------------
@@ -55,7 +61,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts }) => {
           unmountOnExit
         >
           <div>
-            <Toast type={toast.type} message={toast.message}/>
+            <Toast type={toast.type} message={toast.message} icon={toast.icon} />
           </div>
         </Fade>
       ))}
@@ -68,9 +74,9 @@ export const useToast  = () => {
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
 
-  const showToast = (message: string, type: "success" | "error" = "success") => {
+  const showToast = (message: string, type: "success" | "error" = "success", icon?: keyof typeof icons) => {
     const id = Date.now();
-    const newToast: ToastType = { id, type, show: true, message };
+    const newToast: ToastType = { id, type, show: true, message, icon };
 
     setToasts((prev) => [...prev, newToast]);
 
@@ -79,7 +85,7 @@ export const useToast  = () => {
       setToasts((prev) =>
         prev.map((t) => (t.id === id ? { ...t, show: false } : t))
       );
-    }, 3000);
+    }, 1500);
   };
 
   return { toasts, showToast };

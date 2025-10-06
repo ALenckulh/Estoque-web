@@ -142,7 +142,8 @@
 /* Visualização única */
 
 .container {
-  padding: 24px !important;
+  padding: 24px;
+  padding-bottom: 0px !important;
   margin-top: 64px !important;
   display: flex !important;
   gap: 12px !important;

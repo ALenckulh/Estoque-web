@@ -25,6 +25,9 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
+import { NotFound } from "@/components/NotFound";
+import { EntityIdLoading } from "@/components/Entity/Loading/EntityIdLoading";
+import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("entidade");
@@ -35,12 +38,15 @@ export default function Page() {
   const [notFound, setNotFound] = useState(Boolean);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const { toasts, showToast } = useToast();
 
   const contactList = [
     { label: "Telefone", value: entity?.telephone },
     { label: "E-mail", value: entity?.email },
     { label: "Endereço", value: entity?.address },
   ];
+
+    
 
   useEffect(() => {
     if (id) {
@@ -66,140 +72,9 @@ export default function Page() {
       />
       <div className="container">
         {loading ? (
-          <>
-            <Card className="card">
-              {/* Header */}
-              <Container className="header">
-                <Box>
-                  <Skeleton width={60} height={14} sx={{ mb: 0.5 }} />{" "}
-                  {/* Cód */}
-                  <Skeleton width={180} height={20} /> {/* Nome */}
-                </Box>
-
-                <Container
-                  className="actions"
-                  sx={{ alignItems: "flex-start" }}
-                >
-                  <Box className="dateInfo">
-                    <Skeleton width={80} height={14} sx={{ mb: 0.5 }} />{" "}
-                    {/* "Criado em" */}
-                    <Skeleton width={100} height={18} /> {/* Data */}
-                  </Box>
-
-                  <Container
-                    className="actionButtons"
-                    sx={{ display: "flex", gap: 1 }}
-                  >
-                    <Skeleton width={80} height={36} />
-                    <Skeleton width={36} height={36} />
-                  </Container>
-                </Container>
-              </Container>
-
-              {/* Status */}
-              <Box
-                className="status"
-                sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}
-              >
-                <Skeleton variant="circular" width={10} height={10} />
-                <Skeleton width={60} height={16} />
-              </Box>
-
-              {/* Contatos */}
-              <Container className="contactInfo" sx={{ mt: 2 }}>
-                {[1, 2, 3].map((i) => (
-                  <Box key={i} className="contactField" sx={{ mb: 1 }}>
-                    <Skeleton width={70} height={14} sx={{ mb: 0.5 }} />
-                    <Skeleton width="80%" height={18} />
-                  </Box>
-                ))}
-              </Container>
-
-              {/* Descrição */}
-              <Box className="description" sx={{ mt: 2 }}>
-                <Skeleton width={80} height={14} sx={{ mb: 0.5 }} />
-                <Skeleton width="100%" height={60} />
-              </Box>
-            </Card>
-
-            {/* Histórico de movimentação */}
-            <Box className="historyContainer">
-              <Box
-                className="historyHeader"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  mb: 1,
-                }}
-              >
-                <Skeleton width={180} height={16} />
-              </Box>
-
-              {/* Skeleton para tabela */}
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                  borderRadius: "8px",
-                  p: 1.5,
-                  maxHeight: "100%",
-                  minHeight: "500px",
-                }}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 2,
-                    }}
-                  >
-                    <Skeleton width="30%" height={48} />
-                    <Skeleton width="20%" height={48} />
-                    <Skeleton width="25%" height={48} />
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </>
+          <EntityIdLoading />
         ) : notFound ? (
-          <Container>
-            <Card>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <img
-                  src="/notFound.svg"
-                  alt="Página não encontrada"
-                  height={400}
-                  width={400}
-                />
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "4px",
-                    alignItems: "center",
-                    position: "relative",
-                    top: "-44px",
-                  }}
-                >
-                  <Subtitle2 sx={{ color: "var(--neutral-70)" }}>
-                    Nenhuma entidade encontrada com o ID ({id})
-                  </Subtitle2>
-                </Box>
-              </Box>
-            </Card>
-          </Container>
+          <NotFound description={`Nenhuma entidade encontrada com o ID (${id})`} />
         ) : (
           <>
             <Card className="card">
@@ -215,7 +90,11 @@ export default function Page() {
                     <Detail1 style={{ paddingBottom: "8px" }}>
                       Criado em
                     </Detail1>
-                    <Subtitle2>{entity?.createdAt}</Subtitle2>
+                    <Subtitle2>
+                      {entity?.createdAt
+                        ? new Date(entity.createdAt).toLocaleDateString("pt-BR")
+                        : ""}
+                    </Subtitle2>
                   </Box>
                   <Container className="actionButtons">
                     <Button
@@ -342,25 +221,27 @@ export default function Page() {
                 <Box
                   sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
                 >
-                  <TextField placeholder="Nome da entidade" />
-                  <TextField placeholder="E-mail" />
-                  <TextField placeholder="Telefone" />
-                  <TextField placeholder="Endereço" />
+                  <TextField defaultValue={entity?.name} placeholder="Nome da entidade" />
+                  <TextField defaultValue={entity?.email} placeholder="E-mail" />
+                  <TextField defaultValue={entity?.telephone} placeholder="Telefone" />
+                  <TextField defaultValue={entity?.address} placeholder="Endereço" />
                   <TextField
                     multiline
                     rows={8}
+                    defaultValue={entity?.description}
                     placeholder="Digite a nova descrição..."
                   />
                 </Box>
                 <Button
                   variant="contained"
-                  onClick={() => setOpenDrawer(false)}
+                  onClick={() => { setOpenDrawer(false); showToast(`Editado com sucesso`, "success", "Pencil") }}
                 >
                   {" "}
                   Confirmar{" "}
                 </Button>
               </Container>
             </Drawer>
+            <ToastContainer toasts={toasts} />
           </>
         )}
       </div>
