@@ -37,7 +37,8 @@ export default function Page() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModalInactive, setOpenModalInactive] = useState(false);
+  const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
 
   const contactList = [
@@ -72,7 +73,9 @@ export default function Page() {
         {loading ? (
           <EntityIdLoading />
         ) : notFound ? (
-          <NotFound description={`Nenhuma entidade encontrada com o ID (${id})`} />
+          <NotFound
+            description={`Nenhuma entidade encontrada com o ID (${id})`}
+          />
         ) : (
           <>
             <Card className="card">
@@ -103,15 +106,24 @@ export default function Page() {
                     >
                       Editar
                     </Button>
-                    <IconButton
-                      onClick={() => setOpenModal(true)}
-                      tooltip="Desativar"
-                      buttonProps={{ color: "error", variant: "outlined" }}
-                      icon="Trash"
-                    />
+                    {entity?.disabled ? (
+                      <IconButton
+                        onClick={() => setOpenModalActive(true)}
+                        tooltip="Ativar"
+                        buttonProps={{ color: "success", variant: "outlined" }}
+                        icon="SquareCheck"
+                      />
+                    ) : (
+                      <IconButton
+                        onClick={() => setOpenModalInactive(true)}
+                        tooltip="Desativar"
+                        buttonProps={{ color: "error", variant: "outlined" }}
+                        icon="Trash"
+                      />
+                    )}
                     <Dialog
-                      open={openModal}
-                      onClose={() => setOpenModal(false)}
+                      open={openModalInactive}
+                      onClose={() => setOpenModalInactive(false)}
                     >
                       <DialogTitle>
                         Tem certeza que deseja desativar a entidade?
@@ -126,17 +138,48 @@ export default function Page() {
                         <Button
                           color="secondary"
                           variant="contained"
-                          onClick={() => setOpenModal(false)}
+                          onClick={() => setOpenModalInactive(false)}
                         >
                           Fechar
                         </Button>
                         <Button
-                          onClick={() => setOpenModal(false)}
+                          onClick={() => setOpenModalInactive(false)}
                           startIcon={<Icon name="Trash" />}
                           variant="contained"
                           color="error"
                         >
                           Desativar entidade
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                    <Dialog
+                      open={openModalActive}
+                      onClose={() => setOpenModalActive(false)}
+                    >
+                      <DialogTitle>
+                        Tem certeza que deseja ativar a entidade?
+                      </DialogTitle>
+                      <DialogContent>
+                        <DialogContentText>
+                          Após ativar haverá como selecionar a entidade
+                          para novas movimentações
+                        </DialogContentText>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button
+                          color="secondary"
+                          variant="contained"
+                          onClick={() => setOpenModalActive(false)}
+                        >
+                          Fechar
+                        </Button>
+                        <Button
+                          onClick={() => setOpenModalActive(false)}
+                          startIcon={<Icon name="Check" />}
+                          variant="contained"
+                          color="primary"
+                        >
+                          Ativar entidade
                         </Button>
                       </DialogActions>
                     </Dialog>
@@ -219,10 +262,22 @@ export default function Page() {
                 <Box
                   sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
                 >
-                  <TextField defaultValue={entity?.name} placeholder="Nome da entidade" />
-                  <TextField defaultValue={entity?.email} placeholder="E-mail" />
-                  <TextField defaultValue={entity?.telephone} placeholder="Telefone" />
-                  <TextField defaultValue={entity?.address} placeholder="Endereço" />
+                  <TextField
+                    defaultValue={entity?.name}
+                    placeholder="Nome da entidade"
+                  />
+                  <TextField
+                    defaultValue={entity?.email}
+                    placeholder="E-mail"
+                  />
+                  <TextField
+                    defaultValue={entity?.telephone}
+                    placeholder="Telefone"
+                  />
+                  <TextField
+                    defaultValue={entity?.address}
+                    placeholder="Endereço"
+                  />
                   <TextField
                     multiline
                     rows={8}
@@ -232,7 +287,10 @@ export default function Page() {
                 </Box>
                 <Button
                   variant="contained"
-                  onClick={() => { setOpenDrawer(false); showToast(`Editado com sucesso`, "success", "Pencil") }}
+                  onClick={() => {
+                    setOpenDrawer(false);
+                    showToast(`Editado com sucesso`, "success", "Pencil");
+                  }}
                 >
                   {" "}
                   Confirmar{" "}
