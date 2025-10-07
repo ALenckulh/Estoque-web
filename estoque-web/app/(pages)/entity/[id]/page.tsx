@@ -6,7 +6,7 @@ import { RowDataEntity } from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
 import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typograph";
-import { entityList } from "@/utils/entityExampleList";
+import { entityList } from "@/utils/dataBaseExample";
 import {
   Box,
   Button,
@@ -78,7 +78,7 @@ export default function Page() {
           />
         ) : (
           <>
-            <Card className="card">
+            <Card className="card" sx={{ overflowY: "auto" }}>
               <Container className="header">
                 <Box>
                   <Detail1 style={{ paddingBottom: "4px" }}>
@@ -131,7 +131,7 @@ export default function Page() {
                       <DialogContent>
                         <DialogContentText>
                           Após desativar não haverá como selecionar a entidade
-                          para novas movimentações, sendo necessário reativa-lá
+                          para novas movimentações, sendo necessário reativá-la
                         </DialogContentText>
                       </DialogContent>
                       <DialogActions>
@@ -161,8 +161,8 @@ export default function Page() {
                       </DialogTitle>
                       <DialogContent>
                         <DialogContentText>
-                          Após ativar haverá como selecionar a entidade
-                          para novas movimentações
+                          Após ativar será possível selecionar a entidade para
+                          novas movimentações
                         </DialogContentText>
                       </DialogContent>
                       <DialogActions>
@@ -292,8 +292,7 @@ export default function Page() {
                     showToast(`Editado com sucesso`, "success", "Pencil");
                   }}
                 >
-                  {" "}
-                  Confirmar{" "}
+                  Confirmar
                 </Button>
               </Container>
             </Drawer>

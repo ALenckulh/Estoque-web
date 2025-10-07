@@ -157,7 +157,6 @@
   gap: 20px !important;
   min-height: 180px !important;
   max-height: 344px !important;
-  overflow-y: auto !important;
   border: 1px solid var(--neutral-30) !important;
 }
 

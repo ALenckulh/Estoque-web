@@ -304,7 +304,9 @@ const theme = createTheme({
       },
     },
     MuiDialogContentText: {
-      styleOverrides: { root: { fontSize: "16px", fontWeight: 500, paddingTop: "20px", } },
+      styleOverrides: {
+        root: { fontSize: "16px", fontWeight: 500, paddingTop: "20px" },
+      },
     },
     MuiDialogContent: {
       styleOverrides: {
@@ -355,6 +357,17 @@ const theme = createTheme({
           margin: 0,
           maxWidth: "100% !important",
         },
+      },
+    },
+    MuiSkeleton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "var(--neutral-40)",
+        },
+      },
+      defaultProps: {
+        animation: "pulse",
+        color: "var(--neutral-20)",
       },
     },
   },

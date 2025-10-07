@@ -7,13 +7,14 @@ import {
   ModuleRegistry,
   AllCommunityModule,
   RowSelectedEvent,
+  ICellRendererParams,
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
-import { ICellRendererParams } from "ag-grid-community";
-import { Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { Icon } from "@/components/ui/Icon";
-import { entityList } from "@/utils/entityExampleList";
+import { entityList } from "@/utils/dataBaseExample";
+import { renderDateCell, renderIdCell, renderTooltip } from "@/components/Tables/CelRenderes";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -30,7 +31,7 @@ export interface RowDataEntity {
 
 export default function TableListEntity() {
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   const [rowData] = useState<RowDataEntity[]>(entityList);
 
   const [columnDefs] = useState<ColDef<RowDataEntity>[]>([
@@ -43,44 +44,8 @@ export default function TableListEntity() {
       filter: "agNumberColumnFilter",
       suppressMovable: true,
       lockPosition: "left",
-      cellClassRules: {
-        "cell-disabled": (params) => !!params.data?.disabled, // garante boolean
-      },
-      cellRenderer: (params: ICellRendererParams<RowDataEntity, number>) => (
-        <Tooltip
-          title={params.data?.disabled ? "Grupo inativo" : ""}
-          arrow
-          disableHoverListener={!params.data?.disabled}
-          slotProps={{
-            popper: {
-              modifiers: [
-                {
-                  name: "offset",
-                  options: {
-                    offset: [0, -6],
-                  },
-                },
-              ],
-            },
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            {params.data?.disabled && (
-              <Icon
-                name="Circle"
-                size={13}
-                style={{
-                  fill: "var(--neutral-40)",
-                  color: "var(--neutral-40)",
-                  position: "absolute",
-                  left: -8,
-                }}
-              />
-            )}
-            {params.value}
-          </span>
-        </Tooltip>
-      ),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: renderIdCell,
     },
     {
       headerName: "Nome",
@@ -89,34 +54,7 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: ICellRendererParams<RowDataEntity, string>) => {
-        const spanRef = React.createRef<HTMLSpanElement>();
-
-        return (
-          <Tooltip
-            title={params.value}
-            arrow
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: { offset: [0, -6] },
-                  },
-                ],
-              },
-            }}
-          >
-            <span
-              ref={spanRef}
-              className="ellipsis"
-              style={{display:"block"}}
-            >
-              {params.value}
-            </span>
-          </Tooltip>
-        );
-      },
+      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
     },
     {
       headerName: "E-mail",
@@ -125,36 +63,8 @@ export default function TableListEntity() {
       filter: "agTextColumnFilter",
       flex: 1,
       minWidth: 180,
-      cellRenderer: (params: ICellRendererParams<RowDataEntity, string>) => {
-        const spanRef = React.createRef<HTMLSpanElement>();
-
-        return (
-          <Tooltip
-            title={params.value}
-            arrow
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: { offset: [0, -6] },
-                  },
-                ],
-              },
-            }}
-          >
-            <span
-              ref={spanRef}
-              className="ellipsis"
-              style={{display:"block"}}
-            >
-              {params.value}
-            </span>
-          </Tooltip>
-        );
-      },
+      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
     },
-
     {
       headerName: "Endereço",
       field: "address",
@@ -162,34 +72,7 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: ICellRendererParams<RowDataEntity, string>) => {
-        const spanRef = React.createRef<HTMLSpanElement>();
-
-        return (
-          <Tooltip
-            title={params.value}
-            arrow
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: { offset: [0, -6] },
-                  },
-                ],
-              },
-            }}
-          >
-            <span
-              ref={spanRef}
-              className="ellipsis"
-              style={{display:"block"}}
-            >
-              {params.value}
-            </span>
-          </Tooltip>
-        );
-      },
+      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
     },
     {
       headerName: "Criado",
@@ -197,48 +80,43 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agDateColumnFilter",
       width: 120,
-      cellRenderer: (
-        params: ICellRendererParams<RowDataEntity, string | null | undefined>
-      ) => {
-        if (!params.value) {
-          return <span>-</span>;
-        }
-        const date = new Date(params.value);
-        const formattedDate = date.toLocaleDateString("pt-BR");
-
-        return (
-          <span
-            style={{ color: "var(--neutral-90)" }}
-          >{`${formattedDate}`}</span>
-        );
-      },
+      cellRenderer: renderDateCell,
     },
   ]);
 
   const handleRowSelected = (event: RowSelectedEvent) => {
     if (event.node.isSelected()) {
-      const entityId = event.data.id;
-      router.push(`/entity/${entityId}`);
+      setLoading(true);
+      router.push(`/entity/${event.data.id}`);
     }
   };
 
   return (
-    <div
-      className="ag-theme-alpine"
-      style={{ height: "100%", width: "100%", minHeight: "500px" }}
-    >
+    <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
       <AgGridReact
         rowData={rowData}
         columnDefs={columnDefs}
         rowSelection="single"
         onRowSelected={handleRowSelected}
         colResizeDefault="shift"
-        pagination={true}
+        pagination
         paginationPageSize={20}
         theme={myTheme}
-        enableCellTextSelection={true}
-        suppressDragLeaveHidesColumns={true}
+        enableCellTextSelection
+        suppressDragLeaveHidesColumns
       />
+
+      {loading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          zIndex={10000}
+          sx={{ cursor: "wait" }}
+        />
+      )}
     </div>
   );
 }

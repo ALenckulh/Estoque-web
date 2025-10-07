@@ -38,7 +38,7 @@ export const EntityIdLoading = () => {
         </Box>
 
         {/* Contatos */}
-        <Container className="contactInfo" sx={{ mt: 2 }}>
+        <Container className="contactInfo">
           {[1, 2, 3].map((i) => (
             <Box key={i} className="contactField" sx={{ mb: 1 }}>
               <Skeleton width={70} height={14} sx={{ mb: 0.5 }} />
@@ -48,7 +48,7 @@ export const EntityIdLoading = () => {
         </Container>
 
         {/* Descrição */}
-        <Box className="description" sx={{ mt: 2 }}>
+        <Box className="description">
           <Skeleton width={80} height={14} sx={{ mb: 0.5 }} />
           <Skeleton width="100%" height={60} />
         </Box>
@@ -56,15 +56,7 @@ export const EntityIdLoading = () => {
 
       {/* Histórico de movimentação */}
       <Box className="historyContainer">
-        <Box
-          className="historyHeader"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mb: 1,
-          }}
-        >
+        <Box className="historyHeader">
           <Skeleton width={180} height={16} />
         </Box>
 
@@ -73,14 +65,15 @@ export const EntityIdLoading = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 1,
             borderRadius: "8px",
-            p: 1.5,
-            maxHeight: "100%",
-            minHeight: "500px",
+            p: 2,
+            paddingTop: 0,
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
           }}
         >
-          {[...Array(9)].map((_, i) => (
+          {[...Array(20)].map((_, i) => (
             <Box
               key={i}
               sx={{
@@ -90,9 +83,11 @@ export const EntityIdLoading = () => {
                 gap: 2,
               }}
             >
-              <Skeleton width="30%" height={48} />
               <Skeleton width="20%" height={48} />
-              <Skeleton width="25%" height={48} />
+              <Skeleton width="20%" height={48} />
+              <Skeleton width="20%" height={48} />
+              <Skeleton width="20%" height={48} />
+              <Skeleton width="20%" height={48} />
             </Box>
           ))}
         </Box>
