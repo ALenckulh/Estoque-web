@@ -29,7 +29,20 @@ export const Toast: React.FC<ToastProps> = ({
 }) => {
   const toastClass = `${styles.toast} body3 ${styles[type]}`;
 
-  return <div className={toastClass.trim()} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>{icon && <Icon name={icon} />} {message}</div>;
+  return (
+    <div
+      className={toastClass.trim()}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+      }}
+    >
+      {icon && <Icon name={icon} />}
+      {message}
+    </div>
+  );
 };
 
 // ------------------ Toast Container ------------------
