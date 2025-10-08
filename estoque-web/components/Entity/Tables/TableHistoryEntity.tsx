@@ -5,9 +5,6 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { ICellRendererParams } from "ag-grid-community";
-import { Tooltip } from "@mui/material";
-import { Icon } from "@/components/ui/Icon";
-import CopyTooltip from "@/components/ui/CopyTooltip";
 import { historyList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
