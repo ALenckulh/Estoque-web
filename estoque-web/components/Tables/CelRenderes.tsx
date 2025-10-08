@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ICellRendererParams } from "ag-grid-community";
 import { Tooltip } from "@mui/material";
 import { Icon } from "@/components/ui/Icon";
@@ -56,7 +56,7 @@ export const renderDateCell = (params: ICellRendererParams<any, string | null | 
 };
 
 export const renderCopyTooltipCell = (params: ICellRendererParams<any, string>) => {
-  const spanRef = React.createRef<HTMLSpanElement>();
+  const spanRef = useRef<HTMLSpanElement>(null);
 
   return (
     <CopyTooltip
