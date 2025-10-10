@@ -25,7 +25,7 @@ export function Appbar({
   showAvatar = true,
   tabItems = [
     { id: "itens", label: "Itens", url: "" },
-    { id: "entidade", label: "Entidades", url: "" },
+    { id: "entidade", label: "Entidades", url: "/entity" },
     { id: "historico", label: "Histórico", url: "" },
   ],
   selectedTab = "itens",
@@ -48,7 +48,7 @@ export function Appbar({
   };
 
   return (
-    <AppBar position="static" color="default">
+    <AppBar position="fixed" color="default">
       <Toolbar
         sx={{
           display: "flex",
@@ -87,7 +87,7 @@ export function Appbar({
 
           {/* Avatar */}
           {showAvatar && (
-            <IconButton onClick={handleOpenMenu} sx={{ p: 0 }}>
+            <IconButton onClick={handleOpenMenu} >
               <Avatar>
                 <Icon name="User" size={26} strokeWidth={1.3} />
               </Avatar>
@@ -109,9 +109,6 @@ export function Appbar({
               vertical: "top",
               horizontal: "right",
             }}
-            sx={{
-              mt: 1,
-            }}
           >
             <MenuItem onClick={handleCloseMenu} icon="User">
               Gerenciar conta
@@ -128,5 +125,3 @@ export function Appbar({
     </AppBar>
   );
 }
-
-export default Appbar;
