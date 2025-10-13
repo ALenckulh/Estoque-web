@@ -1,4 +1,3 @@
-
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./theme/providers";
@@ -7,7 +6,7 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-export const metadata = {
+const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "Estoque Web",
   icons: {
@@ -19,7 +18,7 @@ export const config = {
   matcher: ["/protected/:path*"],
 };
 
-const montserrat = Montserrat({
+export const montserrat = Montserrat({
   display: "swap",
   subsets: ["latin"],
 });

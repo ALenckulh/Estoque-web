@@ -52,6 +52,13 @@ export const Body3 = styled(Typography)({
   lineHeight: 1,
 });
 
+export const Body4 = styled(Typography)({
+  fontSize: "20px",
+  fontWeight: 500,
+  color: "var(--neutral-90)",
+  lineHeight: 1,
+});
+
 // SUBTITLE
 export const Subtitle1 = styled(Typography)({
   fontSize: "16px",
