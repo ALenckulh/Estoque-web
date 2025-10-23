@@ -4,69 +4,64 @@ import { Tooltip } from "@mui/material";
 import { Icon } from "@/components/ui/Icon";
 import CopyTooltip from "../ui/CopyTooltip";
 
-export const renderTooltip = (value?: string) => (
-  <Tooltip
-    title={value || ""}
-    arrow
-    slotProps={{
-      popper: {
-        modifiers: [{ name: "offset", options: { offset: [0, -6] } }],
-      },
-    }}
-  >
-    <span className="ellipsis" style={{ display: "block" }}>
-      {value}
-    </span>
-  </Tooltip>
-);
-
-export const renderIsDisabledCellWithTooltip = (
-  value?: string | null,
-  tooltip?: string
-) => (
-  <Tooltip
-    title={tooltip || ""}
-    arrow
-    slotProps={{
-      popper: {
-        modifiers: [{ name: "offset", options: { offset: [0, -6] } }],
-      },
-    }}
-  >
-    <span
-      className="ellipsis"
-      style={{
-        display: "block",
-        cursor: "default",
-      }}
-    >
-      {value}
-    </span>
-  </Tooltip>
-);
+// 🔧 Centraliza o estilo do Tooltip para reuso
+const defaultTooltipProps = {
+  arrow: true,
+  slotProps: {
+    popper: {
+      modifiers: [{ name: "offset", options: { offset: [0, -6] } }],
+    },
+  },
+};
 
 interface HasDisabled {
   disabled?: boolean;
+  id?: string;
 }
 
-export const renderIsDisabledCellWithIconAndTooltip = <
-  T extends HasDisabled = HasDisabled,
+// 🔹 Tooltip para células
+export const renderTooltip = (value?: string | null, tooltip?: string) => (
+  <Tooltip title={tooltip || ""} {...defaultTooltipProps}>
+    <span className="ellipsis" style={{ display: "block", cursor: "default" }}>
+      {value}
+    </span>
+  </Tooltip>
+);
+
+// 🔹 Tooltip para células com botão
+export const renderActionButton = (children?: React.ReactNode, tooltip?: string) => (
+  <Tooltip title={tooltip || ""} {...defaultTooltipProps}>
+    <span className="ellipsis" style={{ display: "block", cursor: "default" }}>
+      {children}
+    </span>
+  </Tooltip>
+);
+
+// 🔹 Célula com ícones e tooltip condicional
+// 🔹 Célula com ícones e tooltip condicional
+export const renderDisabledCellWithIcons = <
+  T extends { disabled?: boolean; id?: string },
   V = unknown,
 >(
   params: ICellRendererParams<T, V>,
-  getTooltipMessage?: (data: T) => string
+  getTooltipMessage?: (data: T) => string,
+  currentUserId?: string
 ) => {
-  const tooltipMessage = params.data?.disabled
-    ? getTooltipMessage
-      ? getTooltipMessage(params.data)
-      : "Grupo inativo" // fallback
-    : "";
+  const tooltipMessage = getTooltipMessage ? getTooltipMessage(params.data!) : "";
+  const rowId = params.data?.id;
+  const showUserIconForCurrent = !!currentUserId && rowId === currentUserId;
+
+  // 🔸 Define se o círculo deve aparecer e sua cor
+  const showCircle = params.data?.disabled || showUserIconForCurrent;
+  const circleColor = showUserIconForCurrent
+    ? "var(--primary-0)"
+    : "var(--neutral-40)";
 
   return (
     <Tooltip
       title={tooltipMessage}
       arrow
-      disableHoverListener={!params.data?.disabled}
+      disableHoverListener={!tooltipMessage}
       slotProps={{
         popper: {
           modifiers: [{ name: "offset", options: { offset: [0, -6] } }],
@@ -77,16 +72,16 @@ export const renderIsDisabledCellWithIconAndTooltip = <
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 4,
+          gap: 8,
         }}
       >
-        {params.data?.disabled && (
+        {showCircle && (
           <Icon
             name="Circle"
             size={13}
             style={{
-              fill: "var(--neutral-40)",
-              color: "var(--neutral-40)",
+              fill: circleColor,
+              color: circleColor,
               position: "absolute",
               left: -8,
             }}
@@ -98,22 +93,25 @@ export const renderIsDisabledCellWithIconAndTooltip = <
   );
 };
 
+// 🔹 Célula de data
 export const renderDateCell = (
   params: ICellRendererParams<HasDisabled, string | null | undefined>
 ) => {
-  if (!params.value) return <span>-</span>;
-  const date = new Date(params.value);
+  const { value } = params;
+  if (!value) return <span>-</span>;
+
   return (
     <span style={{ color: "var(--neutral-90)" }}>
-      {date.toLocaleDateString("pt-BR")}
+      {new Date(value).toLocaleDateString("pt-BR")}
     </span>
   );
 };
 
+// 🔹 Célula com tooltip de cópia
 export const renderCopyTooltipCell = (
   params: ICellRendererParams<HasDisabled, string>
 ) => {
-  const spanRef = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
 
   return (
     <CopyTooltip
@@ -122,7 +120,7 @@ export const renderCopyTooltipCell = (
       offset={[0, -6]}
       placement="bottom"
     >
-      <span ref={spanRef} className="ellipsis" style={{ display: "block" }}>
+      <span ref={ref} className="ellipsis" style={{ display: "block" }}>
         {params.value}
       </span>
     </CopyTooltip>

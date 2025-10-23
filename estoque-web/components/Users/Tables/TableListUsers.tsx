@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -8,19 +8,22 @@ import {
   AllCommunityModule,
   RowSelectedEvent,
   ICellRendererParams,
+  RowClassParams,
+  RowStyle,
 } from "ag-grid-community";
-import { myTheme } from "@/app/theme/agGridTheme";
 import { Box } from "@mui/material";
+import { myTheme } from "@/app/theme/agGridTheme";
 import { usersList } from "@/utils/dataBaseExample";
 import { useUser } from "@/hooks/userHook";
 import {
-  renderIsDisabledCellWithIconAndTooltip,
-  renderIsDisabledCellWithTooltip,
+  renderTooltip,
+  renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
+import { IconButton } from "@/components/ui/IconButton";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export interface DataUSer {
+export interface DataUser {
   id: string;
   user: string;
   email: string;
@@ -30,92 +33,134 @@ export interface DataUSer {
 
 export default function TableListUsers() {
   const [loading, setLoading] = useState(false);
-  const [rowData] = useState<DataUSer[]>(usersList);
-  const gridRef = useRef<AgGridReact<DataUSer>>(null);
-  const { setFindUserId } = useUser();
+  const [rowData] = useState<DataUser[]>(usersList);
+  const gridRef = useRef<AgGridReact<DataUser>>(null);
+  const { setFindUserId, myUserId, setOpenModalInactive, setOpenModalActive } = useUser();
 
-  const [columnDefs] = useState<ColDef<DataUSer>[]>([
-    {
-      headerName: "ID",
-      field: "id",
-      hide: true,
-    },
+  const getRowStyle = (
+    params: RowClassParams<DataUser>
+  ): RowStyle | undefined => {
+    if (params.data && params.data.id === myUserId) {
+      return { fontWeight: 700 } as RowStyle;
+    }
+    return undefined;
+  };
 
-    {
-      headerName: "Usuário",
-      field: "user",
-      minWidth: 180,
-      sortable: true,
-      filter: "agTextColumnFilter",
-      flex: 1,
-      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: (
-        params: ICellRendererParams<DataUSer, string | undefined>
-      ) =>
-        renderIsDisabledCellWithIconAndTooltip(params, (data) =>
-          data.disabled ? `Usuário está desativado` : ""
-        ),
-    },
-    {
-      headerName: "E-mail",
-      field: "email",
-      sortable: true,
-      filter: "agTextColumnFilter",
-      flex: 1,
-      minWidth: 180,
-      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: (
-        params: ICellRendererParams<DataUSer, string | undefined>
-      ) =>
-        params.data?.disabled
-          ? renderIsDisabledCellWithTooltip(
-              params.value,
-              `Usuário está desativado`
-            )
-          : params.value,
-    },
-    {
-      headerName: "Permissões",
-      field: "is_admin",
-      sortable: true,
-      filter: "agTextColumnFilter",
-      flex: 1,
-      minWidth: 180,
-      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: (
-        params: ICellRendererParams<DataUSer, boolean | undefined>
-      ) =>
-        params.data?.disabled
-          ? renderIsDisabledCellWithTooltip(
-              params.value ? "Admin" : "Default",
-              `Usuário está desativado`
-            )
-          : params.value
-            ? "Admin"
-            : "Default",
-    },
-  ]);
+  // Garante que o usuário atual apareça no topo
+  const displayedRows = useMemo(() => {
+    const currentUser = rowData.find((r) => r.id === myUserId);
+    return currentUser
+      ? [currentUser, ...rowData.filter((r) => r.id !== myUserId)]
+      : rowData;
+  }, [rowData, myUserId]);
 
-const handleRowSelected = (event: RowSelectedEvent<DataUSer>) => {
-  const rowData = event.data;
+  // Definições de colunas
+  const columnDefs = useMemo<ColDef<DataUser>[]>(
+    () => [
+      { headerName: "ID", field: "id", hide: true },
+      {
+        headerName: "Usuário",
+        field: "user",
+        minWidth: 180,
+        sortable: true,
+        filter: "agTextColumnFilter",
+        flex: 1,
+        cellClassRules: { "cell-disabled": (p) => !!p.data?.disabled },
+        cellRenderer: (params: ICellRendererParams<any, any>) =>
+          renderDisabledCellWithIcons(
+            params,
+            (data) => {
+              const messages = [];
+              if (data.disabled) messages.push("Usuário está desativado");
+              console.log(data.id, myUserId);
+              if (data.id === myUserId)
+                messages.push("Este é o seu usuário atual");
+              return messages.join("");
+            },
+            myUserId ?? undefined
+          ),
+      },
+      {
+        headerName: "E-mail",
+        field: "email",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        flex: 1,
+        minWidth: 180,
+        cellClassRules: { "cell-disabled": (p) => !!p.data?.disabled },
+        cellRenderer: (params: {
+          data: { disabled: boolean; id: string };
+          value: string;
+        }) =>
+          params.data?.disabled
+            ? renderTooltip(params.value, "Usuário está desativado")
+            : params.data.id === myUserId
+              ? renderTooltip(params.value, "Este é o seu usuário atual")
+              : params.value,
+      },
+      {
+        headerName: "Permissões",
+        field: "is_admin",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        flex: 1,
+        minWidth: 180,
+        cellClassRules: { "cell-disabled": (p) => !!p.data?.disabled },
+        cellRenderer: (params: {
+          data: { disabled: boolean; id: string };
+          value: string;
+        }) =>
+          params.data?.disabled
+            ? renderTooltip(
+                params.value ? "Admin" : "Default",
+                "Usuário está desativado"
+              )
+            : params.data.id === myUserId
+              ? renderTooltip(
+                  params.value ? "Admin" : "Default",
+                  "Este é o seu usuário atual"
+                )
+              : params.value
+                ? "Admin"
+                : "Default",
+      },
+      {
+        headerName: "Actions",
+        sortable: true,
+        width: 80,
+        cellRenderer: (params: { data: { disabled: boolean } }) => {
+          const disabled = params.data.disabled;
+          return (
+            <IconButton
+              icon={ disabled ? "SquareCheck" : "Trash" }
+              buttonProps={{ variant: "text", color: disabled ? "success" : "error" }}
+              tooltip={ disabled ? "Ativar usuário" : "Inativar usuário" }
+              onClick={() => {disabled ? setOpenModalActive(true) : setOpenModalInactive(true);}}
+            />
+          );
+        },
+      },
+    ],
+    [myUserId]
+  );
 
-  if (rowData?.disabled) {
-    return;
-  }
+  const handleRowSelected = (event: RowSelectedEvent<DataUser>) => {
+    const row = event.data;
+    if (!row || row.disabled) return;
 
-  setLoading(true);
-  setFindUserId?.(rowData?.id ?? null);
-  setLoading(false);
-
-  event.node.setSelected(false);
-};
+    setLoading(true);
+    setFindUserId?.(row.id);
+    setLoading(false);
+    event.node.setSelected(false);
+  };
 
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
       <AgGridReact
         ref={gridRef}
-        rowData={rowData}
+        rowData={displayedRows}
         columnDefs={columnDefs}
+        getRowStyle={getRowStyle}
         rowSelection="single"
         onRowSelected={handleRowSelected}
         colResizeDefault="shift"

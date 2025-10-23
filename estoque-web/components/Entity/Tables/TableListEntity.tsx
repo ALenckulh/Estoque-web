@@ -7,14 +7,12 @@ import {
   ModuleRegistry,
   AllCommunityModule,
   RowSelectedEvent,
-  ICellRendererParams,
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
-import { Box, Tooltip } from "@mui/material";
-import { Icon } from "@/components/ui/Icon";
+import { Box } from "@mui/material";
 import { entityList } from "@/utils/dataBaseExample";
-import { renderDateCell, renderIsDisabledCellWithIconAndTooltip, renderTooltip } from "@/components/Tables/CelRenderes";
+import { renderDateCell, renderDisabledCellWithIcons, renderTooltip } from "@/components/Tables/CelRenderes";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -45,7 +43,7 @@ export default function TableListEntity() {
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: renderIsDisabledCellWithIconAndTooltip,
+      cellRenderer: renderDisabledCellWithIcons,
     },
     {
       headerName: "Nome",

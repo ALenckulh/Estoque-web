@@ -120,9 +120,6 @@ export function Appbar({
               horizontal: "right",
             }}
           >
-            <MenuItem onClick={() => handleNavigate("/my-account")} icon="User">
-              Minha conta
-            </MenuItem>
             <MenuItem onClick={() => handleNavigate("/my-users")} icon="Users">
               Meus usuários
             </MenuItem>
