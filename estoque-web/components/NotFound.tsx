@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Card, Container } from "@mui/material";
-import { Subtitle2 } from "./ui/Typograph";
+import { Subtitle2 } from "./ui/Typography";
 
 
 interface NotFoundProps {

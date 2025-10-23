@@ -20,42 +20,99 @@ export const renderTooltip = (value?: string) => (
   </Tooltip>
 );
 
-export const renderIdCell = (params: ICellRendererParams<any, number>) => (
+export const renderIsDisabledCellWithTooltip = (
+  value?: string | null,
+  tooltip?: string
+) => (
   <Tooltip
-    title={params.data?.disabled ? "Grupo inativo" : ""}
+    title={tooltip || ""}
     arrow
-    disableHoverListener={!params.data?.disabled}
     slotProps={{
       popper: {
         modifiers: [{ name: "offset", options: { offset: [0, -6] } }],
       },
     }}
   >
-    <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      {params.data?.disabled && (
-        <Icon
-          name="Circle"
-          size={13}
-          style={{
-            fill: "var(--neutral-40)",
-            color: "var(--neutral-40)",
-            position: "absolute",
-            left: -8,
-          }}
-        />
-      )}
-      {params.value}
+    <span
+      className="ellipsis"
+      style={{
+        display: "block",
+        cursor: "default",
+      }}
+    >
+      {value}
     </span>
   </Tooltip>
 );
 
-export const renderDateCell = (params: ICellRendererParams<any, string | null | undefined>) => {
-  if (!params.value) return <span>-</span>;
-  const date = new Date(params.value);
-  return <span style={{ color: "var(--neutral-90)" }}>{date.toLocaleDateString("pt-BR")}</span>;
+interface HasDisabled {
+  disabled?: boolean;
+}
+
+export const renderIsDisabledCellWithIconAndTooltip = <
+  T extends HasDisabled = HasDisabled,
+  V = unknown,
+>(
+  params: ICellRendererParams<T, V>,
+  getTooltipMessage?: (data: T) => string
+) => {
+  const tooltipMessage = params.data?.disabled
+    ? getTooltipMessage
+      ? getTooltipMessage(params.data)
+      : "Grupo inativo" // fallback
+    : "";
+
+  return (
+    <Tooltip
+      title={tooltipMessage}
+      arrow
+      disableHoverListener={!params.data?.disabled}
+      slotProps={{
+        popper: {
+          modifiers: [{ name: "offset", options: { offset: [0, -6] } }],
+        },
+      }}
+    >
+      <span
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+        }}
+      >
+        {params.data?.disabled && (
+          <Icon
+            name="Circle"
+            size={13}
+            style={{
+              fill: "var(--neutral-40)",
+              color: "var(--neutral-40)",
+              position: "absolute",
+              left: -8,
+            }}
+          />
+        )}
+        {String(params.value)}
+      </span>
+    </Tooltip>
+  );
 };
 
-export const renderCopyTooltipCell = (params: ICellRendererParams<any, string>) => {
+export const renderDateCell = (
+  params: ICellRendererParams<HasDisabled, string | null | undefined>
+) => {
+  if (!params.value) return <span>-</span>;
+  const date = new Date(params.value);
+  return (
+    <span style={{ color: "var(--neutral-90)" }}>
+      {date.toLocaleDateString("pt-BR")}
+    </span>
+  );
+};
+
+export const renderCopyTooltipCell = (
+  params: ICellRendererParams<HasDisabled, string>
+) => {
   const spanRef = useRef<HTMLSpanElement>(null);
 
   return (

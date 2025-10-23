@@ -68,3 +68,55 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+/**
+ * @swagger
+ * /api/entity:
+ *   post:
+ *     summary: Cria uma nova entidade
+ *     description: Insere uma nova entidade no banco de dados Supabase.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Entity'
+ *     responses:
+ *       200:
+ *         description: Entidade criada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Entity'
+ *       400:
+ *         description: Dados inválidos
+ *       500:
+ *         description: Erro interno do servidor
+ *
+ *   get:
+ *     summary: Busca uma entidade (por ID, se informado)
+ *     description: Retorna uma entidade específica pelo ID ou todas se o parâmetro não for passado.
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: false
+ *         description: ID da entidade a ser buscada
+ *         schema:
+ *           type: string
+ *           example: "8f9c2e12-4a63-4f3b-a091-3eebd7c6dbe1"
+ *     responses:
+ *       200:
+ *         description: Entidade(s) encontrada(s)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/Entity'
+ *                 - type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Entity'
+ *       404:
+ *         description: Entidade não encontrada
+ *       500:
+ *         description: Erro interno do servidor
+ */

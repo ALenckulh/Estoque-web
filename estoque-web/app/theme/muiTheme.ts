@@ -348,6 +348,14 @@ const theme = createTheme({
         },
       },
     },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          fontSize: "16px",
+          color: "var(--neutral-100)",    // opcional
+        },
+      },
+    },
     MuiContainer: {
       defaultProps: {
         disableGutters: true,

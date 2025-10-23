@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { Box, Tooltip } from "@mui/material";
 import { Icon } from "@/components/ui/Icon";
 import { entityList } from "@/utils/dataBaseExample";
-import { renderDateCell, renderIdCell, renderTooltip } from "@/components/Tables/CelRenderes";
+import { renderDateCell, renderIsDisabledCellWithIconAndTooltip, renderTooltip } from "@/components/Tables/CelRenderes";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -45,7 +45,7 @@ export default function TableListEntity() {
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: renderIdCell,
+      cellRenderer: renderIsDisabledCellWithIconAndTooltip,
     },
     {
       headerName: "Nome",

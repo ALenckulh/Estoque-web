@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import styles from "./Tab.module.css";
-import { ButtonText } from "../Typograph";
+import { ButtonText } from "../Typography";
 
 interface TabItem {
   id: string;

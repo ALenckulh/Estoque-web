@@ -27,10 +27,11 @@ import React from "react";
 import { DateField } from "@/components/ui/DateField";
 import AgGridExample from "@/components/Tables/TableExample";
 import { Icon } from "@/components/ui/Icon";
-import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
+import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { IconButton } from "@/components/ui/IconButton";
 import { PasswordField } from "@/components/ui/PasswordField";
 import { Appbar } from "@/components/Appbar/appbar";
+import { useToast } from "@/hooks/toastHook";
 
 type Option = {
   label: string;

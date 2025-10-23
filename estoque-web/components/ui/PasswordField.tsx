@@ -14,8 +14,6 @@ export function PasswordField({
   onChange,
 }: PasswordFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [hasValue, setHasValue] = useState(!!value);
-
 
   return (
     <TextField
@@ -24,7 +22,6 @@ export function PasswordField({
       value={value}
       autoComplete="new-password"
       onChange={onChange}
-      
       slotProps={{
         input: {
           endAdornment: (

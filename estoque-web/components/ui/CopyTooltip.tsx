@@ -1,6 +1,6 @@
 import { Box, Tooltip } from "@mui/material";
 import React, { useState } from "react";
-import { Detail4 } from "./Typograph";
+import { Detail4 } from "./Typography";
 import { Icon } from "./Icon";
 
 interface CopyTooltipProps {

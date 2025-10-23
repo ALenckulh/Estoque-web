@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { AppBar, Toolbar, Avatar, Menu, IconButton, Box } from "@mui/material";
 import Link from "next/link";
@@ -5,6 +7,7 @@ import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { Tab } from "@/components/ui/Tab/Tab";
 import MenuItem from "../ui/MenuItem";
+import { useRouter } from "next/navigation";
 
 interface TabItem {
   id: string;
@@ -39,6 +42,13 @@ export function Appbar({
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
+  };
+
+  const router = useRouter();
+
+  const handleNavigate = (path?: string) => {
+    setAnchorEl(null);
+    if (path) router.push(path);
   };
 
   const handleTabChange = (tabId: string) => {
@@ -110,14 +120,14 @@ export function Appbar({
               horizontal: "right",
             }}
           >
-            <MenuItem onClick={handleCloseMenu} icon="User">
-              Gerenciar conta
+            <MenuItem onClick={() => handleNavigate("/my-account")} icon="User">
+              Minha conta
             </MenuItem>
-            <MenuItem onClick={handleCloseMenu} icon="Users">
-              Gerenciar usuários
+            <MenuItem onClick={() => handleNavigate("/my-users")} icon="Users">
+              Meus usuários
             </MenuItem>
             <MenuItem onClick={handleCloseMenu} icon="LogOut" error={true}>
-              Sair da conta
+              Sair
             </MenuItem>
           </Menu>
         )}

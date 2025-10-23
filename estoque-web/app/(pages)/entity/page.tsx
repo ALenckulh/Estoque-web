@@ -3,7 +3,7 @@
 import { Appbar } from "@/components/Appbar/appbar";
 import TableListEntity from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
-import { Body1, Body4 } from "@/components/ui/Typograph";
+import { Body1, Body4 } from "@/components/ui/Typography";
 import { Box, Button, Container, Drawer, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -40,7 +40,7 @@ export default function Page() {
             startIcon={<Icon name="Plus"></Icon>}
             onClick={() => setOpenDrawer(true)}
           >
-            Cadastrar Entidade
+            Criar Entidade
           </Button>
         </Box>
         <TableListEntity />
@@ -74,8 +74,7 @@ export default function Page() {
                 handleCreatedEntity(5);
               }}
             >
-              {" "}
-              Confirmar{" "}
+              Confirmar
             </Button>
           </Container>
         </Drawer>

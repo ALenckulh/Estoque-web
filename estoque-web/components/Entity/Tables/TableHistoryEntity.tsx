@@ -9,7 +9,7 @@ import { historyList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
-  renderIdCell,
+  renderIsDisabledCellWithIconAndTooltip,
 } from "@/components/Tables/CelRenderes";
 
 // Registrar todos os módulos Community
@@ -42,7 +42,7 @@ export default function TableHistoryEntity() {
       cellClassRules: {
         "cell-disabled": (params) => !!params.data?.disabled,
       },
-      cellRenderer: renderIdCell,
+      cellRenderer: renderIsDisabledCellWithIconAndTooltip,
     },
     {
       headerName: "Nota Fiscal",
