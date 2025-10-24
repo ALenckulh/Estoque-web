@@ -72,7 +72,6 @@ export default function TableListUsers() {
             (data) => {
               const messages = [];
               if (data.disabled) messages.push("Usuário está desativado");
-              console.log(data.id, myUserId);
               if (data.id === myUserId)
                 messages.push("Este é o seu usuário atual");
               return messages.join("");

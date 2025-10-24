@@ -258,9 +258,7 @@ export default function Page() {
                 }}
               >
                 <Body1>Editar Entidade</Body1>
-                <Box
-                  sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
-                >
+                <form className="formContainer">
                   <TextField
                     defaultValue={entity?.name}
                     placeholder="Nome da entidade"
@@ -283,16 +281,15 @@ export default function Page() {
                     defaultValue={entity?.description}
                     placeholder="Digite a nova descrição..."
                   />
-                </Box>
-                <Button
+                  <Button
                   variant="contained"
+                  sx={{marginTop:"20px"}}
                   onClick={() => {
                     setOpenDrawer(false);
                     showToast(`Editado com sucesso`, "success", "Pencil");
                   }}
-                >
-                  Confirmar
-                </Button>
+                >Confirmar</Button>
+                </form>
               </Container>
             </Drawer>
             <ToastContainer toasts={toasts} />

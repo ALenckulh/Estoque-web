@@ -183,13 +183,9 @@
   gap: 4px !important;
 }
 
-.flex-column {
+.formContainer {
   display: flex;
+  gap: 20px;
   flex-direction: column;
-}
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  width: 400px;
 }

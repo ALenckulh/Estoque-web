@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
 import { PasswordField } from "@/components/ui/PasswordField";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
-import { Body1, Body4, Subtitle2 } from "@/components/ui/Typography";
+import { Body1, Body4, Detail1, Subtitle2 } from "@/components/ui/Typography";
 import { useToast } from "@/hooks/toastHook";
 import { useUser } from "@/hooks/userHook";
 import { usersList } from "@/utils/dataBaseExample";
@@ -22,7 +22,6 @@ import {
   Divider,
   Drawer,
   FormControlLabel,
-  FormGroup,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -32,6 +31,16 @@ import { motion } from "framer-motion";
 import TableListUsers, {
   type DataUser,
 } from "@/components/Users/Tables/TableListUsers";
+import { MuiOtpInput } from "mui-one-time-password-input";
+import {
+  matchIsNumeric,
+  validateConfirmPassword,
+  validateEmail,
+  validateOtp,
+  validatePassword,
+  validateSignInPassword,
+  validateUsername,
+} from "@/utils/validations";
 
 const DRAWER_CONTAINER_STYLE = {
   display: "flex",
@@ -39,7 +48,7 @@ const DRAWER_CONTAINER_STYLE = {
   gap: "40px",
 };
 
-const FORM_FIELDS_CONTAINER_STYLE = {
+export const FORM_FIELDS_CONTAINER_STYLE = {
   display: "flex",
   gap: "20px",
   flexDirection: "column" as const,
@@ -79,6 +88,26 @@ export default function Page() {
   const [newUsername, setNewUsername] = useState("");
   const [updatedUsername, setUpdatedUsername] = useState("");
   const [userEdit, setUserEdit] = useState<DataUser | null>(null);
+  const [changeSection, setChangeSection] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newConfirmPassword, setNewConfirmPassword] = useState("");
+  const [editPastPassword, setEditPastPassword] = useState("");
+  const [editFuturePassword, setEditFuturePassword] = useState("");
+  const [editConfirmFuturePassword, setEditConfirmFuturePassword] =
+    useState("");
+  const [editUsername, setEditUsername] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({
+    newUsername: "",
+    newEmail: "",
+    newPassword: "",
+    newConfirmPassword: "",
+    editUsername: "",
+    editPastPassword: "",
+    editFuturePassword: "",
+    editConfirmFuturePassword: "",
+    otp: "",
+  });
 
   const { toasts, showToast } = useToast();
   const {
@@ -91,6 +120,8 @@ export default function Page() {
     OpenModalActive,
     OpenModalInactive,
   } = useUser();
+
+  const [otp, setOtp] = useState("");
 
   useEffect(() => {
     if (findUserId) {
@@ -108,22 +139,108 @@ export default function Page() {
     }
   }, [myUserId, setMyUserId]);
 
-  const handleCloseEditDrawer = () => {
-    setIsEditDrawerOpen(false);
-    setFindUserId(null);
-    setIsPasswordSectionVisible(false);
+  const handleChangeOtp = (newValue: string) => {
+    setErrors((prevErrors: Record<string, string>) => ({
+      ...prevErrors,
+      otp: newValue,
+    }));
+    setOtp(newValue);
   };
 
-  const handleConfirmCreateUser = () => {
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const error = validateOtp(otp);
+
+    if (error) {
+      setErrors((prevErrors: Record<string, string>) => ({
+        ...prevErrors,
+        otp: error,
+      }));
+      return;
+    }
+
     setIsCreateDrawerOpen(false);
+    setTimeout(() => setChangeSection(false), 100);
     showToast(`Usuário ${newUsername} criado com sucesso!`, "success");
   };
 
-  const handleConfirmUpdateUser = () => {
+  const handleCloseEditDrawer = () => {
+    setIsEditDrawerOpen(false);
+    setFindUserId(null);
+    setTimeout(() => setIsPasswordSectionVisible(false), 100);
+    setErrors({});
+  };
+
+  const handleContinueCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newUsernameError = validateUsername(newUsername);
+    const newEmailError = validateEmail(newEmail);
+    const newPasswordError = validatePassword(newPassword);
+    const newConfirmPasswordError = validateConfirmPassword(
+      newPassword,
+      newConfirmPassword
+    );
+
+    setErrors({
+      newUsername: newUsernameError,
+      newEmail: newEmailError,
+      newPassword: newPasswordError,
+      newConfirmPassword: newConfirmPasswordError,
+    });
+
+    const hasError = [
+      newUsernameError,
+      newEmailError,
+      newPasswordError,
+      newConfirmPasswordError,
+    ].some(Boolean);
+
+    if (hasError) return;
+
+    setTimeout(() => {
+      setChangeSection(true);
+    }, 0);
+  };
+
+  const handleConfirmUpdateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const editUsernameError = validateUsername(editUsername);
+    const passwordPastError = validateSignInPassword(editPastPassword);
+    const passwordFutureError = validatePassword(editFuturePassword);
+    const confirmFuturePasswordError = validateConfirmPassword(
+      editFuturePassword,
+      editConfirmFuturePassword
+    );
+
+    if (isPasswordSectionVisible) {
+      setErrors({
+      editUsername: editUsernameError,
+      editPastPassword: passwordPastError,
+      editFuturePassword: passwordFutureError,
+      editConfirmFuturePassword: confirmFuturePasswordError,
+    });
+    } else {
+      setErrors({
+      editUsername: editUsernameError,
+    });
+    }
+
+    const hasError = [
+      editUsernameError,
+      passwordPastError,
+      passwordFutureError,
+      confirmFuturePasswordError,
+    ].some(Boolean);
+
+    if (hasError) return;
+
     setIsEditDrawerOpen(false);
     showToast(`Usuário ${updatedUsername} editado com sucesso!`, "success");
     setFindUserId(null);
-    setIsPasswordSectionVisible(false);
+    setTimeout(() => setIsPasswordSectionVisible(false), 100);
   };
 
   return (
@@ -219,71 +336,152 @@ export default function Page() {
         <Drawer
           anchor="right"
           open={isCreateDrawerOpen}
-          onClose={() => setIsCreateDrawerOpen(false)}
+          onClose={() => {
+            setErrors({});
+            setIsCreateDrawerOpen(false);
+            setTimeout(() => setChangeSection(false), 100);
+          }}
         >
-          <Container style={DRAWER_CONTAINER_STYLE}>
-            <Body1>Criar usuário</Body1>
-            <FormGroup sx={FORM_FIELDS_CONTAINER_STYLE}>
-              <TextField
-                label="Usuário"
-                onChange={(e) => setNewUsername(e.target.value)}
+          {changeSection ? (
+            <Container>
+              <IconButton
+                icon="ArrowLeft"
+                tooltip="Voltar"
+                buttonProps={{ variant: "text" }}
+                onClick={() => setChangeSection(false)}
               />
-              <TextField label="E-mail" />
-              <PasswordField value={""} onChange={() => {}} />
-              <PasswordField
-                label="Confirmar senha"
-                value={""}
-                onChange={() => {}}
-              />
-              <Button variant="contained" onClick={handleConfirmCreateUser}>
-                Confirmar
-              </Button>
-              <Box
+              <Body1
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  width: "100%",
+                  paddingTop: "20px",
+                  paddingBottom: "12px",
                 }}
               >
-                <Divider
-                  sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
+                Verifique seu e-mail
+              </Body1>
+              <Detail1
+                sx={{
+                  paddingBottom: "40px",
+                }}
+              >
+                Enviamos um código de 5 dígitos para o seu e-mail
+              </Detail1>
+              <form onSubmit={handleCreateUser} className="formContainer">
+                <Box>
+                  <MuiOtpInput
+                    value={otp}
+                    onChange={handleChangeOtp}
+                    length={5}
+                    autoFocus
+                    validateChar={matchIsNumeric}
+                    TextFieldsProps={{ error: Boolean(errors.otp) }}
+                  />
+                  <Detail1
+                    sx={{
+                      color: "var(--danger-10)",
+                      height: "20px",
+                      marginTop: "8px",
+                    }}
+                  >
+                    {errors.otp}
+                  </Detail1>
+                </Box>
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ marginTop: "20px" }}
+                >
+                  Confirmar
+                </Button>
+              </form>
+            </Container>
+          ) : (
+            <Container style={DRAWER_CONTAINER_STYLE}>
+              <Body1>Criar usuário</Body1>
+              <form
+                className="formContainer"
+                onSubmit={handleContinueCreateUser}
+              >
+                <TextField
+                  label="Usuário"
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  error={!!errors.newUsername}
+                  helperText={errors.newUsername}
                 />
-                <Subtitle2
+                <TextField
+                  label="E-mail"
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  error={!!errors.newEmail}
+                  helperText={errors.newEmail}
+                />
+                <PasswordField
+                  label="Senha"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  error={!!errors.newPassword}
+                  helperText={errors.newPassword}
+                />
+                <PasswordField
+                  label="Confirmar senha"
+                  onChange={(e) => setNewConfirmPassword(e.target.value)}
+                  error={!!errors.newConfirmPassword}
+                  helperText={errors.confirmPassword}
+                />
+                <Button
+                  variant="contained"
+                  type="submit"
+                  sx={{ marginTop: "40px" }}
+                >
+                  Confirmar
+                </Button>
+                <Box
                   sx={{
-                    marginX: 1,
-                    color: "var(--neutral-70)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    width: "100%",
                   }}
                 >
-                  ou
-                </Subtitle2>
-                <Divider
-                  sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
-                />
-              </Box>
-
-              <Button
-                color="secondary"
-                sx={{
-                  "& .MuiButton-startIcon": {
-                    marginRight: "12px", // ajuste a distância aqui
-                  },
-                }}
-                variant="outlined"
-                startIcon={
-                  <img
-                    src="/icons/googleIcon.svg"
-                    alt="Google Icon"
-                    height={20}
-                    width={20}
+                  <Divider
+                    sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
                   />
-                }
-                onClick={handleConfirmCreateUser}
-              >
-                Criar com o Google
-              </Button>
-            </FormGroup>
-          </Container>
+                  <Subtitle2
+                    sx={{
+                      marginX: 1,
+                      color: "var(--neutral-70)",
+                    }}
+                  >
+                    ou
+                  </Subtitle2>
+                  <Divider
+                    sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
+                  />
+                </Box>
+                <Button
+                  color="secondary"
+                  sx={{
+                    "& .MuiButton-startIcon": {
+                      marginRight: "12px",
+                    },
+                  }}
+                  variant="outlined"
+                  startIcon={
+                    <img
+                      src="/icons/googleIcon.svg"
+                      alt="Google Icon"
+                      height={20}
+                      width={20}
+                    />
+                  }
+                  onClick={() => {
+                    setIsCreateDrawerOpen(false);
+                    setTimeout(() => setChangeSection(false), 100);
+                  }}
+                >
+                  Criar com o Google
+                </Button>
+              </form>
+            </Container>
+          )}
         </Drawer>
 
         {/* Drawer para editar usuário */}
@@ -299,11 +497,13 @@ export default function Page() {
                 : "Editar usuário"}
             </Body1>
 
-            <FormGroup sx={FORM_FIELDS_CONTAINER_STYLE}>
+            <form className="formContainer" onSubmit={handleConfirmUpdateUser}>
               <TextField
                 label="Usuário"
                 onChange={(e) => setUpdatedUsername(e.target.value)}
                 defaultValue={userEdit?.user}
+                error={!!errors.editUsername}
+                helperText={errors.editUsername}
               />
 
               <Box sx={ADMIN_CHECKBOX_CONTAINER_STYLE}>
@@ -364,18 +564,21 @@ export default function Page() {
                     <Box sx={FORM_FIELDS_CONTAINER_STYLE}>
                       <PasswordField
                         label="Senha anterior"
-                        value={""}
                         onChange={() => {}}
+                        error={!!errors.editPastPassword}
+                        helperText={errors.editPastPassword}
                       />
                       <PasswordField
                         label="Senha nova"
-                        value={""}
                         onChange={() => {}}
+                        error={!!errors.editFuturePassword}
+                        helperText={errors.editFuturePassword}
                       />
                       <PasswordField
                         label="Confirmar senha nova"
-                        value={""}
                         onChange={() => {}}
+                        error={!!errors.editConfirmFuturePassword}
+                        helperText={errors.editConfirmFuturePassword}
                       />
                       <Link
                         style={{
@@ -390,10 +593,14 @@ export default function Page() {
                   </Box>
                 </motion.div>
               )}
-              <Button variant="contained" onClick={handleConfirmUpdateUser}>
+              <Button
+                variant="contained"
+                sx={{ marginTop: "40px" }}
+                type="submit"
+              >
                 Atualizar
               </Button>
-            </FormGroup>
+            </form>
           </Container>
         </Drawer>
       </div>

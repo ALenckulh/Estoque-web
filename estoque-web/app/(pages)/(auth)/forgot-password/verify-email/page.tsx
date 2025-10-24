@@ -15,11 +15,12 @@ export default function Page() {
 
   const handleChange = (newValue: string) => {
     setError("");
-    setOtp(newValue);
-  };
+    setOtp(newValue)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
 
     const error = validateOtp(otp);
 
@@ -28,7 +29,7 @@ export default function Page() {
       return;
     }
 
-    router.push("/");
+    router.push("verify-email/change-password");
   };
 
   return (
@@ -44,9 +45,7 @@ export default function Page() {
             width: "fit-content",
           }}
         >
-          <H4
-            sx={{ width: "100%", textAlign: "center", paddingBottom: "12px" }}
-          >
+          <H4 sx={{ width: "100%", textAlign: "center", paddingBottom: "12px" }}>
             Verifique seu e-mail
           </H4>
           <Detail1
@@ -56,30 +55,14 @@ export default function Page() {
           </Detail1>
           <form onSubmit={handleSubmit} className="formContainer">
             <Box>
-              <MuiOtpInput
-                value={otp}
-                onChange={handleChange}
-                length={5}
-                autoFocus
-                validateChar={matchIsNumeric}
-                TextFieldsProps={{ error: Boolean(error) }}
-              />
-              <Detail1
-                sx={{
-                  color: "var(--danger-10)",
-                  height: "20px",
-                  marginTop: "8px",
-                }}
-              >
-                {error}
-              </Detail1>
+              <MuiOtpInput value={otp} onChange={handleChange} length={5} autoFocus validateChar={matchIsNumeric} TextFieldsProps={{ error: Boolean(error) }} />
+            <Detail1 sx={{ color: "var(--danger-10)", height: "20px", marginTop: "8px" }}>
+              {error}
+            </Detail1>
+
             </Box>
 
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ marginTop: "20px" }}
-            >
+            <Button type="submit" variant="contained" sx={{ marginTop: "20px" }}>
               Confirmar
             </Button>
           </form>

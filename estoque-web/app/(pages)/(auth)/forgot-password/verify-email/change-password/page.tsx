@@ -1,33 +1,32 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import { PasswordField } from "@/components/ui/PasswordField";
-import { H4, Subtitle2 } from "@/components/ui/Typography";
+import { Detail1, H4 } from "@/components/ui/Typography";
 import { Box, Button, Card, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import {
+  validateConfirmPassword,
   validateEmail,
-  validateSignInPassword,
+  validatePassword,
 } from "@/utils/validations";
-import Link from "next/link";
+import { PasswordField } from "@/components/ui/PasswordField";
 
 export default function Page() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({
-    email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const newErrors: Record<string, string> = {
-      email: validateEmail(email),
-      password: validateSignInPassword(password),
+      password: validatePassword(password),
+      confirmPassword: validateConfirmPassword(password, confirmPassword),
     };
 
     setErrors(newErrors);
@@ -37,7 +36,6 @@ export default function Page() {
 
     return router.push("/");
   };
-
   return (
     <div>
       <Appbar showTabs={false} showAvatar={false} />
@@ -52,24 +50,13 @@ export default function Page() {
           }}
         >
           <H4
-            sx={{ paddingBottom: "40px", width: "100%", textAlign: "center" }}
+            sx={{ width: "100%", textAlign: "center", paddingBottom: "40px" }}
           >
-            Entrar
+            Mudar senha
           </H4>
           <form onSubmit={handleSubmit} className="formContainer">
-            <TextField
-              label="E-mail"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setErrors({ ...errors, email: "" });
-              }}
-              error={!!errors.email}
-              helperText={errors.email}
-            />
             <PasswordField
               label="Senha"
-              value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 setErrors({ ...errors, password: "" });
@@ -77,32 +64,23 @@ export default function Page() {
               error={!!errors.password}
               helperText={errors.password}
             />
-            <Link
-              style={{
-                fontSize: "16px",
-                color: "var(--primary-10)",
+            <PasswordField
+              label="Confirmar senha"
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setErrors({ ...errors, confirmPassword: "" });
               }}
-              href="/forgot-password"
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ marginTop: "20px" }}
             >
-              Esqueci minha senha?
-            </Link>
-            <Button type="submit" variant="contained" sx={{ marginTop: "20px" }}>
               Confirmar
             </Button>
-            
           </form>
-          <Box sx={{display:"flex", flexDirection:"row", alignItems:"center", gap:"4px", width:"100%", justifyContent:"center", paddingTop:"40px"}}>
-              <Subtitle2 sx={{color:"var(--neutral-60)"}}>Não possui conta?</Subtitle2>
-              <Link
-                style={{
-                  fontSize: "16px",
-                  color: "var(--primary-10)",
-                }}
-                href="/sign-up"
-              >
-                Criar conta
-              </Link>
-            </Box>
         </Card>
       </div>
     </div>
