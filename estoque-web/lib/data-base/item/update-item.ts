@@ -11,14 +11,16 @@ interface UpdateParameters {
   manufacturer?: string;
   position?: string;
   group_id?: number;
-  enterprise_id?: number;
 }
 
 export async function updateItemDB(id: number, updates: UpdateParameters): Promise<Item> {
+  // Garantia extra: se por algum motivo vier enterprise_id no objeto, remove
+  const { enterprise_id, ...safeUpdates } = updates as any;
+
   const { data, error } = await supabase
-    .from('items')
-    .update(updates)
-    .eq('id', id)
+    .from("items")
+    .update(safeUpdates)
+    .eq("id", id)
     .select()
     .single();
 

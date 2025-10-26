@@ -3,14 +3,14 @@ import { Item } from "../../models/item_model";
 
 export async function deleteItemDB(id: number): Promise<Item> {
   const { data, error } = await supabase
-    .from('items')
-    .delete()
-    .eq('id', id)
+    .from("items")
+    .update({ safe_delete: true })
+    .eq("id", id)
     .select()
     .single();
 
   if (error) {
-    throw new Error(`Erro ao deletar item: ${error.message}`);
+    throw new Error(`Erro ao realizar soft delete do item: ${error.message}`);
   }
 
   return data as Item;

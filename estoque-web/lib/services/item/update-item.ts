@@ -11,12 +11,14 @@ interface UpdateParameters {
   manufacturer?: string;
   position?: string;
   group_id?: number;
-  enterprise_id?: number;
 }
 
 export async function updateItem(id: number, updates: UpdateParameters): Promise<Item> {
   try {
-    const updatedItem = await updateItemDB(id, updates);
+    // Garantia de segurança — se vier enterprise_id por engano, ignora
+    const { enterprise_id, ...safeUpdates } = updates as any;
+
+    const updatedItem = await updateItemDB(id, safeUpdates);
     return updatedItem;
   } catch (error) {
     throw new Error(`Erro ao atualizar item -> ${error}`);
