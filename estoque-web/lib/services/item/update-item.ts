@@ -11,19 +11,15 @@ interface UpdateParameters {
   manufacturer?: string;
   position?: string;
   group_id?: number;
-<<<<<<< HEAD
-=======
-  enterprise_id?: number;
->>>>>>> 5623cfa (Implementa Item CRUD: model, database, services e routes além de alguns ajustes pontuais e adição do listUser)
+  enterprise_id?: number; // ← veio do commit CRUD
 }
 
 export async function updateItem(id: number, updates: UpdateParameters): Promise<Item> {
   try {
-<<<<<<< HEAD
+    // Ignorar enterprise_id por segurança, não deve ser atualizado aqui
+    const { enterprise_id, ...safeUpdates } = updates;
 
-=======
->>>>>>> 5623cfa (Implementa Item CRUD: model, database, services e routes além de alguns ajustes pontuais e adição do listUser)
-    const updatedItem = await updateItemDB(id, updates);
+    const updatedItem = await updateItemDB(id, safeUpdates);
     return updatedItem;
   } catch (error) {
     throw new Error(`Erro ao atualizar item -> ${error}`);
