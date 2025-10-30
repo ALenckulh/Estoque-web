@@ -23,8 +23,7 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
-import { NotFound } from "@/components/NotFound";
-import { EntityIdLoading } from "@/components/Entity/Loading/EntityIdLoading";
+import { NotFound } from "@/components/Feedback/NotFound";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
 
@@ -69,9 +68,7 @@ export default function Page() {
         onTabChange={setSelectedTab}
       />
       <div className="container">
-        {loading ? (
-          <EntityIdLoading />
-        ) : notFound ? (
+        {notFound ? (
           <NotFound
             description={`Nenhuma entidade encontrada com o ID (${id})`}
           />
@@ -282,13 +279,15 @@ export default function Page() {
                     placeholder="Digite a nova descrição..."
                   />
                   <Button
-                  variant="contained"
-                  sx={{marginTop:"20px"}}
-                  onClick={() => {
-                    setOpenDrawer(false);
-                    showToast(`Editado com sucesso`, "success", "Pencil");
-                  }}
-                >Confirmar</Button>
+                    variant="contained"
+                    sx={{ marginTop: "20px" }}
+                    onClick={() => {
+                      setOpenDrawer(false);
+                      showToast(`Editado com sucesso`, "success", "Pencil");
+                    }}
+                  >
+                    Confirmar
+                  </Button>
                 </form>
               </Container>
             </Drawer>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import { NotFound } from "@/components/NotFound";
+import { NotFound } from "@/components/Feedback/NotFound";
 import React from "react";
 
 export default function page() {

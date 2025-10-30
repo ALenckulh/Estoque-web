@@ -391,7 +391,7 @@ export default function Page() {
                   variant="contained"
                   sx={{ marginTop: "20px" }}
                 >
-                  Confirmar
+                  Verificar
                 </Button>
               </form>
             </Container>

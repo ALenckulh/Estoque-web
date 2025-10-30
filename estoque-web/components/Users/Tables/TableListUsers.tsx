@@ -33,6 +33,7 @@ export interface DataUser {
 
 export default function TableListUsers() {
   const [loading, setLoading] = useState(false);
+  const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [rowData] = useState<DataUser[]>(usersList);
   const gridRef = useRef<AgGridReact<DataUser>>(null);
   const { setFindUserId, myUserId, setOpenModalInactive, setOpenModalActive } = useUser();
@@ -134,7 +135,15 @@ export default function TableListUsers() {
               icon={ disabled ? "SquareCheck" : "Trash" }
               buttonProps={{ variant: "text", color: disabled ? "success" : "error" }}
               tooltip={ disabled ? "Ativar usuário" : "Inativar usuário" }
-              onClick={() => {disabled ? setOpenModalActive(true) : setOpenModalInactive(true);}}
+              onClick={() => {
+                if (disabled) {
+                  setOpenModalActive(true);
+                  setIsButtonClicked(true);
+                } else {
+                  setOpenModalInactive(true);
+                  setIsButtonClicked(true);
+                }
+              }}
             />
           );
         },
@@ -145,7 +154,7 @@ export default function TableListUsers() {
 
   const handleRowSelected = (event: RowSelectedEvent<DataUser>) => {
     const row = event.data;
-    if (!row || row.disabled) return;
+    if (!row || row.disabled || isButtonClicked) return;
 
     setLoading(true);
     setFindUserId?.(row.id);
