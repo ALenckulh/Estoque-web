@@ -142,7 +142,7 @@ export default function Page() {
   const handleChangeOtp = (newValue: string) => {
     setErrors((prevErrors: Record<string, string>) => ({
       ...prevErrors,
-      otp: newValue,
+      otp: '',
     }));
     setOtp(newValue);
   };
@@ -425,7 +425,7 @@ export default function Page() {
                   label="Confirmar senha"
                   onChange={(e) => setNewConfirmPassword(e.target.value)}
                   error={!!errors.newConfirmPassword}
-                  helperText={errors.confirmPassword}
+                  helperText={errors.newConfirmPassword}
                 />
                 <Button
                   variant="contained"
@@ -501,7 +501,7 @@ export default function Page() {
             <form className="formContainer" onSubmit={handleConfirmUpdateUser}>
               <TextField
                 label="Usuário"
-                onChange={(e) => setUpdatedUsername(e.target.value)}
+                onChange={(e) => setEditUsername(e.target.value)}
                 defaultValue={userEdit?.user}
                 error={!!errors.editUsername}
                 helperText={errors.editUsername}
@@ -565,19 +565,19 @@ export default function Page() {
                     <Box sx={FORM_FIELDS_CONTAINER_STYLE}>
                       <PasswordField
                         label="Senha anterior"
-                        onChange={() => {}}
+                        onChange={(e) => setEditPastPassword(e.target.value)}
                         error={!!errors.editPastPassword}
                         helperText={errors.editPastPassword}
                       />
                       <PasswordField
                         label="Senha nova"
-                        onChange={() => {}}
+                        onChange={(e) => setEditFuturePassword(e.target.value)}
                         error={!!errors.editFuturePassword}
                         helperText={errors.editFuturePassword}
                       />
                       <PasswordField
                         label="Confirmar senha nova"
-                        onChange={() => {}}
+                        onChange={(e) => setEditConfirmFuturePassword(e.target.value)}
                         error={!!errors.editConfirmFuturePassword}
                         helperText={errors.editConfirmFuturePassword}
                       />

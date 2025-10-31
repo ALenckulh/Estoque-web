@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useState, useEffect } from "react";
-import { ThemeProvider, CssBaseline, Box } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { UserProvider } from "@/providers/user";
 import theme from "./theme/muiTheme";
 import { Loading } from "@/components/Feedback/Loading";
