@@ -86,7 +86,6 @@ export default function Page() {
   const [isPasswordSectionVisible, setIsPasswordSectionVisible] =
     useState(false);
   const [newUsername, setNewUsername] = useState("");
-  const [updatedUsername, setUpdatedUsername] = useState("");
   const [userEdit, setUserEdit] = useState<DataUser | null>(null);
   const [changeSection, setChangeSection] = useState(false);
   const [newEmail, setNewEmail] = useState("");
@@ -142,7 +141,7 @@ export default function Page() {
   const handleChangeOtp = (newValue: string) => {
     setErrors((prevErrors: Record<string, string>) => ({
       ...prevErrors,
-      otp: '',
+      otp: "",
     }));
     setOtp(newValue);
   };
@@ -208,37 +207,32 @@ export default function Page() {
     e.preventDefault();
 
     const editUsernameError = validateUsername(editUsername);
-    const passwordPastError = validateSignInPassword(editPastPassword);
-    const passwordFutureError = validatePassword(editFuturePassword);
-    const confirmFuturePasswordError = validateConfirmPassword(
-      editFuturePassword,
-      editConfirmFuturePassword
-    );
 
     if (isPasswordSectionVisible) {
+      // Valida senhas apenas se a seção de senha estiver visível
+      const passwordPastError = validateSignInPassword(editPastPassword);
+      const passwordFutureError = validatePassword(editFuturePassword);
+      const confirmFuturePasswordError = validateConfirmPassword(
+        editFuturePassword,
+        editConfirmFuturePassword
+      );
+
       setErrors({
-      editUsername: editUsernameError,
-      editPastPassword: passwordPastError,
-      editFuturePassword: passwordFutureError,
-      editConfirmFuturePassword: confirmFuturePasswordError,
-    });
+        editUsername: editUsernameError,
+        editPastPassword: passwordPastError,
+        editFuturePassword: passwordFutureError,
+        editConfirmFuturePassword: confirmFuturePasswordError,
+      });
     } else {
-      setErrors({
-      editUsername: editUsernameError,
-    });
+      setErrors({ editUsername: editUsernameError });
     }
 
-    const hasError = [
-      editUsernameError,
-      passwordPastError,
-      passwordFutureError,
-      confirmFuturePasswordError,
-    ].some(Boolean);
+    const hasError = [editUsernameError].filter(Boolean).length > 0;
 
     if (hasError) return;
 
     setIsEditDrawerOpen(false);
-    showToast(`Usuário ${updatedUsername} editado com sucesso!`, "success");
+    showToast(`Usuário ${editUsername} editado com sucesso!`, "success");
     setFindUserId(null);
     setTimeout(() => setIsPasswordSectionVisible(false), 100);
   };
@@ -532,7 +526,12 @@ export default function Page() {
                   <Button
                     startIcon={<Icon name="Lock" />}
                     variant="outlined"
-                    onClick={() => setIsPasswordSectionVisible(true)}
+                    onClick={() => {
+                      setIsPasswordSectionVisible(true);
+                      errors.editPastPassword = "";
+                      errors.editFuturePassword = "";
+                      errors.editConfirmFuturePassword = "";
+                    }}
                     sx={{ width: "100%" }}
                   >
                     Mudar senha
@@ -577,7 +576,9 @@ export default function Page() {
                       />
                       <PasswordField
                         label="Confirmar senha nova"
-                        onChange={(e) => setEditConfirmFuturePassword(e.target.value)}
+                        onChange={(e) =>
+                          setEditConfirmFuturePassword(e.target.value)
+                        }
                         error={!!errors.editConfirmFuturePassword}
                         helperText={errors.editConfirmFuturePassword}
                       />
