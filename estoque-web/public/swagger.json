@@ -1,0 +1,137 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Entity API",
+    "version": "1.0.0",
+    "description": "Documentação da API para gerenciar entidades usando Supabase"
+  },
+  "servers": [
+    {
+      "url": "{{baseURL}}"
+    }
+  ],
+  "paths": {
+    "/api/entity": {
+      "post": {
+        "summary": "Cria uma nova entidade",
+        "description": "Insere uma nova entidade no banco de dados Supabase",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Entity" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entidade criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Entity" }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro ao criar entidade"
+          }
+        }
+      },
+      "get": {
+        "summary": "Obtém uma entidade por ID",
+        "description": "Busca uma entidade específica pelo ID informado na query string",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID da entidade"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entidade encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Entity" }
+              }
+            }
+          },
+          "404": {
+            "description": "Entidade não encontrada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Exclui uma entidade por ID",
+        "description": "Marca uma entidade como deletada ou remove do banco",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID da entidade a ser excluída"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entidade excluída com sucesso"
+          },
+          "404": {
+            "description": "Entidade não encontrada"
+          }
+        }
+      }
+    },
+    "/api/entity/listEntity": {
+      "get": {
+        "summary": "Lista todas as entidades",
+        "description": "Retorna uma lista de todas as entidades registradas no banco de dados",
+        "responses": {
+          "200": {
+            "description": "Lista de entidades",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Entity" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Entity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "a9b8c7d6e5" },
+          "name": { "type": "string", "example": "RoboCore Solutions" },
+          "email": { "type": "string", "example": "contato@robocore.com" },
+          "phone": { "type": "string", "example": "+55 11 98888-7777" },
+          "address": {
+            "type": "string",
+            "example": "Avenida da Tecnologia, 500 - São Paulo, SP"
+          },
+          "description": {
+            "type": "string",
+            "example": "Empresa de robótica e automação industrial"
+          },
+          "enterprise_id": { "type": "string", "example": "ent-002" },
+          "safe_delete": { "type": "boolean", "example": false },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-01T10:30:00Z"
+          }
+        },
+        "required": ["name", "email", "phone", "address"]
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@
 import { Appbar } from "@/components/Appbar/appbar";
 import TableListEntity from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
-import { Body1, Body4 } from "@/components/ui/Typograph";
+import { Body1, Body4 } from "@/components/ui/Typography";
 import { Box, Button, Container, Drawer, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -40,7 +40,7 @@ export default function Page() {
             startIcon={<Icon name="Plus"></Icon>}
             onClick={() => setOpenDrawer(true)}
           >
-            Cadastrar Entidade
+            Criar Entidade
           </Button>
         </Box>
         <TableListEntity />
@@ -56,7 +56,7 @@ export default function Page() {
             style={{ display: "flex", flexDirection: "column", gap: "40px" }}
           >
             <Body1>Cadastrar Entidade</Body1>
-            <Box sx={{ display: "flex", gap: "20px", flexDirection: "column" }}>
+            <form className="formContainer">
               <TextField placeholder="Nome da entidade" />
               <TextField placeholder="E-mail" />
               <TextField placeholder="Telefone" />
@@ -66,17 +66,17 @@ export default function Page() {
                 rows={8}
                 placeholder="Digite a nova descrição..."
               />
-            </Box>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setOpenDrawer(false);
-                handleCreatedEntity(5);
-              }}
-            >
-              {" "}
-              Confirmar{" "}
-            </Button>
+              <Button
+                sx={{ marginTop: "20px" }}
+                variant="contained"
+                onClick={() => {
+                  setOpenDrawer(false);
+                  handleCreatedEntity(5);
+                }}
+              >
+                Confirmar
+              </Button>
+            </form>
           </Container>
         </Drawer>
       </div>

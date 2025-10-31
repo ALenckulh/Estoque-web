@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { TextField, InputAdornment } from "@mui/material";
+import { TextField, InputAdornment, TextFieldProps } from "@mui/material";
 import { IconButton } from "./IconButton";
 
-interface PasswordFieldProps {
+interface PasswordFieldProps extends Omit<TextFieldProps, "type" | "onChange">{
   label?: string;
-  value: string;
+  value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -12,19 +12,18 @@ export function PasswordField({
   label = "Senha",
   value,
   onChange,
+  ...props
 }: PasswordFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [hasValue, setHasValue] = useState(!!value);
-
 
   return (
     <TextField
+      {...props}
       type={showPassword ? "text" : "password"}
       label={label}
       value={value}
       autoComplete="new-password"
       onChange={onChange}
-      
       slotProps={{
         input: {
           endAdornment: (

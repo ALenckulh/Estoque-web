@@ -16,6 +16,13 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          marginLeft: "0px",
+        },
+      },
+    },
     MuiIconButton: {
       styleOverrides: {
         root: {
@@ -326,7 +333,7 @@ const theme = createTheme({
     },
     MuiDrawer: {
       styleOverrides: {
-        paper: { width: 450, padding: 24 },
+        paper: { width: 448, padding: 24 },
       },
     },
     MuiTooltip: {
@@ -345,6 +352,14 @@ const theme = createTheme({
           borderRadius: 8,
           padding: "24px",
           boxShadow: "var(--shadow-sm)",
+        },
+      },
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          fontSize: "16px",
+          color: "var(--neutral-100)",    // opcional
         },
       },
     },

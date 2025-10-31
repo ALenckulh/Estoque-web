@@ -1,0 +1,611 @@
+"use client";
+
+import { Appbar } from "@/components/Appbar/appbar";
+import { Icon } from "@/components/ui/Icon";
+import { IconButton } from "@/components/ui/IconButton";
+import { PasswordField } from "@/components/ui/PasswordField";
+import { ToastContainer } from "@/components/ui/Toast/Toast";
+import { Body1, Body4, Detail1, Subtitle2 } from "@/components/ui/Typography";
+import { useToast } from "@/hooks/toastHook";
+import { useUser } from "@/hooks/userHook";
+import { usersList } from "@/utils/dataBaseExample";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  FormControlLabel,
+  TextField,
+  Tooltip,
+} from "@mui/material";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import TableListUsers, {
+  type DataUser,
+} from "@/components/Users/Tables/TableListUsers";
+import { MuiOtpInput } from "mui-one-time-password-input";
+import {
+  matchIsNumeric,
+  validateConfirmPassword,
+  validateEmail,
+  validateOtp,
+  validatePassword,
+  validateSignInPassword,
+  validateUsername,
+} from "@/utils/validations";
+
+const DRAWER_CONTAINER_STYLE = {
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: "40px",
+};
+
+const FORM_FIELDS_CONTAINER_STYLE = {
+  display: "flex",
+  gap: "20px",
+  flexDirection: "column" as const,
+};
+
+const PASSWORD_SECTION_STYLE = {
+  border: "1px solid var(--primary-0)",
+  borderRadius: "4px",
+  padding: "20px",
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: "20px",
+};
+
+const PASSWORD_SECTION_HEADER_STYLE = {
+  display: "flex",
+  flexDirection: "row" as const,
+  gap: "8px",
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
+const ADMIN_CHECKBOX_CONTAINER_STYLE = {
+  display: "flex",
+  gap: "10px",
+  flexDirection: "row" as const,
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
+export default function Page() {
+  const [selectedTab, setSelectedTab] = useState("");
+  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+  const [isPasswordSectionVisible, setIsPasswordSectionVisible] =
+    useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [userEdit, setUserEdit] = useState<DataUser | null>(null);
+  const [changeSection, setChangeSection] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newConfirmPassword, setNewConfirmPassword] = useState("");
+  const [editPastPassword, setEditPastPassword] = useState("");
+  const [editFuturePassword, setEditFuturePassword] = useState("");
+  const [editConfirmFuturePassword, setEditConfirmFuturePassword] =
+    useState("");
+  const [editUsername, setEditUsername] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({
+    newUsername: "",
+    newEmail: "",
+    newPassword: "",
+    newConfirmPassword: "",
+    editUsername: "",
+    editPastPassword: "",
+    editFuturePassword: "",
+    editConfirmFuturePassword: "",
+    otp: "",
+  });
+
+  const { toasts, showToast } = useToast();
+  const {
+    findUserId,
+    setFindUserId,
+    myUserId,
+    setMyUserId,
+    setOpenModalActive,
+    setOpenModalInactive,
+    OpenModalActive,
+    OpenModalInactive,
+  } = useUser();
+
+  const [otp, setOtp] = useState("");
+
+  useEffect(() => {
+    if (findUserId) {
+      const foundUser = usersList.find((user) => user.id === findUserId);
+      if (foundUser) {
+        setUserEdit(foundUser);
+      }
+      setIsEditDrawerOpen(true);
+    }
+  }, [findUserId]);
+
+  useEffect(() => {
+    if (typeof setMyUserId === "function") {
+      setMyUserId("8");
+    }
+  }, [myUserId, setMyUserId]);
+
+  const handleChangeOtp = (newValue: string) => {
+    setErrors((prevErrors: Record<string, string>) => ({
+      ...prevErrors,
+      otp: "",
+    }));
+    setOtp(newValue);
+  };
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const error = validateOtp(otp);
+
+    if (error) {
+      setErrors((prevErrors: Record<string, string>) => ({
+        ...prevErrors,
+        otp: error,
+      }));
+      return;
+    }
+
+    setIsCreateDrawerOpen(false);
+    setTimeout(() => setChangeSection(false), 100);
+    showToast(`Usuário ${newUsername} criado com sucesso!`, "success");
+  };
+
+  const handleCloseEditDrawer = () => {
+    setIsEditDrawerOpen(false);
+    setFindUserId(null);
+    setTimeout(() => setIsPasswordSectionVisible(false), 100);
+    setErrors({});
+  };
+
+  const handleContinueCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newUsernameError = validateUsername(newUsername);
+    const newEmailError = validateEmail(newEmail);
+    const newPasswordError = validatePassword(newPassword);
+    const newConfirmPasswordError = validateConfirmPassword(
+      newPassword,
+      newConfirmPassword
+    );
+
+    setErrors({
+      newUsername: newUsernameError,
+      newEmail: newEmailError,
+      newPassword: newPasswordError,
+      newConfirmPassword: newConfirmPasswordError,
+    });
+
+    const hasError = [
+      newUsernameError,
+      newEmailError,
+      newPasswordError,
+      newConfirmPasswordError,
+    ].some(Boolean);
+
+    if (hasError) return;
+
+    setTimeout(() => {
+      setChangeSection(true);
+    }, 0);
+  };
+
+  const handleConfirmUpdateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const editUsernameError = validateUsername(editUsername);
+
+    if (isPasswordSectionVisible) {
+      // Valida senhas apenas se a seção de senha estiver visível
+      const passwordPastError = validateSignInPassword(editPastPassword);
+      const passwordFutureError = validatePassword(editFuturePassword);
+      const confirmFuturePasswordError = validateConfirmPassword(
+        editFuturePassword,
+        editConfirmFuturePassword
+      );
+
+      setErrors({
+        editUsername: editUsernameError,
+        editPastPassword: passwordPastError,
+        editFuturePassword: passwordFutureError,
+        editConfirmFuturePassword: confirmFuturePasswordError,
+      });
+    } else {
+      setErrors({ editUsername: editUsernameError });
+    }
+
+    const hasError = [editUsernameError].filter(Boolean).length > 0;
+
+    if (hasError) return;
+
+    setIsEditDrawerOpen(false);
+    showToast(`Usuário ${editUsername} editado com sucesso!`, "success");
+    setFindUserId(null);
+    setTimeout(() => setIsPasswordSectionVisible(false), 100);
+  };
+
+  return (
+    <div>
+      <Appbar
+        showTabs={true}
+        showAvatar={true}
+        selectedTab={selectedTab}
+        onTabChange={setSelectedTab}
+      />
+      <div className="container">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <Body4 sx={{ color: "var(--neutral-60)" }}>Meus usuários</Body4>
+          <Button
+            variant="contained"
+            startIcon={<Icon name="Plus" />}
+            onClick={() => setIsCreateDrawerOpen(true)}
+          >
+            Criar usuário
+          </Button>
+        </Box>
+
+        <TableListUsers />
+
+        <ToastContainer toasts={toasts} />
+
+        <Dialog
+          open={OpenModalInactive}
+          onClose={() => setOpenModalInactive(false)}
+        >
+          <DialogTitle>Tem certeza que deseja desativar o usuário?</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Após desativar o usuário não haverá como acessar o sistema, sendo
+              necessário reativá-lo
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="secondary"
+              variant="contained"
+              onClick={() => setOpenModalInactive(false)}
+            >
+              Fechar
+            </Button>
+            <Button
+              onClick={() => setOpenModalInactive(false)}
+              startIcon={<Icon name="Trash" />}
+              variant="contained"
+              color="error"
+            >
+              Desativar usuário
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={OpenModalActive}
+          onClose={() => setOpenModalActive(false)}
+        >
+          <DialogTitle>Tem certeza que deseja ativar o usuário?</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Após ativar este usuário poderá voltar a acessar o sistema
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="secondary"
+              variant="contained"
+              onClick={() => setOpenModalActive(false)}
+            >
+              Fechar
+            </Button>
+            <Button
+              onClick={() => setOpenModalActive(false)}
+              startIcon={<Icon name="Check" />}
+              variant="contained"
+              color="primary"
+            >
+              Ativar usuário
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Drawer para criar usuário */}
+        <Drawer
+          anchor="right"
+          open={isCreateDrawerOpen}
+          onClose={() => {
+            setErrors({});
+            setIsCreateDrawerOpen(false);
+            setTimeout(() => setChangeSection(false), 100);
+          }}
+        >
+          {changeSection ? (
+            <Container>
+              <IconButton
+                icon="ArrowLeft"
+                tooltip="Voltar"
+                buttonProps={{ variant: "text" }}
+                onClick={() => setChangeSection(false)}
+              />
+              <Body1
+                sx={{
+                  paddingTop: "20px",
+                  paddingBottom: "12px",
+                }}
+              >
+                Verifique seu e-mail
+              </Body1>
+              <Detail1
+                sx={{
+                  paddingBottom: "40px",
+                }}
+              >
+                Enviamos um código de 5 dígitos para o seu e-mail
+              </Detail1>
+              <form onSubmit={handleCreateUser} className="formContainer">
+                <Box>
+                  {/* @ts-expect-error: type conflict between React versions */}
+                  <MuiOtpInput
+                    value={otp}
+                    onChange={handleChangeOtp}
+                    length={5}
+                    autoFocus
+                    validateChar={matchIsNumeric}
+                    TextFieldsProps={{ error: Boolean(errors.otp) }}
+                  />
+                  <Detail1
+                    sx={{
+                      color: "var(--danger-10)",
+                      height: "20px",
+                      marginTop: "8px",
+                    }}
+                  >
+                    {errors.otp}
+                  </Detail1>
+                </Box>
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ marginTop: "20px" }}
+                >
+                  Verificar
+                </Button>
+              </form>
+            </Container>
+          ) : (
+            <Container style={DRAWER_CONTAINER_STYLE}>
+              <Body1>Criar usuário</Body1>
+              <form
+                className="formContainer"
+                onSubmit={handleContinueCreateUser}
+              >
+                <TextField
+                  label="Usuário"
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  error={!!errors.newUsername}
+                  helperText={errors.newUsername}
+                />
+                <TextField
+                  label="E-mail"
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  error={!!errors.newEmail}
+                  helperText={errors.newEmail}
+                />
+                <PasswordField
+                  label="Senha"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  error={!!errors.newPassword}
+                  helperText={errors.newPassword}
+                />
+                <PasswordField
+                  label="Confirmar senha"
+                  onChange={(e) => setNewConfirmPassword(e.target.value)}
+                  error={!!errors.newConfirmPassword}
+                  helperText={errors.newConfirmPassword}
+                />
+                <Button
+                  variant="contained"
+                  type="submit"
+                  sx={{ marginTop: "40px" }}
+                >
+                  Confirmar
+                </Button>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    width: "100%",
+                  }}
+                >
+                  <Divider
+                    sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
+                  />
+                  <Subtitle2
+                    sx={{
+                      marginX: 1,
+                      color: "var(--neutral-70)",
+                    }}
+                  >
+                    ou
+                  </Subtitle2>
+                  <Divider
+                    sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
+                  />
+                </Box>
+                <Button
+                  color="secondary"
+                  sx={{
+                    "& .MuiButton-startIcon": {
+                      marginRight: "12px",
+                    },
+                  }}
+                  variant="outlined"
+                  startIcon={
+                    <img
+                      src="/icons/googleIcon.svg"
+                      alt="Google Icon"
+                      height={20}
+                      width={20}
+                    />
+                  }
+                  onClick={() => {
+                    setIsCreateDrawerOpen(false);
+                    setTimeout(() => setChangeSection(false), 100);
+                  }}
+                >
+                  Criar com o Google
+                </Button>
+              </form>
+            </Container>
+          )}
+        </Drawer>
+
+        {/* Drawer para editar usuário */}
+        <Drawer
+          anchor="right"
+          open={isEditDrawerOpen}
+          onClose={handleCloseEditDrawer}
+        >
+          <Container style={DRAWER_CONTAINER_STYLE}>
+            <Body1>
+              {myUserId === userEdit?.id
+                ? "Editar usuário atual"
+                : "Editar usuário"}
+            </Body1>
+
+            <form className="formContainer" onSubmit={handleConfirmUpdateUser}>
+              <TextField
+                label="Usuário"
+                onChange={(e) => setEditUsername(e.target.value)}
+                defaultValue={userEdit?.user}
+                error={!!errors.editUsername}
+                helperText={errors.editUsername}
+              />
+
+              <Box sx={ADMIN_CHECKBOX_CONTAINER_STYLE}>
+                <FormControlLabel
+                  label="Permitir ações de administrador"
+                  control={
+                    <Checkbox defaultChecked={userEdit?.is_admin || false} />
+                  }
+                />
+                <Tooltip
+                  arrow
+                  title="Permite gerenciar adicionar, editar e deletar todos os usuários, exceto a conta criadora do estoque."
+                >
+                  <Icon name="Info" color="var(--neutral-50)" />
+                </Tooltip>
+              </Box>
+
+              {!isPasswordSectionVisible && (
+                <motion.div
+                  key="button"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Button
+                    startIcon={<Icon name="Lock" />}
+                    variant="outlined"
+                    onClick={() => {
+                      setIsPasswordSectionVisible(true);
+                      errors.editPastPassword = "";
+                      errors.editFuturePassword = "";
+                      errors.editConfirmFuturePassword = "";
+                    }}
+                    sx={{ width: "100%" }}
+                  >
+                    Mudar senha
+                  </Button>
+                </motion.div>
+              )}
+
+              {isPasswordSectionVisible && (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.4 }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <Box sx={PASSWORD_SECTION_STYLE}>
+                    <Box sx={PASSWORD_SECTION_HEADER_STYLE}>
+                      <Body4 sx={{ color: "var(--neutral-70)" }}>
+                        Mudar senha
+                      </Body4>
+                      <IconButton
+                        buttonProps={{ variant: "text" }}
+                        onClick={() => setIsPasswordSectionVisible(false)}
+                        tooltip="Fechar"
+                        icon="X"
+                      />
+                    </Box>
+
+                    <Box sx={FORM_FIELDS_CONTAINER_STYLE}>
+                      <PasswordField
+                        label="Senha anterior"
+                        onChange={(e) => setEditPastPassword(e.target.value)}
+                        error={!!errors.editPastPassword}
+                        helperText={errors.editPastPassword}
+                      />
+                      <PasswordField
+                        label="Senha nova"
+                        onChange={(e) => setEditFuturePassword(e.target.value)}
+                        error={!!errors.editFuturePassword}
+                        helperText={errors.editFuturePassword}
+                      />
+                      <PasswordField
+                        label="Confirmar senha nova"
+                        onChange={(e) =>
+                          setEditConfirmFuturePassword(e.target.value)
+                        }
+                        error={!!errors.editConfirmFuturePassword}
+                        helperText={errors.editConfirmFuturePassword}
+                      />
+                      <Link
+                        style={{
+                          fontSize: "16px",
+                          color: "var(--primary-10)",
+                        }}
+                        href="#"
+                      >
+                        Esqueci minha senha?
+                      </Link>
+                    </Box>
+                  </Box>
+                </motion.div>
+              )}
+              <Button
+                variant="contained"
+                sx={{ marginTop: "40px" }}
+                type="submit"
+              >
+                Atualizar
+              </Button>
+            </form>
+          </Container>
+        </Drawer>
+      </div>
+    </div>
+  );
+}
