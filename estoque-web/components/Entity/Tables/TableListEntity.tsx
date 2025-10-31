@@ -7,12 +7,17 @@ import {
   ModuleRegistry,
   AllCommunityModule,
   RowSelectedEvent,
+  ICellRendererParams,
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
 import { Box } from "@mui/material";
 import { entityList } from "@/utils/dataBaseExample";
-import { renderDateCell, renderDisabledCellWithIcons, renderTooltip } from "@/components/Tables/CelRenderes";
+import {
+  renderDateCell,
+  renderDisabledCellWithIcons,
+  renderTooltip,
+} from "@/components/Tables/CelRenderes";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -43,7 +48,12 @@ export default function TableListEntity() {
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: renderDisabledCellWithIcons,
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Entidade está desativada");
+          return messages.join("");
+        }),
     },
     {
       headerName: "Nome",
@@ -52,7 +62,8 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "E-mail",
@@ -61,7 +72,8 @@ export default function TableListEntity() {
       filter: "agTextColumnFilter",
       flex: 1,
       minWidth: 180,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Endereço",
@@ -70,7 +82,8 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Criado",

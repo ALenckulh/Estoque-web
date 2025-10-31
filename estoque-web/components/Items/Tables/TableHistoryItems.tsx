@@ -2,14 +2,18 @@
 
 import React, { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import {
+  ColDef,
+  ModuleRegistry,
+  AllCommunityModule,
+  ICellRendererParams,
+} from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { ICellRendererParams } from "ag-grid-community";
 import { itemHistoryList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
-  renderIdCell,
+  renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
 
 // Registrar todos os módulos Community
@@ -43,7 +47,12 @@ export default function TableHistoryEntity() {
       cellClassRules: {
         "cell-disabled": (params) => !!params.data?.disabled,
       },
-      cellRenderer: renderIdCell,
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Movimentação está desativada");
+          return messages.join("");
+        }),
     },
     {
       headerName: "Nota Fiscal",

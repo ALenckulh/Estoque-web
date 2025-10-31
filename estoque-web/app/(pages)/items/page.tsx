@@ -3,7 +3,7 @@
 import { Appbar } from "@/components/Appbar/appbar";
 import TableListItem from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
-import { Body1, Body4, Detail1, Detail2 } from "@/components/ui/Typograph";
+import { Body1, Body4, Detail1, Detail2 } from "@/components/ui/Typography";
 import { Box, Button, Container, Drawer, TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";

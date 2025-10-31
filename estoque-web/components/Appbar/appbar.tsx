@@ -27,7 +27,7 @@ export function Appbar({
   showTabs = true,
   showAvatar = true,
   tabItems = [
-    { id: "itens", label: "Itens", url: "" },
+    { id: "itens", label: "Itens", url: "/items" },
     { id: "entidade", label: "Entidades", url: "/entity" },
     { id: "historico", label: "Histórico", url: "" },
   ],

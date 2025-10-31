@@ -5,7 +5,6 @@ import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
 import { RowDataItem } from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typograph";
 import { itemList } from "@/utils/dataBaseExample";
 import {
   Box,
@@ -27,9 +26,10 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
-import { NotFound } from "@/components/NotFound";
-import { EntityIdLoading } from "@/components/Entity/Loading/EntityIdLoading";
-import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
+import { ToastContainer } from "@/components/ui/Toast/Toast";
+import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
+import { NotFound } from "@/components/Feedback/NotFound";
+import { useToast } from "@/hooks/toastHook";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("itens");
@@ -80,9 +80,7 @@ export default function Page() {
         onTabChange={setSelectedTab}
       />
       <div className="container">
-        {loading ? (
-          <EntityIdLoading />
-        ) : notFound ? (
+        {notFound ? (
           <NotFound
             description={`Nenhum item encontrado com o ID (${id})`}
           />
