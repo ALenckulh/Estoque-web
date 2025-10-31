@@ -5,7 +5,7 @@ import TableHistoryEntity from "@/components/Entity/Tables/TableHistoryEntity";
 import { RowDataEntity } from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typograph";
+import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
 import { entityList } from "@/utils/dataBaseExample";
 import {
   Box,
@@ -23,9 +23,9 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
-import { NotFound } from "@/components/NotFound";
-import { EntityIdLoading } from "@/components/Entity/Loading/EntityIdLoading";
-import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
+import { NotFound } from "@/components/Feedback/NotFound";
+import { ToastContainer } from "@/components/ui/Toast/Toast";
+import { useToast } from "@/hooks/toastHook";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("entidade");
@@ -68,9 +68,7 @@ export default function Page() {
         onTabChange={setSelectedTab}
       />
       <div className="container">
-        {loading ? (
-          <EntityIdLoading />
-        ) : notFound ? (
+        {notFound ? (
           <NotFound
             description={`Nenhuma entidade encontrada com o ID (${id})`}
           />
@@ -257,9 +255,7 @@ export default function Page() {
                 }}
               >
                 <Body1>Editar Entidade</Body1>
-                <Box
-                  sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
-                >
+                <form className="formContainer">
                   <TextField
                     defaultValue={entity?.name}
                     placeholder="Nome da entidade"
@@ -282,16 +278,17 @@ export default function Page() {
                     defaultValue={entity?.description}
                     placeholder="Digite a nova descrição..."
                   />
-                </Box>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    setOpenDrawer(false);
-                    showToast(`Editado com sucesso`, "success", "Pencil");
-                  }}
-                >
-                  Confirmar
-                </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ marginTop: "20px" }}
+                    onClick={() => {
+                      setOpenDrawer(false);
+                      showToast(`Editado com sucesso`, "success", "Pencil");
+                    }}
+                  >
+                    Confirmar
+                  </Button>
+                </form>
               </Container>
             </Drawer>
             <ToastContainer toasts={toasts} />

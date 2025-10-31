@@ -1,15 +1,15 @@
 import React from "react";
 import { Box, Card, Container } from "@mui/material";
-import { Subtitle2 } from "./ui/Typograph";
+import { Subtitle2 } from "../ui/Typography";
 
 
 interface NotFoundProps {
     description: string;
 }
 
-export const NotFound = ({ description }: NotFoundProps) => {
+export const NotFound = ({ description, ...props }: NotFoundProps) => {
   return (
-    <Container>
+    <div className="container">
       <Card>
         <Box
           sx={{
@@ -24,6 +24,7 @@ export const NotFound = ({ description }: NotFoundProps) => {
             alt="Página não encontrada"
             height={400}
             width={400}
+            {...props}
           />
 
           <Box
@@ -42,6 +43,6 @@ export const NotFound = ({ description }: NotFoundProps) => {
           </Box>
         </Box>
       </Card>
-    </Container>
+    </div>
   );
 };

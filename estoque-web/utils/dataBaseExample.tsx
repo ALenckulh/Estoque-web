@@ -387,3 +387,26 @@ export const historyList = [
       quantity: 16,
     },
   ]
+
+export const usersList = [
+  { id: "1", user: "admin", email: "admin@example.com", is_admin: true, disabled: true },
+  { id: "2", user: "johndoe", email: "johndoe@example.com", is_admin: false, disabled: false },
+  { id: "3", user: "janedoe", email: "janedoe@example.com", is_admin: false, disabled: false },
+  { id: "4", user: "michael", email: "michael@example.com", is_admin: false, disabled: false },
+  { id: "5", user: "sarah", email: "sarah@example.com", is_admin: false, disabled: false },
+  { id: "6", user: "david", email: "david@example.com", is_admin: false, disabled: false },
+  { id: "7", user: "emily", email: "emily@example.com", is_admin: false, disabled: false },
+  { id: "8", user: "chris", email: "chris@example.com", is_admin: false, disabled: false },
+  { id: "9", user: "anna", email: "anna@example.com", is_admin: false, disabled: false },
+  { id: "10", user: "james", email: "james@example.com", is_admin: false, disabled: true },
+  { id: "11", user: "laura", email: "laura@example.com", is_admin: false, disabled: false },
+  { id: "12", user: "robert", email: "robert@example.com", is_admin: false, disabled: false },
+  { id: "13", user: "linda", email: "linda@example.com", is_admin: false, disabled: false },
+  { id: "14", user: "kevin", email: "kevin@example.com", is_admin: false, disabled: false },
+  { id: "15", user: "natalie", email: "natalie@example.com", is_admin: false, disabled: true },
+  { id: "16", user: "ryan", email: "ryan@example.com", is_admin: false, disabled: false },
+  { id: "17", user: "olivia", email: "olivia@example.com", is_admin: false, disabled: false },
+  { id: "18", user: "daniel", email: "daniel@example.com", is_admin: false, disabled: false },
+  { id: "19", user: "megan", email: "megan@example.com", is_admin: false, disabled: false },
+  { id: "20", user: "brian", email: "brian@example.com", is_admin: false, disabled: false }
+];
