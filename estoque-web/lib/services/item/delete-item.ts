@@ -1,7 +1,7 @@
 import { supabase } from "@/utils/supabase/supabaseClient";
 import { Item } from "../../models/item_model";
 
-export async function safeDeleteItemDB(id: number): Promise<Item> {
+export async function deleteItem(id: number): Promise<Item> {
   const { data, error } = await supabase
     .from("items")
     .update({ safe_delete: true })
