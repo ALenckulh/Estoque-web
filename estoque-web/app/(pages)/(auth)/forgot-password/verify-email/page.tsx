@@ -55,6 +55,7 @@ export default function Page() {
           </Detail1>
           <form onSubmit={handleSubmit} className="formContainer">
             <Box>
+              {/* @ts-expect-error: type conflict between React versions */}
               <MuiOtpInput value={otp} onChange={handleChange} length={5} autoFocus validateChar={matchIsNumeric} TextFieldsProps={{ error: Boolean(error) }} />
             <Detail1 sx={{ color: "var(--danger-10)", height: "20px", marginTop: "8px" }}>
               {error}

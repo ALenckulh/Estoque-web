@@ -56,6 +56,7 @@ export default function Page() {
           </Detail1>
           <form onSubmit={handleSubmit} className="formContainer">
             <Box>
+              {/* @ts-expect-error: type conflict between React versions */}
               <MuiOtpInput
                 value={otp}
                 onChange={handleChange}

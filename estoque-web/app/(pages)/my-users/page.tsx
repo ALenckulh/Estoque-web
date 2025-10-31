@@ -48,7 +48,7 @@ const DRAWER_CONTAINER_STYLE = {
   gap: "40px",
 };
 
-export const FORM_FIELDS_CONTAINER_STYLE = {
+const FORM_FIELDS_CONTAINER_STYLE = {
   display: "flex",
   gap: "20px",
   flexDirection: "column" as const,
@@ -367,6 +367,7 @@ export default function Page() {
               </Detail1>
               <form onSubmit={handleCreateUser} className="formContainer">
                 <Box>
+                  {/* @ts-expect-error: type conflict between React versions */}
                   <MuiOtpInput
                     value={otp}
                     onChange={handleChangeOtp}
