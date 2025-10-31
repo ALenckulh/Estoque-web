@@ -1,5 +1,5 @@
 import { supabase } from "@/utils/supabase/supabaseClient";
-import { User } from "../../models/user_model";
+import { User } from "@/lib/models/user_model";
 
 interface UpdateParameters {
     name?: string;
