@@ -3,8 +3,25 @@
 import { Appbar } from "@/components/Appbar/appbar";
 import TableListItem from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
-import { Body1, Body4, Detail1, Detail2 } from "@/components/ui/Typography";
-import { Box, Button, Container, Drawer, TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import {
+  Body1,
+  Body4,
+  Detail1,
+  Detail2,
+  Subtitle2,
+} from "@/components/ui/Typography";
+import {
+  Box,
+  Button,
+  Container,
+  Drawer,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Popover,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -14,7 +31,7 @@ export default function Page() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [openFilterDrawer, setOpenFilterDrawer] = useState(false);
   const [openMovementDrawer, setOpenMovementDrawer] = useState(false);
-
+  const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
 
   const handleCreatedItem = (id: number) => {
     router.push(`/item/${id}`);
@@ -35,7 +52,7 @@ export default function Page() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            marginBottom: "20px"
+            marginBottom: "20px",
           }}
         >
           <Body4 sx={{ color: "var(--neutral-60)" }}>Produtos listados</Body4>
@@ -44,7 +61,7 @@ export default function Page() {
             sx={{
               display: "flex",
               gap: "16px",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -54,7 +71,7 @@ export default function Page() {
                     width: "8px",
                     height: "8px",
                     borderRadius: "50%",
-                    backgroundColor: "#FF0000"
+                    backgroundColor: "#FF0000",
                   }}
                 />
                 <Detail2 sx={{ color: "var(--neutral-60)", fontSize: "12px" }}>
@@ -68,7 +85,7 @@ export default function Page() {
                     width: "8px",
                     height: "8px",
                     borderRadius: "50%",
-                    backgroundColor: "#FFD700"
+                    backgroundColor: "#FFD700",
                   }}
                 />
                 <Detail2 sx={{ color: "var(--neutral-60)", fontSize: "12px" }}>
@@ -80,53 +97,55 @@ export default function Page() {
               sx={{
                 width: "1px",
                 height: "16px",
-                backgroundColor: "var(--neutral-30)"
+                backgroundColor: "var(--neutral-30)",
               }}
             />
             <Box sx={{ position: "relative" }}>
               <Button
                 variant="outlined"
                 startIcon={<Icon name="ListFilter"></Icon>}
-                onClick={() => setOpenFilterDrawer(!openFilterDrawer)}
+                onClick={(e) => setAnchorPopover(e.currentTarget)}
                 sx={{
                   minWidth: "40px",
                   width: "40px",
                   height: "40px",
                   padding: "8px",
                   "& .MuiButton-startIcon": {
-                    margin: 0
-                  }
+                    margin: 0,
+                  },
+                }}
+              ></Button>
+              <Popover
+                open={Boolean(anchorPopover)}
+                anchorEl={anchorPopover}
+                onClose={() => setAnchorPopover(null)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      width: anchorPopover ? anchorPopover.clientWidth : "auto",
+                      padding: 3,
+                    },
+                  },
                 }}
               >
-              </Button>
-
-              {openFilterDrawer && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "100%",
-                    right: 0,
-                    width: "320px",
-                    backgroundColor: "white",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    padding: "20px",
-                    zIndex: 1000,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "16px",
-                    marginTop: "8px"
-                  }}
+                <Subtitle2 sx={{ marginBottom: "24px" }}>
+                  Filtrar Produtos
+                </Subtitle2>
+                <form
+                  className="formContainer"
+                  style={{ width: "100%", gap: "12px" }}
                 >
-                  <Detail2 sx={{ fontWeight: "bold", marginBottom: "8px" }}>Filtrar Produtos</Detail2>
-
-                  <FormControl fullWidth size="small">
+                  <FormControl fullWidth>
                     <InputLabel id="grupo-label">Grupos</InputLabel>
-                    <Select
-                      labelId="grupo-label"
-                      label="Grupos"
-                    >
+                    <Select labelId="grupo-label" label="Grupos">
                       <MenuItem value="grupo1">Grupo 1</MenuItem>
                       <MenuItem value="grupo2">Grupo 2</MenuItem>
                       <MenuItem value="grupo3">Grupo 3</MenuItem>
@@ -141,41 +160,32 @@ export default function Page() {
                     fullWidth
                   />
 
-                  <FormControl fullWidth size="small">
+                  <FormControl>
                     <InputLabel id="unidade-label">Unidade</InputLabel>
-                    <Select
-                      labelId="unidade-label"
-                      label="Unidade"
-                    >
+                    <Select labelId="unidade-label" label="Unidade">
                       <MenuItem value="unidade">Unidade</MenuItem>
                       <MenuItem value="kg">Kilograma</MenuItem>
                       <MenuItem value="litro">Litro</MenuItem>
                     </Select>
                   </FormControl>
 
-                  <FormControl fullWidth size="small">
+                  <FormControl>
                     <InputLabel id="estado-label">Estado</InputLabel>
-                    <Select
-                      labelId="estado-label"
-                      label="Estado"
-                    >
+                    <Select labelId="estado-label" label="Estado">
                       <MenuItem value="ativo">Ativo</MenuItem>
                       <MenuItem value="inativo">Inativo</MenuItem>
                     </Select>
                   </FormControl>
 
-                  <FormControl fullWidth size="small">
+                  <FormControl>
                     <InputLabel id="quantidade-label">Quantidade</InputLabel>
-                    <Select
-                      labelId="quantidade-label"
-                      label="Quantidade"
-                    >
+                    <Select labelId="quantidade-label" label="Quantidade">
                       <MenuItem value="negativo">Negativo</MenuItem>
                       <MenuItem value="baixa">Baixa</MenuItem>
                       <MenuItem value="normal">Normal</MenuItem>
                     </Select>
                   </FormControl>
-                  <Box sx={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+                  <Box sx={{ display: "flex", gap: "12px", marginTop: "24px" }}>
                     <Button
                       variant="outlined"
                       color="error"
@@ -194,8 +204,8 @@ export default function Page() {
                       Aplicar
                     </Button>
                   </Box>
-                </Box>
-              )}
+                </form>
+              </Popover>
             </Box>
 
             <Button
@@ -231,7 +241,7 @@ export default function Page() {
                     display: "flex",
                     flexDirection: "column",
                     gap: "4px",
-                    marginTop: "8px"
+                    marginTop: "8px",
                   }}
                 >
                   <Box
@@ -244,8 +254,8 @@ export default function Page() {
                       color: "var(--neutral-90)",
                       cursor: "pointer",
                       "&:hover": {
-                        backgroundColor: "var(--neutral-10)"
-                      }
+                        backgroundColor: "var(--neutral-10)",
+                      },
                     }}
                     onClick={() => {
                       setOpenMovementDrawer(false);
@@ -264,8 +274,8 @@ export default function Page() {
                       cursor: "pointer",
                       color: "var(--neutral-90)",
                       "&:hover": {
-                        backgroundColor: "var(--neutral-10)"
-                      }
+                        backgroundColor: "var(--neutral-10)",
+                      },
                     }}
                     onClick={() => {
                       setOpenMovementDrawer(false);
@@ -288,95 +298,86 @@ export default function Page() {
           onClose={() => setOpenDrawer(false)}
         >
           <Container
-            style={{ display: "flex", flexDirection: "column", gap: "40px", padding: "20px", width: "400px" }}
+            style={{ display: "flex", flexDirection: "column", gap: "40px" }}
           >
-            <Body1 sx={{ color: "var(--neutral-60)" }}>Cadastrar Produto</Body1>
-            <Box sx={{ display: "flex", gap: "20px", flexDirection: "column" }}>
-              <Box>
-                <Detail1 sx={{ fontWeight: "bold", marginBottom: "8px" }}>Produto</Detail1>
-                <Box sx={{ display: "flex", gap: "16px", flexDirection: "column" }}>
-                  <TextField
-                    label={
-                      <span>
-                        Nome do produto
-                        <span style={{ color: "red" }}>*</span>
-                      </span>
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    label={
-                      <span>
-                        Quantidade de alerta
-                        <span style={{ color: "red" }}>*</span>
-                      </span>
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    label="Posição"
-                    fullWidth
-                  />
-                  <FormControl fullWidth>
-                    <InputLabel id="unidade-medida-label">Unidade de medida</InputLabel>
-                    <Select
-                      labelId="unidade-medida-label"
-                      label="Unidade de medida"
-                    >
-                      <MenuItem value="unidade">Unidade</MenuItem>
-                      <MenuItem value="kg">Kilograma</MenuItem>
-                      <MenuItem value="g">Grama</MenuItem>
-                      <MenuItem value="litro">Litro</MenuItem>
-                      <MenuItem value="ml">Mililitro</MenuItem>
-                      <MenuItem value="caixa">Caixa</MenuItem>
-                      <MenuItem value="pacote">Pacote</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
+            <Body1 sx={{ color: "var(--neutral-80)" }}>Cadastrar Produto</Body1>
+            <Box sx={{ display: "flex", gap: "24px", flexDirection: "column" }}>
+              <Box
+                sx={{ display: "flex", gap: "12px", flexDirection: "column" }}
+              >
+                <Detail1>Produto</Detail1>
+                <TextField
+                  label={
+                    <span>
+                      Nome do produto
+                      <span style={{ color: "var(--danger-0)" }}>*</span>
+                    </span>
+                  }
+                  fullWidth
+                />
+                <TextField
+                  label={
+                    <span>
+                      Quantidade de alerta
+                      <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
+                  fullWidth
+                />
+                <TextField label="Posição" fullWidth />
+                <FormControl fullWidth>
+                  <InputLabel id="unidade-medida-label">
+                    Unidade de medida
+                  </InputLabel>
+                  <Select
+                    labelId="unidade-medida-label"
+                    label="Unidade de medida"
+                  >
+                    <MenuItem value="unidade">Unidade</MenuItem>
+                    <MenuItem value="kg">Kilograma</MenuItem>
+                    <MenuItem value="g">Grama</MenuItem>
+                    <MenuItem value="litro">Litro</MenuItem>
+                    <MenuItem value="ml">Mililitro</MenuItem>
+                    <MenuItem value="caixa">Caixa</MenuItem>
+                    <MenuItem value="pacote">Pacote</MenuItem>
+                  </Select>
+                </FormControl>
               </Box>
-              <Box>
-                <Detail1 sx={{ fontWeight: "bold", marginBottom: "8px" }}>Classificação</Detail1>
-                <Box sx={{ display: "flex", gap: "16px", flexDirection: "column" }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="fabricante-label">Fabricante</InputLabel>
-                    <Select
-                      labelId="fabricante-label"
-                      label="Fabricante"
-                    >
-                      <MenuItem value="fabricante1">Fabricante 1</MenuItem>
-                      <MenuItem value="fabricante2">Fabricante 2</MenuItem>
-                      <MenuItem value="fabricante3">Fabricante 3</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth>
-                    <InputLabel id="segmento-label">Segmento</InputLabel>
-                    <Select
-                      labelId="segmento-label"
-                      label="Segmento"
-                    >
-                      <MenuItem value="segmento1">Segmento 1</MenuItem>
-                      <MenuItem value="segmento2">Segmento 2</MenuItem>
-                      <MenuItem value="segmento3">Segmento 3</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth>
-                    <InputLabel id="grupo-label">Grupo</InputLabel>
-                    <Select
-                      labelId="grupo-label"
-                      label="Grupo"
-                    >
-                      <MenuItem value="grupo1">Grupo 1</MenuItem>
-                      <MenuItem value="grupo2">Grupo 2</MenuItem>
-                      <MenuItem value="grupo3">Grupo 3</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <TextField
-                    multiline
-                    rows={4}
-                    label="Descrição"
-                    placeholder="Digite a descrição do produto aqui..."
-                  />
-                </Box>
+
+              <Box
+                sx={{ display: "flex", gap: "12px", flexDirection: "column" }}
+              >
+                <Detail1>Classificação</Detail1>
+                <FormControl fullWidth>
+                  <InputLabel id="fabricante-label">Fabricante</InputLabel>
+                  <Select labelId="fabricante-label" label="Fabricante">
+                    <MenuItem value="fabricante1">Fabricante 1</MenuItem>
+                    <MenuItem value="fabricante2">Fabricante 2</MenuItem>
+                    <MenuItem value="fabricante3">Fabricante 3</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="segmento-label">Segmento</InputLabel>
+                  <Select labelId="segmento-label" label="Segmento">
+                    <MenuItem value="segmento1">Segmento 1</MenuItem>
+                    <MenuItem value="segmento2">Segmento 2</MenuItem>
+                    <MenuItem value="segmento3">Segmento 3</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="grupo-label">Grupo</InputLabel>
+                  <Select labelId="grupo-label" label="Grupo">
+                    <MenuItem value="grupo1">Grupo 1</MenuItem>
+                    <MenuItem value="grupo2">Grupo 2</MenuItem>
+                    <MenuItem value="grupo3">Grupo 3</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  multiline
+                  rows={4}
+                  label="Descrição"
+                  placeholder="Digite a descrição do produto aqui..."
+                />
               </Box>
             </Box>
             <Button
