@@ -3,6 +3,7 @@
 import { Appbar } from "@/components/Appbar/appbar";
 import TableListItem from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
+import MenuItem from "@/components/ui/MenuItem";
 import {
   Body1,
   Body4,
@@ -17,31 +18,59 @@ import {
   Drawer,
   TextField,
   Select,
-  MenuItem,
   FormControl,
   InputLabel,
   Popover,
+  Menu,
+  Autocomplete,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+
+type Option = {
+  label: string;
+  value: string | number;
+};
 
 export default function Page() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("itens");
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [openFilterDrawer, setOpenFilterDrawer] = useState(false);
-  const [openMovementDrawer, setOpenMovementDrawer] = useState(false);
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedMeasureUnity, setSelectedMeasureUnity] = useState<Option | null>(null); // Autocomplete
 
-  const handleCreatedItem = (id: number) => {
-    router.push(`/item/${id}`);
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCreatedItem = (id: number) => router.push(`/item/${id}`);
+
+  const measurementUnits: Option[] = [
+  { label: "Unidade", value: "unidade" },
+  { label: "Caixa", value: "caixa" },
+  { label: "Pacote", value: "pacote" },
+  { label: "Peça", value: "peca" },
+  { label: "Metro", value: "metro" },
+  { label: "Centímetro", value: "centimetro" },
+  { label: "Milímetro", value: "milimetro" },
+  { label: "Litro", value: "litro" },
+  { label: "Mililitro", value: "mililitro" },
+  { label: "Quilograma", value: "kg" },
+  { label: "Grama", value: "g" },
+  { label: "Par", value: "par" },
+  { label: "Conjunto", value: "conjunto" },
+];
 
   return (
     <div>
       <Appbar
-        showTabs={true}
-        showAvatar={true}
+        showTabs
+        showAvatar
         selectedTab={selectedTab}
         onTabChange={setSelectedTab}
       />
@@ -52,18 +81,11 @@ export default function Page() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            marginBottom: "20px",
+            mb: "20px",
           }}
         >
           <Body4 sx={{ color: "var(--neutral-60)" }}>Produtos listados</Body4>
-
-          <Box
-            sx={{
-              display: "flex",
-              gap: "16px",
-              alignItems: "center",
-            }}
-          >
+          <Box sx={{ display: "flex", gap: "16px", alignItems: "center" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <Box
@@ -78,7 +100,6 @@ export default function Page() {
                   4 itens no negativo
                 </Detail2>
               </Box>
-
               <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <Box
                   sx={{
@@ -103,42 +124,25 @@ export default function Page() {
             <Box sx={{ position: "relative" }}>
               <Button
                 variant="outlined"
-                startIcon={<Icon name="ListFilter"></Icon>}
+                startIcon={<Icon name="ListFilter" />}
                 onClick={(e) => setAnchorPopover(e.currentTarget)}
                 sx={{
-                  minWidth: "40px",
-                  width: "40px",
-                  height: "40px",
-                  padding: "8px",
-                  "& .MuiButton-startIcon": {
-                    margin: 0,
-                  },
+                  minWidth: 40,
+                  width: 40,
+                  height: 40,
+                  p: "8px",
+                  "& .MuiButton-startIcon": { m: 0 },
                 }}
-              ></Button>
+              />
               <Popover
                 open={Boolean(anchorPopover)}
                 anchorEl={anchorPopover}
                 onClose={() => setAnchorPopover(null)}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                slotProps={{
-                  paper: {
-                    sx: {
-                      width: anchorPopover ? anchorPopover.clientWidth : "auto",
-                      padding: 3,
-                    },
-                  },
-                }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+                slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
               >
-                <Subtitle2 sx={{ marginBottom: "24px" }}>
-                  Filtrar Produtos
-                </Subtitle2>
+                <Subtitle2 sx={{ mb: "24px" }}>Filtrar Produtos</Subtitle2>
                 <form
                   className="formContainer"
                   style={{ width: "100%", gap: "12px" }}
@@ -151,7 +155,6 @@ export default function Page() {
                       <MenuItem value="grupo3">Grupo 3</MenuItem>
                     </Select>
                   </FormControl>
-
                   <TextField
                     label="Data de criação"
                     type="date"
@@ -159,7 +162,6 @@ export default function Page() {
                     InputLabelProps={{ shrink: true }}
                     fullWidth
                   />
-
                   <FormControl>
                     <InputLabel id="unidade-label">Unidade</InputLabel>
                     <Select labelId="unidade-label" label="Unidade">
@@ -168,7 +170,6 @@ export default function Page() {
                       <MenuItem value="litro">Litro</MenuItem>
                     </Select>
                   </FormControl>
-
                   <FormControl>
                     <InputLabel id="estado-label">Estado</InputLabel>
                     <Select labelId="estado-label" label="Estado">
@@ -176,7 +177,6 @@ export default function Page() {
                       <MenuItem value="inativo">Inativo</MenuItem>
                     </Select>
                   </FormControl>
-
                   <FormControl>
                     <InputLabel id="quantidade-label">Quantidade</InputLabel>
                     <Select labelId="quantidade-label" label="Quantidade">
@@ -185,20 +185,20 @@ export default function Page() {
                       <MenuItem value="normal">Normal</MenuItem>
                     </Select>
                   </FormControl>
-                  <Box sx={{ display: "flex", gap: "12px", marginTop: "24px" }}>
+                  <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
                     <Button
                       variant="outlined"
                       color="error"
-                      startIcon={<Icon name="FilterX"></Icon>}
-                      onClick={() => setOpenFilterDrawer(false)}
+                      startIcon={<Icon name="FilterX" />}
+                      onClick={() => setAnchorPopover(null)}
                       fullWidth
                     >
                       Limpar
                     </Button>
                     <Button
                       variant="contained"
-                      startIcon={<Icon name="Check"></Icon>}
-                      onClick={() => setOpenFilterDrawer(false)}
+                      startIcon={<Icon name="Check" />}
+                      onClick={() => setAnchorPopover(null)}
                       fullWidth
                     >
                       Aplicar
@@ -207,84 +207,48 @@ export default function Page() {
                 </form>
               </Popover>
             </Box>
-
             <Button
               variant="outlined"
-              startIcon={<Icon name="Plus"></Icon>}
+              startIcon={<Icon name="Plus" />}
               onClick={() => setOpenDrawer(true)}
             >
               Cadastrar
             </Button>
-
             <Box sx={{ position: "relative" }}>
               <Button
                 variant="contained"
-                startIcon={<Icon name="Truck"></Icon>}
-                onClick={() => setOpenMovementDrawer(!openMovementDrawer)}
+                startIcon={<Icon name="Truck" />}
+                onClick={handleOpenMenu}
               >
                 Movimentar produtos
               </Button>
-
-              {openMovementDrawer && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "100%",
-                    right: 0,
-                    width: "200px",
-                    backgroundColor: "white",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    padding: "8px",
-                    zIndex: 1000,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "4px",
-                    marginTop: "8px",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "8px 12px",
-                      borderRadius: "4px",
-                      color: "var(--neutral-90)",
-                      cursor: "pointer",
-                      "&:hover": {
-                        backgroundColor: "var(--neutral-10)",
-                      },
-                    }}
-                    onClick={() => {
-                      setOpenMovementDrawer(false);
-                    }}
-                  >
-                    <Detail2>Entrada</Detail2>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "8px 12px",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      color: "var(--neutral-90)",
-                      "&:hover": {
-                        backgroundColor: "var(--neutral-10)",
-                      },
-                    }}
-                    onClick={() => {
-                      setOpenMovementDrawer(false);
-                    }}
-                  >
-                    <Detail2>Saída</Detail2>
-                  </Box>
-                </Box>
-              )}
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      width: anchorEl ? anchorEl.clientWidth : "auto",
+                    },
+                  },
+                }}
+              >
+                <MenuItem onClick={handleCloseMenu} icon="Users">
+                  Entrada
+                </MenuItem>
+                <MenuItem onClick={handleCloseMenu} icon="LogOut" error={true}>
+                  Saída
+                </MenuItem>
+              </Menu>
             </Box>
           </Box>
         </Box>
@@ -316,6 +280,7 @@ export default function Page() {
                   fullWidth
                 />
                 <TextField
+                defaultValue={5}
                   label={
                     <span>
                       Quantidade de alerta
@@ -325,29 +290,45 @@ export default function Page() {
                   fullWidth
                 />
                 <TextField label="Posição" fullWidth />
-                <FormControl fullWidth>
-                  <InputLabel id="unidade-medida-label">
-                    Unidade de medida
-                  </InputLabel>
-                  <Select
-                    labelId="unidade-medida-label"
-                    label="Unidade de medida"
-                  >
-                    <MenuItem value="unidade">Unidade</MenuItem>
-                    <MenuItem value="kg">Kilograma</MenuItem>
-                    <MenuItem value="g">Grama</MenuItem>
-                    <MenuItem value="litro">Litro</MenuItem>
-                    <MenuItem value="ml">Mililitro</MenuItem>
-                    <MenuItem value="caixa">Caixa</MenuItem>
-                    <MenuItem value="pacote">Pacote</MenuItem>
-                  </Select>
-                </FormControl>
+                <Autocomplete
+                  options={measurementUnits}
+                  getOptionLabel={(option) => option.label}
+                  value={selectedMeasureUnity}
+                  onChange={(_, newValue) => setSelectedMeasureUnity(newValue)}
+                  isOptionEqualToValue={(option, val) =>
+                    option.value === val?.value
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Unidade de medida"
+                      placeholder="Selecione..."
+                      variant="outlined"
+                    />
+                  )}
+                />
               </Box>
-
               <Box
                 sx={{ display: "flex", gap: "12px", flexDirection: "column" }}
               >
                 <Detail1>Classificação</Detail1>
+                <Autocomplete
+                  options={measurementUnits}
+                  getOptionLabel={(option) => option.label}
+                  value={selectedMeasureUnity}
+                  onChange={(_, newValue) => setSelectedMeasureUnity(newValue)}
+                  isOptionEqualToValue={(option, val) =>
+                    option.value === val?.value
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Fabricante"
+                      placeholder="Selecione..."
+                      variant="outlined"
+                    />
+                  )}
+                />
                 <FormControl fullWidth>
                   <InputLabel id="fabricante-label">Fabricante</InputLabel>
                   <Select labelId="fabricante-label" label="Fabricante">
