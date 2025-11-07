@@ -5,7 +5,7 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { ICellRendererParams } from "ag-grid-community";
-import { itemHistoryList } from "@/utils/dataBaseExample";
+import { movimentHistoryList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
@@ -19,7 +19,7 @@ interface RowDataItem {
   groupId: number;
   fiscalNote: string;
   entityId: number;
-  entityName: string;
+  itemId: number;
   user: string;
   movimentDate: string;
   quantity: number;
@@ -28,11 +28,11 @@ interface RowDataItem {
 }
 
 export default function TableHistoryEntity() {
-  const [rowData] = useState<RowDataItem[]>(itemHistoryList);
+  const [rowData] = useState<RowDataItem[]>(movimentHistoryList);
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
-      headerName: "Grupo ID",
+      headerName: "ID do Grupo",
       field: "groupId",
       sortable: true,
       width: 120,
@@ -54,21 +54,13 @@ export default function TableHistoryEntity() {
       flex: 1,
     },
     {
-      headerName: "ID Entidade",
-      minWidth: 120,
-      field: "entityId",
+      headerName: "Data de movimentação",
+      field: "movimentDate",
       sortable: true,
-      filter: "agNumberColumnFilter",
+      filter: "agDateColumnFilter",
       flex: 1,
-    },
-    {
-      headerName: "Nome da Entidade",
-      field: "entityName",
-      minWidth: 140,
-      sortable: true,
-      filter: "agTextColumnFilter",
-      flex: 1,
-      cellRenderer: renderCopyTooltipCell,
+      minWidth: 160,
+      cellRenderer: renderDateCell,
     },
     {
       headerName: "User responsável",
@@ -79,15 +71,22 @@ export default function TableHistoryEntity() {
       minWidth: 140,
       cellRenderer: renderCopyTooltipCell,
     },
-    
     {
-      headerName: "Data de movimentação",
-      field: "movimentDate",
+      headerName: "ID Entidade",
+      minWidth: 120,
+      field: "entityId",
       sortable: true,
-      filter: "agDateColumnFilter",
+      filter: "agNumberColumnFilter",
       flex: 1,
-      minWidth: 160,
-      cellRenderer: renderDateCell,
+    },
+    {
+      headerName: "ID Item",
+      field: "itemId",
+      minWidth: 140,
+      sortable: true,
+      filter: "agTextColumnFilter",
+      flex: 1,
+      cellRenderer: renderCopyTooltipCell,
     },
     {
       headerName: "Quantidade",

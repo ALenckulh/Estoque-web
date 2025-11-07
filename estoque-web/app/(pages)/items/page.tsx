@@ -17,7 +17,7 @@ export default function Page() {
 
 
   const handleCreatedItem = (id: number) => {
-    router.push(`/item/${id}`);
+    router.push(`/items/${id}`);
   };
 
   return (

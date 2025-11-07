@@ -102,7 +102,7 @@ export default function TableListItems() {
   const handleRowSelected = (event: RowSelectedEvent) => {
     if (event.node.isSelected()) {
       setLoading(true);
-      router.push(`/item/${event.data.id}`);
+      router.push(`/items/${event.data.id}`);
     }
   };
 
