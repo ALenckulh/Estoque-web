@@ -121,7 +121,7 @@ export default function Page() {
           />
         ) : (
           <>
-            <Card className="card" sx={{ overflowY: "auto" }}>
+            <Card className="card" sx={{ overflow: "auto" }}>
               <Container className="header">
                 <Box>
                   <Detail1 style={{ paddingBottom: "4px" }}>

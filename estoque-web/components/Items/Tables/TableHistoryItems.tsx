@@ -94,7 +94,7 @@ export default function TableHistoryEntity() {
       sortable: true,
       filter: "agDateColumnFilter",
       flex: 1,
-      minWidth: 160,
+      minWidth: 140,
       cellRenderer: renderDateCell,
     },
     {

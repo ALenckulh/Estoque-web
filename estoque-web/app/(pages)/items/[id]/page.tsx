@@ -30,6 +30,7 @@ import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
 import { NotFound } from "@/components/Feedback/NotFound";
 import { useToast } from "@/hooks/toastHook";
+import { validateProductName } from "@/utils/validations";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("itens");
@@ -41,6 +42,9 @@ export default function Page() {
   const [openModalInactive, setOpenModalInactive] = useState(false);
   const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
+  // Edição - estados controlados e validação para nome do produto
+  const [productName, setProductName] = useState<string>("");
+  const [productErrors, setProductErrors] = useState<{ name?: string }>({});
 
   // Array de detalhes reordenado para corresponder à imagem
   const itemDetails = [
@@ -69,6 +73,23 @@ export default function Page() {
     }
   }, [id]);
 
+  // Sincroniza o nome do produto quando o item é carregado
+  useEffect(() => {
+    if (item?.name) {
+      setProductName(item.name);
+    }
+  }, [item?.name]);
+
+  const handleUpdateItem = () => {
+    const nameError = validateProductName(productName);
+    setProductErrors({ name: nameError });
+    if (nameError) return;
+
+    setOpenDrawer(false);
+    showToast(`Item editado com sucesso`, "success", "Pencil");
+    // TODO: enviar atualização para API quando disponível
+  };
+
   return (
     <div>
       <Appbar
@@ -79,12 +100,10 @@ export default function Page() {
       />
       <div className="container">
         {notFound ? (
-          <NotFound
-            description={`Nenhum item encontrado com o ID (${id})`}
-          />
+          <NotFound description={`Nenhum item encontrado com o ID (${id})`} />
         ) : (
           <>
-            <Card className="card" sx={{ overflowY: "auto" }}>
+            <Card className="card" sx={{ overflow: "auto" }}>
               <Container className="header">
                 <Box>
                   <Detail1 style={{ paddingBottom: "4px" }}>
@@ -136,7 +155,8 @@ export default function Page() {
                       </DialogTitle>
                       <DialogContent>
                         <DialogContentText>
-                          Após desativar não será possível usar este item em novas movimentações
+                          Após desativar não será possível usar este item em
+                          novas movimentações
                         </DialogContentText>
                       </DialogContent>
                       <DialogActions>
@@ -166,7 +186,8 @@ export default function Page() {
                       </DialogTitle>
                       <DialogContent>
                         <DialogContentText>
-                          Após ativar será possível usar este item em novas movimentações
+                          Após ativar será possível usar este item em novas
+                          movimentações
                         </DialogContentText>
                       </DialogContent>
                       <DialogActions>
@@ -204,28 +225,27 @@ export default function Page() {
                 <Subtitle2>{item?.disabled ? "Inativo" : "Ativo"}</Subtitle2>
               </Box>
 
-              <Box className="mainContainer" sx={{ display: 'flex', flexDirection: 'column', gap: 2, padding: "0 16px" }}>
-                
-                <Container className="contactInfo" sx={{ display: 'flex', gap: 2, padding: "0 !important" }}>
+              <Box
+                className="mainContainer"
+                sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+              >
+                <Container className="contactInfo">
                   {topRowItems.map(({ label, value }) => (
-                    <Box 
-                      key={label} 
-                      className="contactField"
-                      sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        minWidth: '150px',
-                        flex: '1'
-                      }}
-                    >
+                    <Box key={label} className="productField">
                       <Detail1>{label}</Detail1>
                       <CopyTooltip
-                        title={value !== undefined && value !== null ? String(value) : "Não informado"}
+                        title={
+                          value !== undefined && value !== null
+                            ? String(value)
+                            : "Não informado"
+                        }
                         placement={"bottom-start"}
                         arrow={false}
                       >
                         <Subtitle2
-                          sx={{ color: value ? "inherit" : "var(--neutral-60)" }}
+                          sx={{
+                            color: value ? "inherit" : "var(--neutral-60)",
+                          }}
                           className="ellipsis"
                         >
                           {value || "Não informado"}
@@ -235,26 +255,23 @@ export default function Page() {
                   ))}
                 </Container>
 
-                <Container className="contactInfo" sx={{ display: 'flex', gap: 2, padding: "0 !important" }}>
+                <Container className="contactInfo">
                   {bottomRowItems.map(({ label, value }) => (
-                    <Box 
-                      key={label} 
-                      className="contactField"
-                      sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        minWidth: '150px',
-                        flex: '1'
-                      }}
-                    >
+                    <Box key={label} className="classificationField">
                       <Detail1>{label}</Detail1>
                       <CopyTooltip
-                        title={value !== undefined && value !== null ? String(value) : "Não informado"}
+                        title={
+                          value !== undefined && value !== null
+                            ? String(value)
+                            : "Não informado"
+                        }
                         placement={"bottom-start"}
                         arrow={false}
                       >
                         <Subtitle2
-                          sx={{ color: value ? "inherit" : "var(--neutral-60)" }}
+                          sx={{
+                            color: value ? "inherit" : "var(--neutral-60)",
+                          }}
                           className="ellipsis"
                         >
                           {value || "Não informado"}
@@ -262,24 +279,22 @@ export default function Page() {
                       </CopyTooltip>
                     </Box>
                   ))}
-                  <Box sx={{ flex: '1' }}></Box>
                 </Container>
 
-              </Box>
-
-              <Box className="description">
-                <Detail1>Descrição</Detail1>
-                <Subtitle2
-                  sx={{
-                    color: item?.description
-                      ? "inherit"
-                      : "var(--neutral-60)",
-                  }}
-                >
-                  {item?.description
-                    ? item?.description
-                    : "Não possui descrição"}
-                </Subtitle2>
+                <Box className="description">
+                  <Detail1>Descrição</Detail1>
+                  <Subtitle2
+                    sx={{
+                      color: item?.description
+                        ? "inherit"
+                        : "var(--neutral-60)",
+                    }}
+                  >
+                    {item?.description
+                      ? item?.description
+                      : "Não possui descrição"}
+                  </Subtitle2>
+                </Box>
               </Box>
             </Card>
             <Box className="historyContainer">
@@ -302,101 +317,107 @@ export default function Page() {
                   display: "flex",
                   flexDirection: "column",
                   gap: "40px",
-                  padding: "20px",
-                  width: "400px"
                 }}
               >
-                <Body1>Editar Produto</Body1>
-                <Box sx={{ display: "flex", gap: "20px", flexDirection: "column" }}>
-                  <Box>
-                    <Detail1 sx={{ fontWeight: "bold", marginBottom: "8px" }}>Produto</Detail1>
-                    <Box sx={{ display: "flex", gap: "16px", flexDirection: "column" }}>
-                      <TextField
-                        defaultValue={item?.name}
-                        label="Nome do produto"
-                        fullWidth
-                      />
-                      <TextField
-                        defaultValue={item?.alertQuantity}
-                        label="Quantidade de alerta"
-                        type="number"
-                        fullWidth
-                      />
-                      <TextField
-                        defaultValue={item?.position}
-                        label="Posição"
-                        fullWidth
-                      />
-                      <FormControl fullWidth>
-                        <InputLabel>Unidade de medida</InputLabel>
-                        <Select
-                          label="Unidade de medida"
-                          defaultValue={item?.unit || "unidade"}
-                        >
-                          <MenuItem value="unidade">Unidade</MenuItem>
-                          <MenuItem value="kg">Kilograma</MenuItem>
-                          <MenuItem value="g">Grama</MenuItem>
-                          <MenuItem value="litro">Litro</MenuItem>
-                          <MenuItem value="ml">Mililitro</MenuItem>
-                          <MenuItem value="caixa">Caixa</MenuItem>
-                          <MenuItem value="pacote">Pacote</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
+                <Body1 sx={{ color: "var(--neutral-80)" }}>
+                  Editar Produto
+                </Body1>
+                <Box
+                  sx={{ display: "flex", gap: "32px", flexDirection: "column" }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: "20px",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Detail1>Produto</Detail1>
+
+                    <TextField
+                      label="Nome do produto"
+                      fullWidth
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
+                      error={!!productErrors.name}
+                      helperText={productErrors.name}
+                    />
+                    <TextField
+                      defaultValue={item?.alertQuantity}
+                      label="Quantidade de alerta"
+                      type="number"
+                      fullWidth
+                    />
+                    <TextField
+                      defaultValue={item?.position}
+                      label="Posição"
+                      fullWidth
+                    />
+                    <FormControl fullWidth>
+                      <InputLabel>Unidade de medida</InputLabel>
+                      <Select
+                        label="Unidade de medida"
+                        defaultValue={item?.unit || "unidade"}
+                      >
+                        <MenuItem value="unidade">Unidade</MenuItem>
+                        <MenuItem value="kg">Kilograma</MenuItem>
+                        <MenuItem value="g">Grama</MenuItem>
+                        <MenuItem value="litro">Litro</MenuItem>
+                        <MenuItem value="ml">Mililitro</MenuItem>
+                        <MenuItem value="caixa">Caixa</MenuItem>
+                        <MenuItem value="pacote">Pacote</MenuItem>
+                      </Select>
+                    </FormControl>
                   </Box>
-                  <Box>
-                    <Detail1 sx={{ fontWeight: "bold", marginBottom: "8px" }}>Classificação</Detail1>
-                    <Box sx={{ display: "flex", gap: "16px", flexDirection: "column" }}>
-                      <FormControl fullWidth>
-                        <InputLabel>Fabricante</InputLabel>
-                        <Select
-                          label="Fabricante"
-                          defaultValue={item?.manufacturer || ""}
-                        >
-                          <MenuItem value="fabricante1">Fabricante 1</MenuItem>
-                          <MenuItem value="fabricante2">Fabricante 2</MenuItem>
-                          <MenuItem value="fabricante3">Fabricante 3</MenuItem>
-                        </Select>
-                      </FormControl>
-                      <FormControl fullWidth>
-                        <InputLabel>Segmento</InputLabel>
-                        <Select
-                          label="Segmento"
-                          defaultValue={item?.segment || ""}
-                        >
-                          <MenuItem value="segmento1">Segmento 1</MenuItem>
-                          <MenuItem value="segmento2">Segmento 2</MenuItem>
-                          <MenuItem value="segmento3">Segmento 3</MenuItem>
-                        </Select>
-                      </FormControl>
-                      <FormControl fullWidth>
-                        <InputLabel>Grupo</InputLabel>
-                        <Select
-                          label="Grupo"
-                          defaultValue={item?.group|| ""}
-                        >
-                          <MenuItem value="grupo1">Grupo 1</MenuItem>
-                          <MenuItem value="grupo2">Grupo 2</MenuItem>
-                          <MenuItem value="grupo3">Grupo 3</MenuItem>
-                        </Select>
-                      </FormControl>
-                      <TextField
-                        multiline
-                        rows={4}
-                        label="Descrição"
-                        defaultValue={item?.description}
-                        placeholder="Digite a descrição do produto aqui..."
-                      />
-                    </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: "20px",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Detail1>Classificação</Detail1>
+
+                    <FormControl fullWidth>
+                      <InputLabel>Fabricante</InputLabel>
+                      <Select
+                        label="Fabricante"
+                        defaultValue={item?.manufacturer || ""}
+                      >
+                        <MenuItem value="fabricante1">Fabricante 1</MenuItem>
+                        <MenuItem value="fabricante2">Fabricante 2</MenuItem>
+                        <MenuItem value="fabricante3">Fabricante 3</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl fullWidth>
+                      <InputLabel>Segmento</InputLabel>
+                      <Select
+                        label="Segmento"
+                        defaultValue={item?.segment || ""}
+                      >
+                        <MenuItem value="segmento1">Segmento 1</MenuItem>
+                        <MenuItem value="segmento2">Segmento 2</MenuItem>
+                        <MenuItem value="segmento3">Segmento 3</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl fullWidth>
+                      <InputLabel>Grupo</InputLabel>
+                      <Select label="Grupo" defaultValue={item?.group || ""}>
+                        <MenuItem value="grupo1">Grupo 1</MenuItem>
+                        <MenuItem value="grupo2">Grupo 2</MenuItem>
+                        <MenuItem value="grupo3">Grupo 3</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      multiline
+                      rows={4}
+                      label="Descrição"
+                      defaultValue={item?.description}
+                      placeholder="Digite a descrição do produto aqui..."
+                    />
                   </Box>
                 </Box>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    setOpenDrawer(false);
-                    showToast(`Item editado com sucesso`, "success", "Pencil");
-                  }}
-                >
+                <Button variant="contained" onClick={handleUpdateItem}>
                   Confirmar
                 </Button>
               </Container>
