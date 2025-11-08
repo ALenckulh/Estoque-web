@@ -72,9 +72,6 @@ export default function Page() {
     alertQuantity !== initialAlertQuantity ||
     position !== initialPosition ||
     description !== initialDescription;
-    alertQuantity !== initialAlertQuantity ||
-    position !== initialPosition ||
-    description !== initialDescription;
 
   const measurementUnits: Option[] = [
     { label: "Unidade", value: "unidade" },
