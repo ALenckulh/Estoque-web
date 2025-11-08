@@ -433,7 +433,7 @@ export default function Page() {
                   label={
                     <span>
                       Quantidade de alerta{" "}
-                      <span style={{ color: "red" }}>*</span>
+                      <span style={{ color: "var(--danger-0)" }}>*</span>
                     </span>
                   }
                   fullWidth

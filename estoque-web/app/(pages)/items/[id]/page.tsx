@@ -50,19 +50,31 @@ export default function Page() {
   const [selectedManufacturer, setSelectedManufacturer] = useState<Option | null>(null);
   const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
+  const [alertQuantity, setAlertQuantity] = useState<number | "">("");
+  const [position, setPosition] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
   const [initialProductName, setInitialProductName] = useState<string>("");
   const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(null);
   const [initialManufacturer, setInitialManufacturer] = useState<Option | null>(null);
   const [initialSegment, setInitialSegment] = useState<Option | null>(null);
   const [initialGroup, setInitialGroup] = useState<Option | null>(null);
+  const [initialAlertQuantity, setInitialAlertQuantity] = useState<number | "">("");
+  const [initialPosition, setInitialPosition] = useState<string>("");
+  const [initialDescription, setInitialDescription] = useState<string>("");
 
   const isDirty = 
     productName !== initialProductName ||
     selectedMeasureUnity?.value !== initialMeasureUnity?.value ||
     selectedManufacturer?.value !== initialManufacturer?.value ||
     selectedSegment?.value !== initialSegment?.value ||
-    selectedGroup?.value !== initialGroup?.value;
+    selectedGroup?.value !== initialGroup?.value ||
+    alertQuantity !== initialAlertQuantity ||
+    position !== initialPosition ||
+    description !== initialDescription;
+    alertQuantity !== initialAlertQuantity ||
+    position !== initialPosition ||
+    description !== initialDescription;
 
   const measurementUnits: Option[] = [
     { label: "Unidade", value: "unidade" },
@@ -152,43 +164,55 @@ export default function Page() {
       setProductName(item.name);
       setInitialProductName(item.name);
     }
-  }, [item?.name]);
+    if (item?.alertQuantity !== undefined) {
+      setAlertQuantity(item.alertQuantity);
+      setInitialAlertQuantity(item.alertQuantity);
+    }
+    if (item?.position) {
+      setPosition(item.position);
+      setInitialPosition(item.position);
+    }
+    if (item?.description) {
+      setDescription(item.description);
+      setInitialDescription(item.description);
+    }
+  }, [item?.name, item?.alertQuantity, item?.position, item?.description]);
 
   // Sincroniza os Autocompletes quando o item é carregado
   useEffect(() => {
     if (item) {
       // Unidade de medida
       if (item.unit) {
-        const unitOption = measurementUnits.find(opt => opt.value === item.unit);
+        const unitOption = measurementUnits.find((opt: Option): boolean => opt.value === item.unit);
         setSelectedMeasureUnity(unitOption || null);
         setInitialMeasureUnity(unitOption || null);
       }
       // Fabricante - adiciona opção se não existir
       if (item.manufacturer) {
-        let manuOption = manufacturerOptions.find(opt => opt.value === item.manufacturer);
+        let manuOption = manufacturerOptions.find((opt: Option): boolean => opt.value === item.manufacturer);
         if (!manuOption) {
           manuOption = { label: String(item.manufacturer), value: item.manufacturer };
-          setManufacturerOptions(prev => prev.some(opt => opt.value === manuOption!.value) ? prev : [...prev, manuOption!]);
+          setManufacturerOptions(prev => prev.some((opt: Option): boolean => opt.value === manuOption!.value) ? prev : [...prev, manuOption!]);
         }
         setSelectedManufacturer(manuOption || { label: String(item.manufacturer), value: item.manufacturer });
         setInitialManufacturer(manuOption || { label: String(item.manufacturer), value: item.manufacturer });
       }
       // Segmento - adiciona opção se não existir
       if (item.segment) {
-        let segOption = segmentOptions.find(opt => opt.value === item.segment);
+        let segOption = segmentOptions.find((opt: Option): boolean => opt.value === item.segment);
         if (!segOption) {
           segOption = { label: String(item.segment), value: item.segment };
-          setSegmentOptions(prev => prev.some(opt => opt.value === segOption!.value) ? prev : [...prev, segOption!]);
+          setSegmentOptions(prev => prev.some((opt: Option): boolean => opt.value === segOption!.value) ? prev : [...prev, segOption!]);
         }
         setSelectedSegment(segOption || { label: String(item.segment), value: item.segment });
         setInitialSegment(segOption || { label: String(item.segment), value: item.segment });
       }
       // Grupo - adiciona opção se não existir
       if (item.group) {
-        let grpOption = groupOptions.find(opt => opt.value === item.group);
+        let grpOption = groupOptions.find((opt: Option): boolean => opt.value === item.group);
         if (!grpOption) {
           grpOption = { label: String(item.group), value: item.group };
-          setGroupOptions(prev => prev.some(opt => opt.value === grpOption!.value) ? prev : [...prev, grpOption!]);
+          setGroupOptions(prev => prev.some((opt: Option): boolean => opt.value === grpOption!.value) ? prev : [...prev, grpOption!]);
         }
         setSelectedGroup(grpOption || { label: String(item.group), value: item.group });
         setInitialGroup(grpOption || { label: String(item.group), value: item.group });
@@ -261,6 +285,11 @@ export default function Page() {
       } else {
         setSelectedGroup(null);
       }
+      
+      // Reseta campos adicionais
+      setAlertQuantity(item.alertQuantity ?? "");
+      setPosition(item.position ?? "");
+      setDescription(item.description ?? "");
     }
     
     setOpenDrawer(false);
@@ -524,13 +553,15 @@ export default function Page() {
                       helperText={productErrors.name}
                     />
                     <TextField
-                      defaultValue={item?.alertQuantity}
+                      value={alertQuantity}
+                      onChange={(e) => setAlertQuantity(e.target.value === "" ? "" : Number(e.target.value))}
                       label="Quantidade de alerta"
                       type="number"
                       fullWidth
                     />
                     <TextField
-                      defaultValue={item?.position}
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
                       label="Posição"
                       fullWidth
                     />
@@ -604,7 +635,8 @@ export default function Page() {
                       multiline
                       rows={4}
                       label="Descrição"
-                      defaultValue={item?.description}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                       placeholder="Digite a descrição do produto aqui..."
                     />
                   </Box>

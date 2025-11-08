@@ -46,7 +46,7 @@ export const renderDisabledCellWithIcons = <
   getTooltipMessage: (data: T) => string,
   currentUserId?: string
 ) => {
-  const tooltipMessage = getTooltipMessage ? getTooltipMessage(params.data!) : "";
+  const tooltipMessage = getTooltipMessage(params.data!);
   const rowId = params.data?.id;
   const showUserIconForCurrent = !!currentUserId && rowId === currentUserId;
 
