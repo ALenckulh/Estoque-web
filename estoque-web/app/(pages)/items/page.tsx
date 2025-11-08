@@ -11,7 +11,16 @@ import {
   Detail2,
   Subtitle2,
 } from "@/components/ui/Typography";
-import { Box, Button, Container, Drawer, TextField, Popover, Menu, Autocomplete } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Drawer,
+  TextField,
+  Popover,
+  Menu,
+  Autocomplete,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { validateProductName } from "@/utils/validations";
@@ -39,7 +48,9 @@ export default function Page() {
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterUnit, setFilterUnit] = useState<Option | null>(null);
   const [filterStatus, setFilterStatus] = useState<Option | null>(null);
-  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(null);
+  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(
+    null
+  );
   const isFilterEmpty =
     !filterGroup &&
     !filterDate &&
@@ -204,7 +215,9 @@ export default function Page() {
                   p: "8px",
                   "& .MuiButton-startIcon": { m: 0 },
                 }}
-                aria-label={hasActiveFilters ? "Filtros ativos" : "Abrir filtros"}
+                aria-label={
+                  hasActiveFilters ? "Filtros ativos" : "Abrir filtros"
+                }
               />
               {hasActiveFilters && (
                 <Box
@@ -228,7 +241,9 @@ export default function Page() {
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
               >
-                <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>Filtrar Produtos</Subtitle2>
+                <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>
+                  Filtrar Produtos
+                </Subtitle2>
                 <form
                   className="formContainer"
                   style={{ width: "100%", gap: "20px" }}
@@ -238,9 +253,15 @@ export default function Page() {
                     getOptionLabel={(option) => option.label}
                     value={filterGroup}
                     onChange={(_, newValue) => setFilterGroup(newValue)}
-                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    isOptionEqualToValue={(option, val) =>
+                      option.value === val?.value
+                    }
                     renderInput={(params) => (
-                      <TextField {...params} label="Grupos" placeholder="Selecione..." />
+                      <TextField
+                        {...params}
+                        label="Grupos"
+                        placeholder="Selecione..."
+                      />
                     )}
                   />
                   <TextField
@@ -259,9 +280,15 @@ export default function Page() {
                     getOptionLabel={(option) => option.label}
                     value={filterUnit}
                     onChange={(_, newValue) => setFilterUnit(newValue)}
-                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    isOptionEqualToValue={(option, val) =>
+                      option.value === val?.value
+                    }
                     renderInput={(params) => (
-                      <TextField {...params} label="Unidade" placeholder="Selecione..." />
+                      <TextField
+                        {...params}
+                        label="Unidade"
+                        placeholder="Selecione..."
+                      />
                     )}
                   />
                   <Autocomplete
@@ -269,9 +296,15 @@ export default function Page() {
                     getOptionLabel={(option) => option.label}
                     value={filterStatus}
                     onChange={(_, newValue) => setFilterStatus(newValue)}
-                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    isOptionEqualToValue={(option, val) =>
+                      option.value === val?.value
+                    }
                     renderInput={(params) => (
-                      <TextField {...params} label="Estado" placeholder="Selecione..." />
+                      <TextField
+                        {...params}
+                        label="Estado"
+                        placeholder="Selecione..."
+                      />
                     )}
                   />
                   <Autocomplete
@@ -279,9 +312,15 @@ export default function Page() {
                     getOptionLabel={(option) => option.label}
                     value={filterQuantityLevel}
                     onChange={(_, newValue) => setFilterQuantityLevel(newValue)}
-                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    isOptionEqualToValue={(option, val) =>
+                      option.value === val?.value
+                    }
                     renderInput={(params) => (
-                      <TextField {...params} label="Quantidade" placeholder="Selecione..." />
+                      <TextField
+                        {...params}
+                        label="Quantidade"
+                        placeholder="Selecione..."
+                      />
                     )}
                   />
                   <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
@@ -480,7 +519,7 @@ export default function Page() {
                   placeholder="Digite a descrição do produto aqui..."
                 />
               </Box>
-              <Button variant="contained" type="submit">
+              <Button variant="contained" type="submit" sx={{ mt: "8px" }}>
                 Confirmar
               </Button>
             </form>

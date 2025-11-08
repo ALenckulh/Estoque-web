@@ -18,10 +18,7 @@ import {
   DialogTitle,
   Drawer,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Autocomplete,
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -31,6 +28,11 @@ import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
 import { NotFound } from "@/components/Feedback/NotFound";
 import { useToast } from "@/hooks/toastHook";
 import { validateProductName } from "@/utils/validations";
+
+type Option = {
+  label: string;
+  value: string | number;
+};
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("itens");
@@ -42,9 +44,80 @@ export default function Page() {
   const [openModalInactive, setOpenModalInactive] = useState(false);
   const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
-  // Edição - estados controlados e validação para nome do produto
   const [productName, setProductName] = useState<string>("");
   const [productErrors, setProductErrors] = useState<{ name?: string }>({});
+  const [selectedMeasureUnity, setSelectedMeasureUnity] = useState<Option | null>(null);
+  const [selectedManufacturer, setSelectedManufacturer] = useState<Option | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
+
+  const [initialProductName, setInitialProductName] = useState<string>("");
+  const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(null);
+  const [initialManufacturer, setInitialManufacturer] = useState<Option | null>(null);
+  const [initialSegment, setInitialSegment] = useState<Option | null>(null);
+  const [initialGroup, setInitialGroup] = useState<Option | null>(null);
+
+  const isDirty = 
+    productName !== initialProductName ||
+    selectedMeasureUnity?.value !== initialMeasureUnity?.value ||
+    selectedManufacturer?.value !== initialManufacturer?.value ||
+    selectedSegment?.value !== initialSegment?.value ||
+    selectedGroup?.value !== initialGroup?.value;
+
+  const measurementUnits: Option[] = [
+    { label: "Unidade", value: "unidade" },
+    { label: "Caixa", value: "caixa" },
+    { label: "Pacote", value: "pacote" },
+    { label: "Peça", value: "peca" },
+    { label: "Metro", value: "metro" },
+    { label: "Centímetro", value: "centimetro" },
+    { label: "Milímetro", value: "milimetro" },
+    { label: "Litro", value: "litro" },
+    { label: "Mililitro", value: "mililitro" },
+    { label: "Quilograma", value: "kg" },
+    { label: "Grama", value: "g" },
+    { label: "Par", value: "par" },
+    { label: "Conjunto", value: "conjunto" },
+  ];
+
+  const manufacturerOptions: Option[] = [
+    { label: "Samsung", value: "samsung" },
+    { label: "LG", value: "lg" },
+    { label: "Dell", value: "dell" },
+    { label: "Apple", value: "apple" },
+    { label: "Bosch", value: "bosch" },
+    { label: "Natura", value: "natura" },
+    { label: "Ambev", value: "ambev" },
+    { label: "3M", value: "3m" },
+    { label: "Sony", value: "sony" },
+    { label: "Embraer", value: "embraer" },
+  ];
+
+  const segmentOptions: Option[] = [
+    { label: "Eletrônicos", value: "eletronicos" },
+    { label: "Informática", value: "informatica" },
+    { label: "Automotivo", value: "automotivo" },
+    { label: "Alimentos e Bebidas", value: "alimentos_bebidas" },
+    { label: "Higiene Pessoal", value: "higiene_pessoal" },
+    { label: "Limpeza", value: "limpeza" },
+    { label: "Moda", value: "moda" },
+    { label: "Escritório", value: "escritorio" },
+    { label: "Farmacêutico", value: "farmaceutico" },
+    { label: "Construção", value: "construcao" },
+  ];
+
+  const groupOptions: Option[] = [
+    { label: "Smartphones", value: "smartphones" },
+    { label: "Notebooks", value: "notebooks" },
+    { label: "Monitores", value: "monitores" },
+    { label: "Peças Automotivas", value: "pecas_automotivas" },
+    { label: "Bebidas", value: "bebidas" },
+    { label: "Snacks", value: "snacks" },
+    { label: "Detergentes", value: "detergentes" },
+    { label: "Shampoos", value: "shampoos" },
+    { label: "Parafusos", value: "parafusos" },
+    { label: "Calçados", value: "calcados" },
+  ];
 
   // Array de detalhes reordenado para corresponder à imagem
   const itemDetails = [
@@ -77,8 +150,52 @@ export default function Page() {
   useEffect(() => {
     if (item?.name) {
       setProductName(item.name);
+      setInitialProductName(item.name);
     }
   }, [item?.name]);
+
+  // Sincroniza os Autocompletes quando o item é carregado
+  useEffect(() => {
+    if (item) {
+      // Unidade de medida
+      if (item.unit) {
+        const unitOption = measurementUnits.find(opt => opt.value === item.unit);
+        setSelectedMeasureUnity(unitOption || null);
+        setInitialMeasureUnity(unitOption || null);
+      }
+      // Fabricante - adiciona opção se não existir
+      if (item.manufacturer) {
+        let manuOption = manufacturerOptions.find(opt => opt.value === item.manufacturer);
+        if (!manuOption) {
+          // Cria uma nova opção com o valor atual
+          manuOption = { label: String(item.manufacturer), value: item.manufacturer };
+          manufacturerOptions.push(manuOption);
+        }
+        setSelectedManufacturer(manuOption);
+        setInitialManufacturer(manuOption);
+      }
+      // Segmento - adiciona opção se não existir
+      if (item.segment) {
+        let segOption = segmentOptions.find(opt => opt.value === item.segment);
+        if (!segOption) {
+          segOption = { label: String(item.segment), value: item.segment };
+          segmentOptions.push(segOption);
+        }
+        setSelectedSegment(segOption);
+        setInitialSegment(segOption);
+      }
+      // Grupo - adiciona opção se não existir
+      if (item.group) {
+        let grpOption = groupOptions.find(opt => opt.value === item.group);
+        if (!grpOption) {
+          grpOption = { label: String(item.group), value: item.group };
+          groupOptions.push(grpOption);
+        }
+        setSelectedGroup(grpOption);
+        setInitialGroup(grpOption);
+      }
+    }
+  }, [item]);
 
   const handleUpdateItem = () => {
     const nameError = validateProductName(productName);
@@ -88,6 +205,60 @@ export default function Page() {
     setOpenDrawer(false);
     showToast(`Item editado com sucesso`, "success", "Pencil");
     // TODO: enviar atualização para API quando disponível
+  };
+
+  const handleCloseDrawer = () => {
+    // Reseta todos os campos para os valores originais do item
+    if (item?.name) {
+      setProductName(item.name);
+    }
+    setProductErrors({});
+    
+    // Reseta os Autocompletes para os valores originais
+    if (item) {
+      // Unidade de medida
+      if (item.unit) {
+        const unitOption = measurementUnits.find(opt => opt.value === item.unit);
+        setSelectedMeasureUnity(unitOption || null);
+      } else {
+        setSelectedMeasureUnity(null);
+      }
+      
+      // Fabricante
+      if (item.manufacturer) {
+        let manuOption = manufacturerOptions.find(opt => opt.value === item.manufacturer);
+        if (!manuOption) {
+          manuOption = { label: String(item.manufacturer), value: item.manufacturer };
+        }
+        setSelectedManufacturer(manuOption);
+      } else {
+        setSelectedManufacturer(null);
+      }
+      
+      // Segmento
+      if (item.segment) {
+        let segOption = segmentOptions.find(opt => opt.value === item.segment);
+        if (!segOption) {
+          segOption = { label: String(item.segment), value: item.segment };
+        }
+        setSelectedSegment(segOption);
+      } else {
+        setSelectedSegment(null);
+      }
+      
+      // Grupo
+      if (item.group) {
+        let grpOption = groupOptions.find(opt => opt.value === item.group);
+        if (!grpOption) {
+          grpOption = { label: String(item.group), value: item.group };
+        }
+        setSelectedGroup(grpOption);
+      } else {
+        setSelectedGroup(null);
+      }
+    }
+    
+    setOpenDrawer(false);
   };
 
   return (
@@ -310,7 +481,7 @@ export default function Page() {
             <Drawer
               anchor="right"
               open={openDrawer}
-              onClose={() => setOpenDrawer(false)}
+              onClose={handleCloseDrawer}
             >
               <Container
                 style={{
@@ -322,8 +493,13 @@ export default function Page() {
                 <Body1 sx={{ color: "var(--neutral-80)" }}>
                   Editar Produto
                 </Body1>
-                <Box
-                  sx={{ display: "flex", gap: "32px", flexDirection: "column" }}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleUpdateItem();
+                  }}
+                  className="formContainer"
+                  style={{ gap: "32px" }}
                 >
                   <Box
                     sx={{
@@ -353,21 +529,20 @@ export default function Page() {
                       label="Posição"
                       fullWidth
                     />
-                    <FormControl fullWidth>
-                      <InputLabel>Unidade de medida</InputLabel>
-                      <Select
-                        label="Unidade de medida"
-                        defaultValue={item?.unit || "unidade"}
-                      >
-                        <MenuItem value="unidade">Unidade</MenuItem>
-                        <MenuItem value="kg">Kilograma</MenuItem>
-                        <MenuItem value="g">Grama</MenuItem>
-                        <MenuItem value="litro">Litro</MenuItem>
-                        <MenuItem value="ml">Mililitro</MenuItem>
-                        <MenuItem value="caixa">Caixa</MenuItem>
-                        <MenuItem value="pacote">Pacote</MenuItem>
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      options={measurementUnits}
+                      getOptionLabel={(option) => option.label}
+                      value={selectedMeasureUnity}
+                      onChange={(_, newValue) => setSelectedMeasureUnity(newValue)}
+                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Unidade de medida"
+                          placeholder="Selecione..."
+                        />
+                      )}
+                    />
                   </Box>
                   <Box
                     sx={{
@@ -378,36 +553,48 @@ export default function Page() {
                   >
                     <Detail1>Classificação</Detail1>
 
-                    <FormControl fullWidth>
-                      <InputLabel>Fabricante</InputLabel>
-                      <Select
-                        label="Fabricante"
-                        defaultValue={item?.manufacturer || ""}
-                      >
-                        <MenuItem value="fabricante1">Fabricante 1</MenuItem>
-                        <MenuItem value="fabricante2">Fabricante 2</MenuItem>
-                        <MenuItem value="fabricante3">Fabricante 3</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                      <InputLabel>Segmento</InputLabel>
-                      <Select
-                        label="Segmento"
-                        defaultValue={item?.segment || ""}
-                      >
-                        <MenuItem value="segmento1">Segmento 1</MenuItem>
-                        <MenuItem value="segmento2">Segmento 2</MenuItem>
-                        <MenuItem value="segmento3">Segmento 3</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <FormControl fullWidth>
-                      <InputLabel>Grupo</InputLabel>
-                      <Select label="Grupo" defaultValue={item?.group || ""}>
-                        <MenuItem value="grupo1">Grupo 1</MenuItem>
-                        <MenuItem value="grupo2">Grupo 2</MenuItem>
-                        <MenuItem value="grupo3">Grupo 3</MenuItem>
-                      </Select>
-                    </FormControl>
+                    <Autocomplete
+                      options={manufacturerOptions}
+                      getOptionLabel={(option) => option.label}
+                      value={selectedManufacturer}
+                      onChange={(_, newValue) => setSelectedManufacturer(newValue)}
+                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Fabricante"
+                          placeholder="Selecione..."
+                        />
+                      )}
+                    />
+                    <Autocomplete
+                      options={segmentOptions}
+                      getOptionLabel={(option) => option.label}
+                      value={selectedSegment}
+                      onChange={(_, newValue) => setSelectedSegment(newValue)}
+                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Segmento"
+                          placeholder="Selecione..."
+                        />
+                      )}
+                    />
+                    <Autocomplete
+                      options={groupOptions}
+                      getOptionLabel={(option) => option.label}
+                      value={selectedGroup}
+                      onChange={(_, newValue) => setSelectedGroup(newValue)}
+                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Grupo"
+                          placeholder="Selecione..."
+                        />
+                      )}
+                    />
                     <TextField
                       multiline
                       rows={4}
@@ -416,10 +603,15 @@ export default function Page() {
                       placeholder="Digite a descrição do produto aqui..."
                     />
                   </Box>
-                </Box>
-                <Button variant="contained" onClick={handleUpdateItem}>
-                  Confirmar
-                </Button>
+                  <Button 
+                    variant="contained" 
+                    type="submit" 
+                    sx={{ mt: "8px" }}
+                    disabled={!isDirty}
+                  >
+                    Confirmar
+                  </Button>
+                </form>
               </Container>
             </Drawer>
             <ToastContainer toasts={toasts} />

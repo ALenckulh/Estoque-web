@@ -45,7 +45,6 @@ export default function Page() {
   const [editAddress, setEditAddress] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  // valores iniciais para comparar alterações (dirty state)
   const [initialName, setInitialName] = useState("");
   const [initialEmail, setInitialEmail] = useState("");
   const [initialTelephone, setInitialTelephone] = useState("");
@@ -59,6 +58,16 @@ export default function Page() {
     if (nameError) return;
     setOpenDrawer(false);
     showToast(`Editado com sucesso`, "success", "Pencil");
+  };
+
+  const handleCloseDrawer = () => {
+    setEditEntityName(initialName);
+    setEditEmail(initialEmail);
+    setEditTelephone(initialTelephone);
+    setEditAddress(initialAddress);
+    setEditDescription(initialDescription);
+    setEditErrors({});
+    setOpenDrawer(false);
   };
 
   const contactList = [
@@ -292,7 +301,7 @@ export default function Page() {
             <Drawer
               anchor="right"
               open={openDrawer}
-              onClose={() => setOpenDrawer(false)}
+              onClose={handleCloseDrawer}
             >
               <Container
                 style={{
