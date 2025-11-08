@@ -38,16 +38,15 @@ export const renderActionButton = (children?: React.ReactNode, tooltip?: string)
 );
 
 // 🔹 Célula com ícones e tooltip condicional
-// 🔹 Célula com ícones e tooltip condicional
 export const renderDisabledCellWithIcons = <
   T extends { disabled?: boolean; id?: string },
   V = unknown,
 >(
   params: ICellRendererParams<T, V>,
-  getTooltipMessage?: (data: T) => string,
+  getTooltipMessage: (data: T) => string,
   currentUserId?: string
 ) => {
-  const tooltipMessage = getTooltipMessage ? getTooltipMessage(params.data!) : "";
+  const tooltipMessage = getTooltipMessage(params.data!);
   const rowId = params.data?.id;
   const showUserIconForCurrent = !!currentUserId && rowId === currentUserId;
 

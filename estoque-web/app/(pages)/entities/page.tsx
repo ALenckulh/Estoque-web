@@ -7,14 +7,21 @@ import { Body1, Body4 } from "@/components/ui/Typography";
 import { Box, Button, Container, Drawer, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { validateEntityName } from "@/utils/validations";
 
 export default function Page() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("entidade");
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [entityName, setEntityName] = useState("");
+  const [errors, setErrors] = useState<{ entityName?: string }>({});
 
   const handleCreatedEntity = (id: number) => {
-    router.push(`/entity/${id}`);
+    const nameError = validateEntityName(entityName);
+    setErrors({ entityName: nameError });
+    if (nameError) return;
+    setOpenDrawer(false);
+    router.push(`/entities/${id}`);
   };
 
   return (
@@ -56,8 +63,22 @@ export default function Page() {
             style={{ display: "flex", flexDirection: "column", gap: "40px" }}
           >
             <Body1>Cadastrar Entidade</Body1>
-            <form className="formContainer">
-              <TextField placeholder="Nome da entidade" />
+            <form
+              className="formContainer"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCreatedEntity(5);
+              }}
+            >
+              <TextField
+                label="Nome da entidade"
+                value={entityName}
+                onChange={(e) => {
+                  setEntityName(e.target.value);
+                }}
+                error={!!errors.entityName}
+                helperText={errors.entityName}
+              />
               <TextField placeholder="E-mail" />
               <TextField placeholder="Telefone" />
               <TextField placeholder="Endereço" />
@@ -69,10 +90,7 @@ export default function Page() {
               <Button
                 sx={{ marginTop: "20px" }}
                 variant="contained"
-                onClick={() => {
-                  setOpenDrawer(false);
-                  handleCreatedEntity(5);
-                }}
+                type="submit"
               >
                 Confirmar
               </Button>

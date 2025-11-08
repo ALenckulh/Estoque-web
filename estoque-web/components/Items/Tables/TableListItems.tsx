@@ -12,32 +12,35 @@ import {
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
 import { Box } from "@mui/material";
-import { entityList } from "@/utils/dataBaseExample";
+import { itemList } from "@/utils/dataBaseExample";
 import {
-  renderDateCell,
   renderDisabledCellWithIcons,
   renderTooltip,
 } from "@/components/Tables/CelRenderes";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-export interface RowDataEntity {
+export interface RowDataItem {
   id: number;
   name: string;
-  telephone: string;
-  email: string;
-  createdAt: string;
-  address: string;
+  position: string;
+  manufacturer: string;
+  segment: string;
+  group: string;
+  quantity: number;
+  alertQuantity: number;
+  unit: string;
   disabled: boolean;
-  description?: string;
+  description: string;
+  createdAt: string;
 }
 
-export default function TableListEntity() {
+export default function TableListItems() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [rowData] = useState<RowDataEntity[]>(entityList);
+  const [rowData] = useState<RowDataItem[]>(itemList);
 
-  const [columnDefs] = useState<ColDef<RowDataEntity>[]>([
+  const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
       headerName: "ID",
       field: "id",
@@ -51,7 +54,7 @@ export default function TableListEntity() {
       cellRenderer: (params: ICellRendererParams<any, any>) =>
         renderDisabledCellWithIcons(params, (data) => {
           const messages = [];
-          if (data.disabled) messages.push("Entidade está desativada");
+          if (data.disabled) messages.push("Item está desativado");
           return messages.join("");
         }),
     },
@@ -66,8 +69,8 @@ export default function TableListEntity() {
         renderTooltip(params.value),
     },
     {
-      headerName: "E-mail",
-      field: "email",
+      headerName: "Posição",
+      field: "position",
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
@@ -76,8 +79,8 @@ export default function TableListEntity() {
         renderTooltip(params.value),
     },
     {
-      headerName: "Endereço",
-      field: "address",
+      headerName: "Fabricante",
+      field: "manufacturer",
       minWidth: 180,
       sortable: true,
       filter: "agTextColumnFilter",
@@ -86,19 +89,30 @@ export default function TableListEntity() {
         renderTooltip(params.value),
     },
     {
-      headerName: "Criado",
-      field: "createdAt",
+      headerName: "Segmento",
+      field: "segment",
       sortable: true,
-      filter: "agDateColumnFilter",
+      filter: "agTextColumnFilter",
       width: 120,
-      cellRenderer: renderDateCell,
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
+    },
+
+    {
+      headerName: "Quantidade",
+      field: "quantity",
+      sortable: true,
+      filter: "agTextColumnFilter",
+      width: 120,
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
   ]);
 
   const handleRowSelected = (event: RowSelectedEvent) => {
     if (event.node.isSelected()) {
       setLoading(true);
-      router.push(`/entities/${event.data.id}`);
+      router.push(`/items/${event.data.id}`);
     }
   };
 

@@ -49,3 +49,16 @@ export const validateConfirmPassword = (password: string, confirmPassword: strin
   if (password !== confirmPassword) return "As senhas não coincidem.";
   return "";
 };
+
+export const validateRequiredField = (value: string, fieldLabel: string) => {
+  if (!value.trim()) return `O ${fieldLabel} é obrigatório.`;
+  return "";
+};
+
+export const validateEntityName = (name: string) => {
+  return validateRequiredField(name, "nome da entidade");
+};
+
+export const validateProductName = (name: string) => {
+  return validateRequiredField(name, "nome do produto");
+};

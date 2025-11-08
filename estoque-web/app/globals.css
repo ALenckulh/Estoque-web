@@ -158,6 +158,35 @@
   border-right: none !important;
 }
 
+.productField {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 25% !important;
+  min-width: 150px !important;
+  border-right: 1px solid var(--neutral-40) !important;
+  padding-right: 8px !important;
+}
+
+.productField:last-child {
+  border-right: none !important;
+}
+
+.classificationField {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 25% !important;
+  min-width: 150px !important;
+  border-right: 1px solid var(--neutral-40) !important;
+  padding-right: 8px !important;
+}
+
+.classificationField:last-child {
+  width: calc(50% + 16px) !important;
+  border-right: none !important;
+}
+
 .description {
   display: flex !important;
   flex-direction: column !important;

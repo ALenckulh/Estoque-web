@@ -26,6 +26,7 @@ import CopyTooltip from "@/components/ui/CopyTooltip";
 import { NotFound } from "@/components/Feedback/NotFound";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
+import { validateEntityName } from "@/utils/validations";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("entidade");
@@ -34,10 +35,40 @@ export default function Page() {
   const id = params.id;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [openModalInactive, setOpenModalInactive] = useState(false);
   const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
+  const [editEntityName, setEditEntityName] = useState("");
+  const [editErrors, setEditErrors] = useState<{ name?: string }>({});
+  const [editEmail, setEditEmail] = useState("");
+  const [editTelephone, setEditTelephone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+
+  const [initialName, setInitialName] = useState("");
+  const [initialEmail, setInitialEmail] = useState("");
+  const [initialTelephone, setInitialTelephone] = useState("");
+  const [initialAddress, setInitialAddress] = useState("");
+  const [initialDescription, setInitialDescription] = useState("");
+
+  const handleSubmitEditEntity = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nameError = validateEntityName(editEntityName);
+    setEditErrors({ name: nameError });
+    if (nameError) return;
+    setOpenDrawer(false);
+    showToast(`Editado com sucesso`, "success", "Pencil");
+  };
+
+  const handleCloseDrawer = () => {
+    setEditEntityName(initialName);
+    setEditEmail(initialEmail);
+    setEditTelephone(initialTelephone);
+    setEditAddress(initialAddress);
+    setEditDescription(initialDescription);
+    setEditErrors({});
+    setOpenDrawer(false);
+  };
 
   const contactList = [
     { label: "Telefone", value: entity?.telephone },
@@ -52,12 +83,37 @@ export default function Page() {
       });
       if (found) {
         setEntity(found);
+        // sincroniza campos controlados
+        const name = found.name || "";
+        const email = found.email || "";
+        const telephone = found.telephone || "";
+        const address = found.address || "";
+        const description = found.description || "";
+
+        setEditEntityName(name);
+        setEditEmail(email);
+        setEditTelephone(telephone);
+        setEditAddress(address);
+        setEditDescription(description);
+
+        // define baseline inicial
+        setInitialName(name);
+        setInitialEmail(email);
+        setInitialTelephone(telephone);
+        setInitialAddress(address);
+        setInitialDescription(description);
       } else {
         setNotFound(true);
       }
-      setLoading(false);
     }
   }, [id]);
+
+  const isDirty =
+    editEntityName !== initialName ||
+    editEmail !== initialEmail ||
+    editTelephone !== initialTelephone ||
+    editAddress !== initialAddress ||
+    editDescription !== initialDescription;
 
   return (
     <div>
@@ -74,7 +130,7 @@ export default function Page() {
           />
         ) : (
           <>
-            <Card className="card" sx={{ overflowY: "auto" }}>
+            <Card className="card" sx={{ overflow: "auto" }}>
               <Container className="header">
                 <Box>
                   <Detail1 style={{ paddingBottom: "4px" }}>
@@ -245,7 +301,7 @@ export default function Page() {
             <Drawer
               anchor="right"
               open={openDrawer}
-              onClose={() => setOpenDrawer(false)}
+              onClose={handleCloseDrawer}
             >
               <Container
                 style={{
@@ -255,36 +311,44 @@ export default function Page() {
                 }}
               >
                 <Body1>Editar Entidade</Body1>
-                <form className="formContainer">
+                <form className="formContainer" onSubmit={handleSubmitEditEntity}>
                   <TextField
-                    defaultValue={entity?.name}
+                    label="Nome da entidade"
+                    value={editEntityName}
+                    onChange={(e) => {
+                      setEditEntityName(e.target.value);
+                    }}
+                    error={!!editErrors.name}
+                    helperText={editErrors.name}
                     placeholder="Nome da entidade"
                   />
                   <TextField
-                    defaultValue={entity?.email}
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
                     placeholder="E-mail"
                   />
                   <TextField
-                    defaultValue={entity?.telephone}
+                    value={editTelephone}
+                    onChange={(e) => setEditTelephone(e.target.value)}
                     placeholder="Telefone"
                   />
                   <TextField
-                    defaultValue={entity?.address}
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
                     placeholder="Endereço"
                   />
                   <TextField
                     multiline
                     rows={8}
-                    defaultValue={entity?.description}
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
                     placeholder="Digite a nova descrição..."
                   />
                   <Button
                     variant="contained"
                     sx={{ marginTop: "20px" }}
-                    onClick={() => {
-                      setOpenDrawer(false);
-                      showToast(`Editado com sucesso`, "success", "Pencil");
-                    }}
+                    type="submit"
+                    disabled={!isDirty}
                   >
                     Confirmar
                   </Button>

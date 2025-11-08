@@ -27,8 +27,8 @@ export function Appbar({
   showTabs = true,
   showAvatar = true,
   tabItems = [
-    { id: "itens", label: "Itens", url: "" },
-    { id: "entidade", label: "Entidades", url: "/entity" },
+    { id: "itens", label: "Itens", url: "/items" },
+    { id: "entidade", label: "Entidades", url: "/entities" },
     { id: "historico", label: "Histórico", url: "" },
   ],
   selectedTab = "itens",

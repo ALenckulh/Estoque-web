@@ -9,7 +9,7 @@ import {
   ICellRendererParams,
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { historyList } from "@/utils/dataBaseExample";
+import { itemHistoryList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
@@ -19,21 +19,22 @@ import {
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-interface RowData {
+interface RowDataItem {
   groupId: number;
   fiscalNote: string;
   itemId: number;
   itemName: string;
   user: string;
-  date: string; //data e hora
+  date: string;
   quantity: number;
+  type: string;
   disabled?: boolean;
 }
 
 export default function TableHistoryEntity() {
-  const [rowData] = useState<RowData[]>(historyList);
+  const [rowData] = useState<RowDataItem[]>(itemHistoryList);
 
-  const [columnDefs] = useState<ColDef<RowData>[]>([
+  const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
       headerName: "Grupo ID",
       field: "groupId",
@@ -93,7 +94,7 @@ export default function TableHistoryEntity() {
       sortable: true,
       filter: "agDateColumnFilter",
       flex: 1,
-      minWidth: 160,
+      minWidth: 140,
       cellRenderer: renderDateCell,
     },
     {
