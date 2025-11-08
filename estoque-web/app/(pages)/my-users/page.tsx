@@ -96,6 +96,10 @@ export default function Page() {
   const [editConfirmFuturePassword, setEditConfirmFuturePassword] =
     useState("");
   const [editUsername, setEditUsername] = useState("");
+  const [editIsAdmin, setEditIsAdmin] = useState(false);
+  // Guardar valores iniciais para detectar alterações (dirty state)
+  const [initialUsername, setInitialUsername] = useState("");
+  const [initialIsAdmin, setInitialIsAdmin] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({
     newUsername: "",
     newEmail: "",
@@ -132,6 +136,21 @@ export default function Page() {
     }
   }, [findUserId]);
 
+  // Quando carregar o usuário para edição, sincroniza estados e baseline inicial
+  useEffect(() => {
+    if (userEdit) {
+      setEditUsername(userEdit.user);
+      setEditIsAdmin(Boolean(userEdit.is_admin));
+      setInitialUsername(userEdit.user);
+      setInitialIsAdmin(Boolean(userEdit.is_admin));
+      // Resetar campos de senha e seção
+      setIsPasswordSectionVisible(false);
+      setEditPastPassword("");
+      setEditFuturePassword("");
+      setEditConfirmFuturePassword("");
+    }
+  }, [userEdit]);
+
   useEffect(() => {
     if (typeof setMyUserId === "function") {
       setMyUserId("8");
@@ -161,7 +180,11 @@ export default function Page() {
 
     setIsCreateDrawerOpen(false);
     setTimeout(() => setChangeSection(false), 100);
-    showToast(`Usuário ${newUsername} criado com sucesso!`, "success");
+    showToast(
+      `Usuário ${newUsername} criado com sucesso!`,
+      "success",
+      "CircleCheck"
+    );
   };
 
   const handleCloseEditDrawer = () => {
@@ -169,6 +192,13 @@ export default function Page() {
     setFindUserId(null);
     setTimeout(() => setIsPasswordSectionVisible(false), 100);
     setErrors({});
+    setEditUsername("");
+    setEditIsAdmin(false);
+    setInitialUsername("");
+    setInitialIsAdmin(false);
+    setEditPastPassword("");
+    setEditFuturePassword("");
+    setEditConfirmFuturePassword("");
   };
 
   const handleContinueCreateUser = (e: React.FormEvent) => {
@@ -232,10 +262,22 @@ export default function Page() {
     if (hasError) return;
 
     setIsEditDrawerOpen(false);
-    showToast(`Usuário ${editUsername} editado com sucesso!`, "success");
+    showToast(
+      `Usuário ${editUsername} editado com sucesso!`,
+      "success",
+      "Pencil"
+    );
     setFindUserId(null);
     setTimeout(() => setIsPasswordSectionVisible(false), 100);
   };
+
+  const isDirty =
+    editUsername !== initialUsername ||
+    editIsAdmin !== initialIsAdmin ||
+    (isPasswordSectionVisible &&
+      [editPastPassword, editFuturePassword, editConfirmFuturePassword].some(
+        (f) => f.length > 0
+      ));
 
   return (
     <div>
@@ -496,7 +538,7 @@ export default function Page() {
               <TextField
                 label="Usuário"
                 onChange={(e) => setEditUsername(e.target.value)}
-                defaultValue={userEdit?.user}
+                value={editUsername}
                 error={!!errors.editUsername}
                 helperText={errors.editUsername}
               />
@@ -505,7 +547,10 @@ export default function Page() {
                 <FormControlLabel
                   label="Permitir ações de administrador"
                   control={
-                    <Checkbox defaultChecked={userEdit?.is_admin || false} />
+                    <Checkbox
+                      checked={editIsAdmin}
+                      onChange={(e) => setEditIsAdmin(e.target.checked)}
+                    />
                   }
                 />
                 <Tooltip
@@ -599,6 +644,7 @@ export default function Page() {
                 variant="contained"
                 sx={{ marginTop: "40px" }}
                 type="submit"
+                disabled={!isDirty}
               >
                 Atualizar
               </Button>
