@@ -8,7 +8,7 @@ export default function page() {
   return (
     <div>
       <Appbar showTabs={false} showAvatar={false} /> {/*Verificar se esta logado e mostrar as tabs e avatar*/}
-      <NotFound description="404 - Página não encontrada" />
+      <NotFound description="Página não encontrada" />
     </div>
   );
 }

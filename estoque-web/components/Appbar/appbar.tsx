@@ -70,9 +70,9 @@ export function Appbar({
         {/* Logo */}
         <Link href="/" passHref style={{ height: 30 }}>
           <Image
-            src={"/estoqueWeb.svg"}
+            src={"/stocky.svg"}
             alt={"Logo"}
-            width={200}
+            width={100}
             height={30}
             style={{ cursor: "pointer" }}
           />
@@ -122,6 +122,9 @@ export function Appbar({
           >
             <MenuItem onClick={() => handleNavigate("/my-users")} icon="Users">
               Meus usuários
+            </MenuItem>
+            <MenuItem onClick={() => handleNavigate("/help")} icon={"MessageCircleQuestion"}>
+              Ajuda
             </MenuItem>
             <MenuItem onClick={handleCloseMenu} icon="LogOut" error={true}>
               Sair
