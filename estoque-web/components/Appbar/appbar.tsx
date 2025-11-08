@@ -72,7 +72,7 @@ export function Appbar({
           <Image
             src={"/stocky.svg"}
             alt={"Logo"}
-            width={200}
+            width={100}
             height={30}
             style={{ cursor: "pointer" }}
           />
