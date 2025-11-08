@@ -98,7 +98,7 @@ export default function TableListEntity() {
   const handleRowSelected = (event: RowSelectedEvent) => {
     if (event.node.isSelected()) {
       setLoading(true);
-      router.push(`/entity/${event.data.id}`);
+      router.push(`/entities/${event.data.id}`);
     }
   };
 

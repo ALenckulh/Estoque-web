@@ -54,3 +54,8 @@ export const validateEntityName = (name: string) => {
   if (!name.trim()) return "O nome da entidade é obrigatório.";
   return "";
 };
+
+export const validateProductName = (name: string) => {
+  if (!name.trim()) return "O nome do produto é obrigatório.";
+  return "";
+};

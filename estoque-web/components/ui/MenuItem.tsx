@@ -31,7 +31,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
         },
       }}
     >
-      {icon && <Icon name={icon} style={{ marginRight: 8, opacity: 0.8 }} />}
+      {icon && <Icon name={icon} style={{ marginRight: 8, opacity: 0.6 }} />}
       {children}
     </MuiMenuItem>
   );

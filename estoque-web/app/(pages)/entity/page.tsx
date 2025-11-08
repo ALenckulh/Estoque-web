@@ -21,7 +21,7 @@ export default function Page() {
     setErrors({ entityName: nameError });
     if (nameError) return;
     setOpenDrawer(false);
-    router.push(`/entity/${id}`);
+    router.push(`/entities/${id}`);
   };
 
   return (

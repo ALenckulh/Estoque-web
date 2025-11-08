@@ -252,6 +252,12 @@ const theme = createTheme({
     },
     MuiFormControl: { defaultProps: { size: "small" } },
     MuiAutocomplete: {
+      defaultProps: {
+        slotProps: {
+          paper: { sx: { overflowY: "auto" } },
+          listbox: { sx: { overflowY: "hidden" } },
+        },
+      },
       styleOverrides: {
         paper: { maxHeight: 200, marginTop: 4 },
         option: { fontSize: "1rem", padding: "4px 15px" },

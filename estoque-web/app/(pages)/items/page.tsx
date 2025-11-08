@@ -11,22 +11,10 @@ import {
   Detail2,
   Subtitle2,
 } from "@/components/ui/Typography";
-import {
-  Box,
-  Button,
-  Container,
-  Drawer,
-  TextField,
-  Select,
-  FormControl,
-  InputLabel,
-  Popover,
-  Menu,
-  Autocomplete,
-} from "@mui/material";
+import { Box, Button, Container, Drawer, TextField, Popover, Menu, Autocomplete } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-
+import { validateProductName } from "@/utils/validations";
 type Option = {
   label: string;
   value: string | number;
@@ -38,7 +26,27 @@ export default function Page() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedMeasureUnity, setSelectedMeasureUnity] = useState<Option | null>(null); // Autocomplete
+  const [selectedMeasureUnity, setSelectedMeasureUnity] =
+    useState<Option | null>(null); // Autocomplete
+  const [selectedManufacturer, setSelectedManufacturer] =
+    useState<Option | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
+  const [productName, setProductName] = useState("");
+  const [productErrors, setProductErrors] = useState<{ name?: string }>({});
+  // Filtro - estados controlados
+  const [filterGroup, setFilterGroup] = useState<Option | null>(null);
+  const [filterDate, setFilterDate] = useState<string>("");
+  const [filterUnit, setFilterUnit] = useState<Option | null>(null);
+  const [filterStatus, setFilterStatus] = useState<Option | null>(null);
+  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(null);
+  const isFilterEmpty =
+    !filterGroup &&
+    !filterDate &&
+    !filterUnit &&
+    !filterStatus &&
+    !filterQuantityLevel;
+  const hasActiveFilters = !isFilterEmpty;
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -47,24 +55,87 @@ export default function Page() {
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-
-  const handleCreatedItem = (id: number) => router.push(`/item/${id}`);
+  const handleClearFilters = () => {
+    setFilterGroup(null);
+    setFilterDate("");
+    setFilterUnit(null);
+    setFilterStatus(null);
+    setFilterQuantityLevel(null);
+  };
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nameError = validateProductName(productName);
+    setProductErrors({ name: nameError });
+    if (nameError) return;
+    setOpenDrawer(false);
+    router.push(`/items/${5}`);
+  };
 
   const measurementUnits: Option[] = [
-  { label: "Unidade", value: "unidade" },
-  { label: "Caixa", value: "caixa" },
-  { label: "Pacote", value: "pacote" },
-  { label: "Peça", value: "peca" },
-  { label: "Metro", value: "metro" },
-  { label: "Centímetro", value: "centimetro" },
-  { label: "Milímetro", value: "milimetro" },
-  { label: "Litro", value: "litro" },
-  { label: "Mililitro", value: "mililitro" },
-  { label: "Quilograma", value: "kg" },
-  { label: "Grama", value: "g" },
-  { label: "Par", value: "par" },
-  { label: "Conjunto", value: "conjunto" },
-];
+    { label: "Unidade", value: "unidade" },
+    { label: "Caixa", value: "caixa" },
+    { label: "Pacote", value: "pacote" },
+    { label: "Peça", value: "peca" },
+    { label: "Metro", value: "metro" },
+    { label: "Centímetro", value: "centimetro" },
+    { label: "Milímetro", value: "milimetro" },
+    { label: "Litro", value: "litro" },
+    { label: "Mililitro", value: "mililitro" },
+    { label: "Quilograma", value: "kg" },
+    { label: "Grama", value: "g" },
+    { label: "Par", value: "par" },
+    { label: "Conjunto", value: "conjunto" },
+  ];
+
+  const manufacturerOptions: Option[] = [
+    { label: "Samsung", value: "samsung" },
+    { label: "LG", value: "lg" },
+    { label: "Dell", value: "dell" },
+    { label: "Apple", value: "apple" },
+    { label: "Bosch", value: "bosch" },
+    { label: "Natura", value: "natura" },
+    { label: "Ambev", value: "ambev" },
+    { label: "3M", value: "3m" },
+    { label: "Sony", value: "sony" },
+    { label: "Embraer", value: "embraer" },
+  ];
+
+  const segmentOptions: Option[] = [
+    { label: "Eletrônicos", value: "eletronicos" },
+    { label: "Informática", value: "informatica" },
+    { label: "Automotivo", value: "automotivo" },
+    { label: "Alimentos e Bebidas", value: "alimentos_bebidas" },
+    { label: "Higiene Pessoal", value: "higiene_pessoal" },
+    { label: "Limpeza", value: "limpeza" },
+    { label: "Moda", value: "moda" },
+    { label: "Escritório", value: "escritorio" },
+    { label: "Farmacêutico", value: "farmaceutico" },
+    { label: "Construção", value: "construcao" },
+  ];
+
+  const groupOptions: Option[] = [
+    { label: "Smartphones", value: "smartphones" },
+    { label: "Notebooks", value: "notebooks" },
+    { label: "Monitores", value: "monitores" },
+    { label: "Peças Automotivas", value: "pecas_automotivas" },
+    { label: "Bebidas", value: "bebidas" },
+    { label: "Snacks", value: "snacks" },
+    { label: "Detergentes", value: "detergentes" },
+    { label: "Shampoos", value: "shampoos" },
+    { label: "Parafusos", value: "parafusos" },
+    { label: "Calçados", value: "calcados" },
+  ];
+
+  const statusOptions: Option[] = [
+    { label: "Ativo", value: "ativo" },
+    { label: "Inativo", value: "inativo" },
+  ];
+
+  const quantityLevelOptions: Option[] = [
+    { label: "Negativo", value: "negativo" },
+    { label: "Baixa", value: "baixa" },
+    { label: "Normal", value: "normal" },
+  ];
 
   return (
     <div>
@@ -133,7 +204,22 @@ export default function Page() {
                   p: "8px",
                   "& .MuiButton-startIcon": { m: 0 },
                 }}
+                aria-label={hasActiveFilters ? "Filtros ativos" : "Abrir filtros"}
               />
+              {hasActiveFilters && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 7,
+                    right: 7,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: "primary.main",
+                    boxShadow: "0 0 0 2px #fff",
+                  }}
+                />
+              )}
               <Popover
                 open={Boolean(anchorPopover)}
                 anchorEl={anchorPopover}
@@ -142,55 +228,71 @@ export default function Page() {
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
               >
-                <Subtitle2 sx={{ mb: "24px" }}>Filtrar Produtos</Subtitle2>
+                <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>Filtrar Produtos</Subtitle2>
                 <form
                   className="formContainer"
-                  style={{ width: "100%", gap: "12px" }}
+                  style={{ width: "100%", gap: "20px" }}
                 >
-                  <FormControl fullWidth>
-                    <InputLabel id="grupo-label">Grupos</InputLabel>
-                    <Select labelId="grupo-label" label="Grupos">
-                      <MenuItem value="grupo1">Grupo 1</MenuItem>
-                      <MenuItem value="grupo2">Grupo 2</MenuItem>
-                      <MenuItem value="grupo3">Grupo 3</MenuItem>
-                    </Select>
-                  </FormControl>
+                  <Autocomplete
+                    options={groupOptions}
+                    getOptionLabel={(option) => option.label}
+                    value={filterGroup}
+                    onChange={(_, newValue) => setFilterGroup(newValue)}
+                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Grupos" placeholder="Selecione..." />
+                    )}
+                  />
                   <TextField
                     label="Data de criação"
                     type="date"
                     size="small"
                     InputLabelProps={{ shrink: true }}
+                    value={filterDate}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFilterDate(e.target.value)
+                    }
                     fullWidth
                   />
-                  <FormControl>
-                    <InputLabel id="unidade-label">Unidade</InputLabel>
-                    <Select labelId="unidade-label" label="Unidade">
-                      <MenuItem value="unidade">Unidade</MenuItem>
-                      <MenuItem value="kg">Kilograma</MenuItem>
-                      <MenuItem value="litro">Litro</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <InputLabel id="estado-label">Estado</InputLabel>
-                    <Select labelId="estado-label" label="Estado">
-                      <MenuItem value="ativo">Ativo</MenuItem>
-                      <MenuItem value="inativo">Inativo</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <InputLabel id="quantidade-label">Quantidade</InputLabel>
-                    <Select labelId="quantidade-label" label="Quantidade">
-                      <MenuItem value="negativo">Negativo</MenuItem>
-                      <MenuItem value="baixa">Baixa</MenuItem>
-                      <MenuItem value="normal">Normal</MenuItem>
-                    </Select>
-                  </FormControl>
+                  <Autocomplete
+                    options={measurementUnits}
+                    getOptionLabel={(option) => option.label}
+                    value={filterUnit}
+                    onChange={(_, newValue) => setFilterUnit(newValue)}
+                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Unidade" placeholder="Selecione..." />
+                    )}
+                  />
+                  <Autocomplete
+                    options={statusOptions}
+                    getOptionLabel={(option) => option.label}
+                    value={filterStatus}
+                    onChange={(_, newValue) => setFilterStatus(newValue)}
+                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Estado" placeholder="Selecione..." />
+                    )}
+                  />
+                  <Autocomplete
+                    options={quantityLevelOptions}
+                    getOptionLabel={(option) => option.label}
+                    value={filterQuantityLevel}
+                    onChange={(_, newValue) => setFilterQuantityLevel(newValue)}
+                    isOptionEqualToValue={(option, val) => option.value === val?.value}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Quantidade" placeholder="Selecione..." />
+                    )}
+                  />
                   <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
                     <Button
                       variant="outlined"
                       color="error"
                       startIcon={<Icon name="FilterX" />}
-                      onClick={() => setAnchorPopover(null)}
+                      disabled={isFilterEmpty}
+                      onClick={() => {
+                        handleClearFilters();
+                      }}
                       fullWidth
                     >
                       Limpar
@@ -242,10 +344,10 @@ export default function Page() {
                   },
                 }}
               >
-                <MenuItem onClick={handleCloseMenu} icon="Users">
+                <MenuItem onClick={handleCloseMenu} icon="Plus">
                   Entrada
                 </MenuItem>
-                <MenuItem onClick={handleCloseMenu} icon="LogOut" error={true}>
+                <MenuItem onClick={handleCloseMenu} icon="Minus">
                   Saída
                 </MenuItem>
               </Menu>
@@ -265,25 +367,33 @@ export default function Page() {
             style={{ display: "flex", flexDirection: "column", gap: "40px" }}
           >
             <Body1 sx={{ color: "var(--neutral-80)" }}>Cadastrar Produto</Body1>
-            <Box sx={{ display: "flex", gap: "24px", flexDirection: "column" }}>
+            <form
+              onSubmit={handleCreateProduct}
+              className="formContainer"
+              style={{ gap: "32px" }}
+            >
               <Box
-                sx={{ display: "flex", gap: "12px", flexDirection: "column" }}
+                sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
               >
                 <Detail1>Produto</Detail1>
                 <TextField
                   label={
                     <span>
-                      Nome do produto
+                      Nome do produto{" "}
                       <span style={{ color: "var(--danger-0)" }}>*</span>
                     </span>
                   }
                   fullWidth
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  error={!!productErrors.name}
+                  helperText={productErrors.name}
                 />
                 <TextField
-                defaultValue={5}
+                  defaultValue={5}
                   label={
                     <span>
-                      Quantidade de alerta
+                      Quantidade de alerta{" "}
                       <span style={{ color: "red" }}>*</span>
                     </span>
                   }
@@ -309,14 +419,14 @@ export default function Page() {
                 />
               </Box>
               <Box
-                sx={{ display: "flex", gap: "12px", flexDirection: "column" }}
+                sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
               >
                 <Detail1>Classificação</Detail1>
                 <Autocomplete
-                  options={measurementUnits}
+                  options={manufacturerOptions}
                   getOptionLabel={(option) => option.label}
-                  value={selectedMeasureUnity}
-                  onChange={(_, newValue) => setSelectedMeasureUnity(newValue)}
+                  value={selectedManufacturer}
+                  onChange={(_, newValue) => setSelectedManufacturer(newValue)}
                   isOptionEqualToValue={(option, val) =>
                     option.value === val?.value
                   }
@@ -329,30 +439,40 @@ export default function Page() {
                     />
                   )}
                 />
-                <FormControl fullWidth>
-                  <InputLabel id="fabricante-label">Fabricante</InputLabel>
-                  <Select labelId="fabricante-label" label="Fabricante">
-                    <MenuItem value="fabricante1">Fabricante 1</MenuItem>
-                    <MenuItem value="fabricante2">Fabricante 2</MenuItem>
-                    <MenuItem value="fabricante3">Fabricante 3</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="segmento-label">Segmento</InputLabel>
-                  <Select labelId="segmento-label" label="Segmento">
-                    <MenuItem value="segmento1">Segmento 1</MenuItem>
-                    <MenuItem value="segmento2">Segmento 2</MenuItem>
-                    <MenuItem value="segmento3">Segmento 3</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="grupo-label">Grupo</InputLabel>
-                  <Select labelId="grupo-label" label="Grupo">
-                    <MenuItem value="grupo1">Grupo 1</MenuItem>
-                    <MenuItem value="grupo2">Grupo 2</MenuItem>
-                    <MenuItem value="grupo3">Grupo 3</MenuItem>
-                  </Select>
-                </FormControl>
+                <Autocomplete
+                  options={segmentOptions}
+                  getOptionLabel={(option) => option.label}
+                  value={selectedSegment}
+                  onChange={(_, newValue) => setSelectedSegment(newValue)}
+                  isOptionEqualToValue={(option, val) =>
+                    option.value === val?.value
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Segmento"
+                      placeholder="Selecione..."
+                      variant="outlined"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  options={groupOptions}
+                  getOptionLabel={(option) => option.label}
+                  value={selectedGroup}
+                  onChange={(_, newValue) => setSelectedGroup(newValue)}
+                  isOptionEqualToValue={(option, val) =>
+                    option.value === val?.value
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Grupo"
+                      placeholder="Selecione..."
+                      variant="outlined"
+                    />
+                  )}
+                />
                 <TextField
                   multiline
                   rows={4}
@@ -360,16 +480,10 @@ export default function Page() {
                   placeholder="Digite a descrição do produto aqui..."
                 />
               </Box>
-            </Box>
-            <Button
-              variant="contained"
-              onClick={() => {
-                setOpenDrawer(false);
-                handleCreatedItem(5);
-              }}
-            >
-              Confirmar
-            </Button>
+              <Button variant="contained" type="submit">
+                Confirmar
+              </Button>
+            </form>
           </Container>
         </Drawer>
       </div>

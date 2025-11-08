@@ -38,7 +38,6 @@ export default function Page() {
   const id = params.id;
   const [openDrawer, setOpenDrawer] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [openModalInactive, setOpenModalInactive] = useState(false);
   const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
@@ -67,7 +66,6 @@ export default function Page() {
       } else {
         setNotFound(true);
       }
-      setLoading(false);
     }
   }, [id]);
 
