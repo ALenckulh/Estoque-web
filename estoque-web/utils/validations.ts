@@ -50,12 +50,15 @@ export const validateConfirmPassword = (password: string, confirmPassword: strin
   return "";
 };
 
-export const validateEntityName = (name: string) => {
-  if (!name.trim()) return "O nome da entidade é obrigatório.";
+export const validateRequiredField = (value: string, fieldLabel: string) => {
+  if (!value.trim()) return `O ${fieldLabel} é obrigatório.`;
   return "";
 };
 
+export const validateEntityName = (name: string) => {
+  return validateRequiredField(name, "nome da entidade");
+};
+
 export const validateProductName = (name: string) => {
-  if (!name.trim()) return "O nome do produto é obrigatório.";
-  return "";
+  return validateRequiredField(name, "nome do produto");
 };

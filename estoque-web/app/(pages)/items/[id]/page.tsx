@@ -80,7 +80,7 @@ export default function Page() {
     { label: "Conjunto", value: "conjunto" },
   ];
 
-  const manufacturerOptions: Option[] = [
+  const [manufacturerOptions, setManufacturerOptions] = useState<Option[]>([
     { label: "Samsung", value: "samsung" },
     { label: "LG", value: "lg" },
     { label: "Dell", value: "dell" },
@@ -91,9 +91,9 @@ export default function Page() {
     { label: "3M", value: "3m" },
     { label: "Sony", value: "sony" },
     { label: "Embraer", value: "embraer" },
-  ];
+  ]);
 
-  const segmentOptions: Option[] = [
+  const [segmentOptions, setSegmentOptions] = useState<Option[]>([
     { label: "Eletrônicos", value: "eletronicos" },
     { label: "Informática", value: "informatica" },
     { label: "Automotivo", value: "automotivo" },
@@ -104,9 +104,9 @@ export default function Page() {
     { label: "Escritório", value: "escritorio" },
     { label: "Farmacêutico", value: "farmaceutico" },
     { label: "Construção", value: "construcao" },
-  ];
+  ]);
 
-  const groupOptions: Option[] = [
+  const [groupOptions, setGroupOptions] = useState<Option[]>([
     { label: "Smartphones", value: "smartphones" },
     { label: "Notebooks", value: "notebooks" },
     { label: "Monitores", value: "monitores" },
@@ -117,7 +117,7 @@ export default function Page() {
     { label: "Shampoos", value: "shampoos" },
     { label: "Parafusos", value: "parafusos" },
     { label: "Calçados", value: "calcados" },
-  ];
+  ]);
 
   // Array de detalhes reordenado para corresponder à imagem
   const itemDetails = [
@@ -167,32 +167,31 @@ export default function Page() {
       if (item.manufacturer) {
         let manuOption = manufacturerOptions.find(opt => opt.value === item.manufacturer);
         if (!manuOption) {
-          // Cria uma nova opção com o valor atual
           manuOption = { label: String(item.manufacturer), value: item.manufacturer };
-          manufacturerOptions.push(manuOption);
+          setManufacturerOptions(prev => prev.some(opt => opt.value === manuOption!.value) ? prev : [...prev, manuOption!]);
         }
-        setSelectedManufacturer(manuOption);
-        setInitialManufacturer(manuOption);
+        setSelectedManufacturer(manuOption || { label: String(item.manufacturer), value: item.manufacturer });
+        setInitialManufacturer(manuOption || { label: String(item.manufacturer), value: item.manufacturer });
       }
       // Segmento - adiciona opção se não existir
       if (item.segment) {
         let segOption = segmentOptions.find(opt => opt.value === item.segment);
         if (!segOption) {
           segOption = { label: String(item.segment), value: item.segment };
-          segmentOptions.push(segOption);
+          setSegmentOptions(prev => prev.some(opt => opt.value === segOption!.value) ? prev : [...prev, segOption!]);
         }
-        setSelectedSegment(segOption);
-        setInitialSegment(segOption);
+        setSelectedSegment(segOption || { label: String(item.segment), value: item.segment });
+        setInitialSegment(segOption || { label: String(item.segment), value: item.segment });
       }
       // Grupo - adiciona opção se não existir
       if (item.group) {
         let grpOption = groupOptions.find(opt => opt.value === item.group);
         if (!grpOption) {
           grpOption = { label: String(item.group), value: item.group };
-          groupOptions.push(grpOption);
+          setGroupOptions(prev => prev.some(opt => opt.value === grpOption!.value) ? prev : [...prev, grpOption!]);
         }
-        setSelectedGroup(grpOption);
-        setInitialGroup(grpOption);
+        setSelectedGroup(grpOption || { label: String(item.group), value: item.group });
+        setInitialGroup(grpOption || { label: String(item.group), value: item.group });
       }
     }
   }, [item]);
@@ -228,7 +227,9 @@ export default function Page() {
       if (item.manufacturer) {
         let manuOption = manufacturerOptions.find(opt => opt.value === item.manufacturer);
         if (!manuOption) {
-          manuOption = { label: String(item.manufacturer), value: item.manufacturer };
+          const newOpt = { label: String(item.manufacturer), value: item.manufacturer };
+          setManufacturerOptions(prev => prev.some(opt => opt.value === newOpt.value) ? prev : [...prev, newOpt]);
+          manuOption = newOpt;
         }
         setSelectedManufacturer(manuOption);
       } else {
@@ -239,7 +240,9 @@ export default function Page() {
       if (item.segment) {
         let segOption = segmentOptions.find(opt => opt.value === item.segment);
         if (!segOption) {
-          segOption = { label: String(item.segment), value: item.segment };
+          const newOpt = { label: String(item.segment), value: item.segment };
+          setSegmentOptions(prev => prev.some(opt => opt.value === newOpt.value) ? prev : [...prev, newOpt]);
+          segOption = newOpt;
         }
         setSelectedSegment(segOption);
       } else {
@@ -250,7 +253,9 @@ export default function Page() {
       if (item.group) {
         let grpOption = groupOptions.find(opt => opt.value === item.group);
         if (!grpOption) {
-          grpOption = { label: String(item.group), value: item.group };
+          const newOpt = { label: String(item.group), value: item.group };
+          setGroupOptions(prev => prev.some(opt => opt.value === newOpt.value) ? prev : [...prev, newOpt]);
+          grpOption = newOpt;
         }
         setSelectedGroup(grpOption);
       } else {
