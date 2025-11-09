@@ -340,6 +340,7 @@ export default function Page() {
                       variant="contained"
                       startIcon={<Icon name="Check" />}
                       onClick={() => setAnchorPopover(null)}
+                      disabled={isFilterEmpty}
                       fullWidth
                     >
                       Aplicar

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -17,6 +17,8 @@ import {
   renderDisabledCellWithIcons,
   renderTooltip,
 } from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
+import { useAppReady } from "@/hooks/useAppReady";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -39,6 +41,7 @@ export default function TableListItems() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [rowData] = useState<RowDataItem[]>(itemList);
+  const { setAppReady } = useAppReady();
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
@@ -116,6 +119,10 @@ export default function TableListItems() {
     }
   };
 
+  const onFirstDataRendered = useCallback(() => {
+    setAppReady(true);
+  }, [setAppReady]);
+
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
       <AgGridReact
@@ -129,6 +136,10 @@ export default function TableListItems() {
         theme={myTheme}
         enableCellTextSelection
         suppressDragLeaveHidesColumns
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
+        onFirstDataRendered={onFirstDataRendered}
       />
 
       {loading && (

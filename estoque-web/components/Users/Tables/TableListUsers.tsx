@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -20,6 +20,8 @@ import {
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
 import { IconButton } from "@/components/ui/IconButton";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
+import { useAppReady } from "@/hooks/useAppReady";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -37,6 +39,7 @@ export default function TableListUsers() {
   const [rowData] = useState<DataUser[]>(usersList);
   const gridRef = useRef<AgGridReact<DataUser>>(null);
   const { setFindUserId, myUserId, setOpenModalInactive, setOpenModalActive } = useUser();
+  const { setAppReady } = useAppReady();
 
   const getRowStyle = (
     params: RowClassParams<DataUser>
@@ -162,6 +165,10 @@ export default function TableListUsers() {
     event.node.setSelected(false);
   };
 
+  const onFirstDataRendered = useCallback(() => {
+          setAppReady(true);
+        }, [setAppReady]);
+
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
       <AgGridReact
@@ -177,8 +184,11 @@ export default function TableListUsers() {
         theme={myTheme}
         enableCellTextSelection
         suppressDragLeaveHidesColumns
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
+        onFirstDataRendered={onFirstDataRendered}
       />
-
       {loading && (
         <Box
           position="fixed"

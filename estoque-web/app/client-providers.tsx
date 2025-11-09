@@ -1,23 +1,16 @@
 "use client";
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { UserProvider } from "@/providers/user";
 import theme from "./theme/muiTheme";
-import { Loading } from "@/components/Feedback/Loading";
+import { UserProvider } from "@/providers/userProvider";
+import { AppReadyProvider } from "@/providers/appReadyProviderProps";
 
 export function ClientProviders({ children }: { children: ReactNode }) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
     <UserProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
-        {!isMounted && <Loading />}
+        <AppReadyProvider>{children}</AppReadyProvider>
       </ThemeProvider>
     </UserProvider>
   );

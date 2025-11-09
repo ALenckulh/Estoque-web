@@ -333,7 +333,7 @@ export default function Page() {
                     >
                       Editar
                     </Button>
-                    {item?.disabled ? (
+                    {item ? (item.disabled ? (
                       <IconButton
                         onClick={() => setOpenModalActive(true)}
                         tooltip="Ativar"
@@ -347,7 +347,7 @@ export default function Page() {
                         buttonProps={{ color: "error", variant: "outlined" }}
                         icon="Trash"
                       />
-                    )}
+                    )) : null}
                     <Dialog
                       open={openModalInactive}
                       onClose={() => setOpenModalInactive(false)}
@@ -413,19 +413,21 @@ export default function Page() {
                   </Container>
                 </Container>
               </Container>
-              <Box className="status">
-                <Icon
-                  name="Circle"
-                  size={10}
-                  color={
-                    item?.disabled ? "var(--neutral-50)" : "var(--success-10)"
-                  }
-                  fill={
-                    item?.disabled ? "var(--neutral-50)" : "var(--success-10)"
-                  }
-                />
-                <Subtitle2>{item?.disabled ? "Inativo" : "Ativo"}</Subtitle2>
-              </Box>
+              {item && (
+                <Box className="status">
+                  <Icon
+                    name="Circle"
+                    size={10}
+                    color={
+                      item.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                    }
+                    fill={
+                      item.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                    }
+                  />
+                  <Subtitle2>{item.disabled ? "Inativo" : "Ativo"}</Subtitle2>
+                </Box>
+              )}
 
               <Box
                 className="mainContainer"
