@@ -1,17 +1,13 @@
-import { supabase } from "@/utils/supabase/supabaseClient";
 import { Item } from "../../models/item_model";
+import { updateSafeDeleteItemDB } from "@/lib/data-base/item/update-safe-delete-item";
 
 export async function deleteItem(id: number): Promise<Item> {
-  const { data, error } = await supabase
-    .from("items")
-    .update({ safe_delete: true })
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+      const deletedItem = await updateSafeDeleteItemDB(id);
+  
+      return deletedItem;
+    } catch (error) {
+      throw new Error(`Erro ao deletar item -> ${error}`);
+    }
 
-  if (error) {
-    throw new Error(`Erro ao realizar soft delete do item: ${error.message}`);
-  }
-
-  return data as Item;
 }

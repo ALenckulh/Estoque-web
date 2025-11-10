@@ -1,9 +1,9 @@
 import { supabase } from "@/utils/supabase/supabaseClient";
 import { Item } from "../../models/item_model";
 
-export async function insertItem(item: Item) {
+export async function insertItemDB(item: Item) {
   const { error } = await supabase
-    .from('items')
+    .from('item')
     .insert(item);
 
   if (error) {

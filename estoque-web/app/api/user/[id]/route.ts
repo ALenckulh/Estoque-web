@@ -12,7 +12,7 @@ export async function GET(
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
 
-    const user = await getUserById(Number(id));
+  const user = await getUserById(id);
     return NextResponse.json({ success: true, user });
   } catch (err: any) {
     return NextResponse.json(
@@ -34,16 +34,13 @@ export async function PUT(
     const body = await request.json();
     const { name, email, password, admin, enterprise_id } = body;
 
-    if (!name && !email && !password && admin === undefined && enterprise_id === undefined) {
+    if (!name && !email && !password && admin === undefined) {
       throw new Error("Nenhum campo para atualizar.");
     }
-
-    const updatedUser = await updateUser(Number(id), {
+    const updatedUser = await updateUser(id, {
       name,
-      email,
       password,
-      admin,
-      enterprise_id,
+      is_admin: admin,
     });
 
     return NextResponse.json({ success: true, user: updatedUser });
@@ -64,7 +61,7 @@ export async function DELETE(
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
 
-    const deletedUser = await deleteUser(Number(id));
+  const deletedUser = await deleteUser(id);
     return NextResponse.json({ success: true, user: deletedUser });
   } catch (err: any) {
     return NextResponse.json(

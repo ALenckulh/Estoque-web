@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       description,
       quantity,
       quantity_alert,
-      unity,
+      unit,
       segment_id,
       manufacturer,
       position,

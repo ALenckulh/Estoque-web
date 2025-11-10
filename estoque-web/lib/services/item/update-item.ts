@@ -4,9 +4,8 @@ import { updateItemDB } from "@/lib/data-base/item/update-item";
 interface UpdateParameters {
   name?: string;
   description?: string;
-  quantity?: number;
   quantity_alert?: number;
-  unity?: string;
+  unit?: string;
   segment_id?: number;
   manufacturer?: string;
   position?: string;

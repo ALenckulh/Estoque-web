@@ -18,7 +18,7 @@ export async function updateItemDB(id: number, updates: UpdateParameters): Promi
   const { enterprise_id, ...safeUpdates } = updates as any;
 
   const { data, error } = await supabase
-    .from("items")
+    .from("item")
     .update(safeUpdates)
     .eq("id", id)
     .select()

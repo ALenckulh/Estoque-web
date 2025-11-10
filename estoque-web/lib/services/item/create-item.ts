@@ -1,4 +1,4 @@
-import { insertItem } from "@/lib/data-base/item/insert-item";
+import { insertItemDB } from "@/lib/data-base/item/insert-item";
 import { Item } from "../../models/item_model";
 
 interface Parameters {
@@ -7,7 +7,7 @@ interface Parameters {
   enterprise_id: number;
   description?: string;
   quantity_alert?: number;
-  unity?: string;
+  unit?: string;
   segment_id?: number;
   manufacturer?: string;
   position?: string;
@@ -20,7 +20,7 @@ export async function createItem({
   enterprise_id,
   description,
   quantity_alert,
-  unity,
+  unit,
   segment_id,
   manufacturer,
   position,
@@ -33,13 +33,13 @@ export async function createItem({
       enterprise_id,
       description,
       quantity_alert,
-      unity,
+      unit,
       segment_id,
       manufacturer,
       position,
       group_id
     );
-    await insertItem(item);
+    await insertItemDB(item);
 
     console.log(`Item criado! -> ${name}`);
     return item;

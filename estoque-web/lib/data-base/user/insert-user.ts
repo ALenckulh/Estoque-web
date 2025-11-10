@@ -1,14 +1,28 @@
 import { supabase } from "@/utils/supabase/supabaseClient";
+import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 import { User } from "../../models/user_model";
 
 export async function insertUser(user: User) {
+  const { name, email, ...userDataForDB } = user;
 
-    const { error } = await supabase
-        .from('users')
-        .insert(user)
+  const { error } = await supabase.from("users").insert(userDataForDB);
 
-    // codigo '23505' significa que campo único já existe
-    if (error?.code === '23505') { throw new Error('Esse email já existe'); }
+  // 23505 = violação de chave única (pode ocorrer se tentar reutilizar um id já existente)
+  if (error?.code === "23505") {
+    throw new Error("Usuário já existe (chave duplicada).");
+  }
+  if (error) {
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
+      user.id
+    );
 
-    console.log(`Usuario ${user.name} inserido com sucesso!`)
+    if (deleteError) {
+      throw new Error(
+        `Falha ao inserir usuário na tabela E ao deletar do Auth (rollback falhou): ${error.message} | ${deleteError.message}`
+      );
+    }
+    throw new Error(`Erro ao inserir usuário: ${error.message}`);
+  }
+
+  console.log(`Usuário ${user.id} inserido com sucesso!`);
 }
