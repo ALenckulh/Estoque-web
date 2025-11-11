@@ -1,0 +1,243 @@
+{
+    "info": {
+        "name": "Movement API",
+        "description": "Collection de APIs de Movimentações (Entrada/Saída de estoque)",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Listar Movimentações",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/movement?page=1&pageSize=20",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "movement"
+                    ],
+                    "query": [
+                        {
+                            "key": "group_id",
+                            "value": "",
+                            "disabled": true,
+                            "description": "ID do grupo de movimentação (opcional)"
+                        },
+                        {
+                            "key": "user_id",
+                            "value": "",
+                            "disabled": true,
+                            "description": "ID do usuário (opcional)"
+                        },
+                        {
+                            "key": "enterprise_id",
+                            "value": "",
+                            "disabled": true,
+                            "description": "ID da empresa (opcional)"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1",
+                            "description": "Número da página (padrão: 1)"
+                        },
+                        {
+                            "key": "pageSize",
+                            "value": "20",
+                            "description": "Quantidade de registros por página (padrão: 20)"
+                        }
+                    ]
+                },
+                "description": "Lista todas as movimentações com filtros opcionais e paginação"
+            },
+            "response": []
+        },
+        {
+            "name": "Listar Movimentações por Empresa",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/movement?enterprise_id=1&page=1&pageSize=20",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "movement"
+                    ],
+                    "query": [
+                        {
+                            "key": "enterprise_id",
+                            "value": "1",
+                            "description": "ID da empresa"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "pageSize",
+                            "value": "20"
+                        }
+                    ]
+                },
+                "description": "Lista movimentações filtradas por ID da empresa"
+            },
+            "response": []
+        },
+        {
+            "name": "Listar Movimentações por Usuário",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/movement?user_id=1&page=1&pageSize=20",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "movement"
+                    ],
+                    "query": [
+                        {
+                            "key": "user_id",
+                            "value": "1",
+                            "description": "ID do usuário"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "pageSize",
+                            "value": "20"
+                        }
+                    ]
+                },
+                "description": "Lista movimentações filtradas por ID do usuário"
+            },
+            "response": []
+        },
+        {
+            "name": "Listar Movimentações por Grupo",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/movement?group_id=1&page=1&pageSize=20",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "movement"
+                    ],
+                    "query": [
+                        {
+                            "key": "group_id",
+                            "value": "1",
+                            "description": "ID do grupo de movimentação"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "pageSize",
+                            "value": "20"
+                        }
+                    ]
+                },
+                "description": "Lista movimentações filtradas por ID do grupo"
+            },
+            "response": []
+        },
+        {
+            "name": "Criar Movimentação - Entrada",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"type\": \"entrada\",\n  \"date\": \"2025-11-16\",\n  \"user_id\": 1,\n  \"enterprise_id\": 1,\n  \"lote\": \"LOTE001\",\n  \"nota_fiscal\": \"NF123456\",\n  \"participate_id\": 1,\n  \"items\": [\n    {\n      \"item_id\": 1,\n      \"quantity\": 100\n    },\n    {\n      \"item_id\": 2,\n      \"quantity\": 50\n    }\n  ]\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/movement",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "movement"
+                    ]
+                },
+                "description": "Cria uma movimentação de entrada (adiciona itens ao estoque)"
+            },
+            "response": []
+        },
+        {
+            "name": "Criar Movimentação - Saída",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"type\": \"saida\",\n  \"date\": \"2025-11-16\",\n  \"user_id\": 1,\n  \"enterprise_id\": 1,\n  \"lote\": \"LOTE001\",\n  \"nota_fiscal\": \"NF123456\",\n  \"participate_id\": 1,\n  \"items\": [\n    {\n      \"item_id\": 1,\n      \"quantity\": 50\n    },\n    {\n      \"item_id\": 2,\n      \"quantity\": 25\n    }\n  ]\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/movement",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "movement"
+                    ]
+                },
+                "description": "Cria uma movimentação de saída (remove itens do estoque)"
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:3000",
+            "type": "string"
+        }
+    ]
+}

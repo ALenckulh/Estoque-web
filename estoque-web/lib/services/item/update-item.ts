@@ -11,11 +11,18 @@ interface UpdateParameters {
   manufacturer?: string;
   position?: string;
   group_id?: number;
+<<<<<<< HEAD
+=======
+  enterprise_id?: number;
+>>>>>>> 5623cfa (Implementa Item CRUD: model, database, services e routes além de alguns ajustes pontuais e adição do listUser)
 }
 
 export async function updateItem(id: number, updates: UpdateParameters): Promise<Item> {
   try {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5623cfa (Implementa Item CRUD: model, database, services e routes além de alguns ajustes pontuais e adição do listUser)
     const updatedItem = await updateItemDB(id, updates);
     return updatedItem;
   } catch (error) {

@@ -11,7 +11,7 @@ interface CreateMovementParams {
   lote?: string;
   nota_fiscal?: string;
   date: string;
-  user_id: number;
+  user_id: number | string;
   participate_id?: number;
   enterprise_id: number;
   items: MovementItem[];
@@ -43,19 +43,37 @@ export async function createMovement({
     for (const { item_id, quantity } of items) {
       const item = await fetchItemById(item_id);
 
-      if (!item || item.enterprise_id !== enterprise_id || item.safe_delete) {
+      if (!item || item.enterprise_id !== enterprise_id || item.safe_delete === true) {
         throw new Error(`Item inválido ou inativo: ID ${item_id}`);
       }
+
+      // Validações solicitadas:
+      // - Se for 'entrada', não permitir quantidade negativa
+      // - Se for 'saida', não permitir quantidade positiva (usuário deve enviar valor negativo)
+      if (type === "entrada" && quantity < 0) {
+        throw new Error(
+          `Quantidade inválida para entrada do item ${item_id}: não pode ser negativa.`
+        );
+      }
+
+      if (type === "saida" && quantity > 0) {
+        throw new Error(
+          `Quantidade inválida para saída do item ${item_id}: informe um valor negativo.`
+        );
+      }
+
+      // Determinar a quantidade efetiva a aplicar (usar valor absoluto para operações)
+      const effectiveQuantity = Math.abs(quantity);
 
       let newQuantity = item.quantity;
 
       if (type === "entrada") {
-        newQuantity += quantity;
+        newQuantity += effectiveQuantity;
       } else if (type === "saida") {
-        if (item.quantity < quantity) {
+        if (item.quantity < effectiveQuantity) {
           throw new Error(`Estoque insuficiente para o item ${item.name}`);
         }
-        newQuantity -= quantity;
+        newQuantity -= effectiveQuantity;
       }
 
       const { error: updateError } = await supabase

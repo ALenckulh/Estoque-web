@@ -18,6 +18,17 @@ export async function listMovements({
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
+  // Validação 1: enterprise_id é obrigatório
+  if (!enterpriseId) {
+    throw new Error("Parâmetro 'enterprise_id' é obrigatório.");
+  }
+
+  // Converter para número e validar
+  const entId = Number(enterpriseId);
+  if (Number.isNaN(entId) || entId <= 0) {
+    throw new Error("Parâmetro 'enterprise_id' deve ser um número válido e maior que zero.");
+  }
+
   let query = supabase
     .from("movement_history")
     .select(
@@ -31,12 +42,9 @@ export async function listMovements({
       quantity
     `
     )
-    .order("date", { ascending: false })
-    .range(from, to);
-
-  if (groupId) query = query.eq("group_id", groupId);
-  if (userId) query = query.eq("user_id", userId);
-  if (enterpriseId) query = query.eq("enterprise_id", enterpriseId);
+    .order("group_id", { ascending: false })
+    .range(from, to)
+    .eq("enterprise_id", entId);
 
   const { data, error } = await query;
 
