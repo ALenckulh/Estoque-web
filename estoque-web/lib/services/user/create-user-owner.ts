@@ -81,8 +81,6 @@ export async function createUserOwner({
             await supabaseAdmin.from("users").delete().eq("id", newUser.id);
             await supabaseAdmin.auth.admin.deleteUser(newUser.id);
         } catch (rbErr) {
-            // Se rollback falhar, logamos ambos erros e levantamos um erro composto
-                    console.error("Erro durante rollback após falha ao inserir dados base:", rbErr);
                     throw new Error(
                         `Falha ao inserir dados base: ${insertErr.message}. E falha no rollback: ${(rbErr as any)?.message || String(rbErr)}`
                     );

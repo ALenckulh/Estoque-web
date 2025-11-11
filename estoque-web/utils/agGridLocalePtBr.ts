@@ -38,7 +38,7 @@ export const AG_GRID_LOCALE_PT_BR = {
   // Outros
   noRowsToShow: 'Nenhum registro encontrado',
   pinColumn: 'Fixar coluna',
-  autosizeThiscolumn: 'Ajustar esta coluna',
+  autosizeThisColumn: 'Ajustar esta coluna',
   autosizeAllColumns: 'Ajustar todas as colunas',
   groupBy: 'Agrupar por',
   copy: 'Copiar',

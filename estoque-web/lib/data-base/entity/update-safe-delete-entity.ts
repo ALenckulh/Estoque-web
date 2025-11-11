@@ -19,6 +19,6 @@ export async function updateSafeDeleteEntityDB(id: string) {
     .single();
 
   if (error) throw new Error(`Erro ao mudar status da entidade -> ${error.message}`);
-  console.log(`Entidade ${newSafeDelete ? "ativada" : "desativada"} -> ${id}`);
+  console.log(`Entidade ${newSafeDelete ? "desativada" : "ativada"} -> ${id}`);
   return data;
 }
