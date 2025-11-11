@@ -2,6 +2,10 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 import { User } from "../../models/user_model";
 
+/**
+ * - `name` and `email` are stored in the Auth system's metadata (e.g., Supabase Auth / auth.users)
+ *   rather than in the public.users table. This avoids duplicating personal data across systems
+ */
 export async function insertUser(user: User) {
   const { name, email, ...userDataForDB } = user;
 

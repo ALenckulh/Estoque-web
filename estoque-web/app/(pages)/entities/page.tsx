@@ -70,101 +70,99 @@ export default function Page() {
           <Body4 sx={{ color: "var(--neutral-60)" }}>Entidades listadas</Body4>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <Box sx={{ position: "relative" }}>
-            <Button
-              variant="outlined"
-              startIcon={<Icon name="ListFilter" />}
-              onClick={(e) => setAnchorPopover(e.currentTarget)}
-              sx={{
-                minWidth: 40,
-                width: 40,
-                height: 40,
-                p: "8px",
-                "& .MuiButton-startIcon": { m: 0 },
-              }}
-              aria-label={hasActiveFilters ? "Filtros ativos" : "Abrir filtros"}
-            />
-            {hasActiveFilters && (
-              <Box
+              <Button
+                variant="outlined"
+                startIcon={<Icon name="ListFilter" />}
+                onClick={(e) => setAnchorPopover(e.currentTarget)}
                 sx={{
-                  position: "absolute",
-                  top: 7,
-                  right: 7,
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: "primary.main",
-                  boxShadow: "0 0 0 2px #fff",
+                  minWidth: 40,
+                  width: 40,
+                  height: 40,
+                  p: "8px",
+                  "& .MuiButton-startIcon": { m: 0 },
                 }}
+                aria-label={
+                  hasActiveFilters ? "Filtros ativos" : "Abrir filtros"
+                }
               />
-            )}
-            <Popover
-              open={Boolean(anchorPopover)}
-              anchorEl={anchorPopover}
-              onClose={() => setAnchorPopover(null)}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-              transformOrigin={{ vertical: "top", horizontal: "center" }}
-              slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
-            >
-              <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>
-                Filtrar Produtos
-              </Subtitle2>
-              <form
-                className="formContainer"
-                style={{ width: "100%", gap: "20px" }}
-              >
-                <Autocomplete
-                  options={statusOptions}
-                  getOptionLabel={(option) => option.label}
-                  value={filterStatus}
-                  onChange={(_, newValue) => setFilterStatus(newValue)}
-                  isOptionEqualToValue={(option, val) =>
-                    option.value === val?.value
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Estado"
-                      placeholder="Selecione..."
-                    />
-                  )}
+              {hasActiveFilters && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 7,
+                    right: 7,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: "primary.main",
+                    boxShadow: "0 0 0 2px #fff",
+                  }}
                 />
-                <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<Icon name="FilterX" />}
-                    disabled={isFilterEmpty}
-                    onClick={() => {
-                      handleClearFilters();
-                    }}
-                    fullWidth
-                  >
-                    Limpar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<Icon name="Check" />}
-                    onClick={() => setAnchorPopover(null)}
-                    disabled={!filterStatus}
-                    fullWidth
-                  >
-                    Aplicar
-                  </Button>
-                </Box>
-              </form>
-            </Popover>
+              )}
+              <Popover
+                open={Boolean(anchorPopover)}
+                anchorEl={anchorPopover}
+                onClose={() => setAnchorPopover(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+                slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
+              >
+                <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>
+                  Filtrar Entidades
+                </Subtitle2>
+                <form
+                  className="formContainer"
+                  style={{ width: "100%", gap: "20px" }}
+                >
+                  <Autocomplete
+                    options={statusOptions}
+                    getOptionLabel={(option) => option.label}
+                    value={filterStatus}
+                    onChange={(_, newValue) => setFilterStatus(newValue)}
+                    isOptionEqualToValue={(option, val) =>
+                      option.value === val?.value
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Estado"
+                        placeholder="Selecione..."
+                      />
+                    )}
+                  />
+                  <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={<Icon name="FilterX" />}
+                      disabled={isFilterEmpty}
+                      onClick={() => {
+                        handleClearFilters();
+                      }}
+                      fullWidth
+                    >
+                      Limpar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => setAnchorPopover(null)}
+                      disabled={isFilterEmpty}
+                      fullWidth
+                    >
+                      Aplicar
+                    </Button>
+                  </Box>
+                </form>
+              </Popover>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<Icon name="Plus"></Icon>}
+              onClick={() => setOpenDrawer(true)}
+            >
+              Criar Entidade
+            </Button>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<Icon name="Plus"></Icon>}
-            onClick={() => setOpenDrawer(true)}
-          >
-            Criar Entidade
-          </Button>
-
-          </Box>
-          
-          
         </Box>
         <TableListEntity />
         <Box sx={{ height: "12px" }}>

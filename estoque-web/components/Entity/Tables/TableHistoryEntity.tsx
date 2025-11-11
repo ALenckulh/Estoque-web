@@ -110,8 +110,8 @@ export default function TableHistoryEntity() {
   ]);
 
   const onFirstDataRendered = useCallback(() => {
-      setAppReady(true);
-    }, [setAppReady]);
+    setAppReady(true);
+  }, [setAppReady]);
 
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
