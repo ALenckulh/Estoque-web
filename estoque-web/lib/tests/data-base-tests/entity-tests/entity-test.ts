@@ -72,7 +72,7 @@ async function testUpdateEntitySuccess() {
 
 // Testes para deleteEntity (safe delete)
 async function testUpdateSafeDeleteEntity() {
-  const result = await deleteEntity(mockEntity.id!, true);
+  const result = await deleteEntity(mockEntity.id!);
   assert(result !== null, "Resultado deveria existir");
   console.log("   ✓ Entidade desativada via service");
 }

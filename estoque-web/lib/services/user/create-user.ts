@@ -6,8 +6,8 @@ export interface CreateUserParams {
     email: string;
     password: string;
     enterprise_id: number;
-    is_admin?: boolean;
-    is_owner?: boolean;
+    is_admin: boolean;
+    is_owner: boolean;
     name?: string;
 }
 
@@ -15,8 +15,8 @@ export async function createUser({
     email,
     password,
     enterprise_id,
-    is_admin = false,
-    is_owner = false,
+    is_admin,
+    is_owner,
     name,
 }: CreateUserParams): Promise<User> {
     // 1) Cria no Auth
