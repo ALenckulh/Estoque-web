@@ -293,6 +293,49 @@
 			"name": "User",
 			"item": [
 				{
+					"name": "Criar Owner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.id) {",
+									"        pm.collectionVariables.set('user_id', jsonData.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-enterprise-id",
+								"value": "{{enterprise_id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Owner Teste\",\n  \"email\": \"owner@teste.com\",\n  \"password\": \"senha123\",\n  \"enterprise_id\": {{enterprise_id}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/owner",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "owner"]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Criar User",
 					"event": [
 						{

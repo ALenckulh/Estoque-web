@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -16,7 +16,6 @@ import {
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
-import { useAppReady } from "@/hooks/useAppReady";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -35,7 +34,7 @@ interface RowDataItem {
 
 export default function TableHistoryEntity() {
   const [rowData] = useState<RowDataItem[]>(itemHistoryList);
-  const { setAppReady } = useAppReady();
+
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
@@ -110,10 +109,6 @@ export default function TableHistoryEntity() {
     },
   ]);
 
-  const onFirstDataRendered = useCallback(() => {
-    setAppReady(true);
-  }, [setAppReady]);
-
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
       <AgGridReact
@@ -129,7 +124,6 @@ export default function TableHistoryEntity() {
         paginationPageSizeSelector={false}
         localeText={AG_GRID_LOCALE_PT_BR}
         loadingOverlayComponent={() => {}}
-        onFirstDataRendered={onFirstDataRendered}
       />
     </div>
   );

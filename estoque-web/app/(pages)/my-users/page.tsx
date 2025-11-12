@@ -117,7 +117,6 @@ export default function Page() {
     findUserId,
     setFindUserId,
     myUserId,
-    setMyUserId,
     setOpenModalActive,
     setOpenModalInactive,
     OpenModalActive,
@@ -150,12 +149,6 @@ export default function Page() {
       setEditConfirmFuturePassword("");
     }
   }, [userEdit]);
-
-  useEffect(() => {
-    if (typeof setMyUserId === "function") {
-      setMyUserId("8");
-    }
-  }, [myUserId, setMyUserId]);
 
   const handleChangeOtp = (newValue: string) => {
     setErrors((prevErrors: Record<string, string>) => ({

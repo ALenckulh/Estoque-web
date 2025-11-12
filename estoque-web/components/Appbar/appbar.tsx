@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Tab } from "@/components/ui/Tab/Tab";
 import MenuItem from "../ui/MenuItem";
 import { useRouter } from "next/navigation";
+import { logOut } from "@/lib/services/auth/log-out";
 
 interface TabItem {
   id: string;
@@ -126,7 +127,7 @@ export function Appbar({
             <MenuItem onClick={() => handleNavigate("/help")} icon={"MessageCircleQuestion"}>
               Ajuda
             </MenuItem>
-            <MenuItem onClick={handleCloseMenu} icon="LogOut" error={true}>
+            <MenuItem onClick={async () => { await logOut(); handleNavigate("/sign-in"); }} icon="LogOut" error={true}>
               Sair
             </MenuItem>
           </Menu>

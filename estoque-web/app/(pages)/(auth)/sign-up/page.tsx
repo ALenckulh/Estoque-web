@@ -2,8 +2,8 @@
 
 import { Appbar } from "@/components/Appbar/appbar";
 import { PasswordField } from "@/components/ui/PasswordField";
-import { H4, Subtitle2 } from "@/components/ui/Typography";
-import { Box, Button, Card, Divider, TextField } from "@mui/material";
+import { H4, Subtitle2, Body2 } from "@/components/ui/Typography";
+import { Box, Button, Card, CircularProgress, Divider, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -21,6 +21,8 @@ export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
     email: "",
@@ -28,8 +30,9 @@ export default function Page() {
     confirmPassword: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
 
     const newErrors: Record<string, string> = {
       username: validateUsername(username),
@@ -43,7 +46,63 @@ export default function Page() {
     const hasError = Object.values(newErrors).some((error) => error);
     if (hasError) return;
 
-    return router.push("/verify-email");
+    setLoading(true);
+
+    try {
+      // Cria usuário owner com admin = true via API (servidor)
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          name: username,
+          is_admin: true,
+          is_owner: true,
+          // myUserEnterpriseId não é necessário para owner
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao criar conta.');
+      }
+
+      router.push("/");
+    } catch (error: any) {
+      setFormError(error?.message || "Erro ao criar conta. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    setFormError("");
+    setLoading(true);
+
+    try {
+      // Chama API para iniciar OAuth com Google (owner + admin)
+      const response = await fetch('/api/user/google-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          is_admin: true,
+          is_owner: true,
+          redirectTo: process.env.NEXT_PUBLIC_SIGN_IN_WITH_GOOGLE,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao iniciar cadastro com Google.');
+      }
+
+    } catch (error: any) {
+      setFormError(error?.message || "Erro ao iniciar cadastro com Google.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -105,12 +164,21 @@ export default function Page() {
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
             />
+
+            {formError && (
+              <Body2 sx={{ color: "error.main", textAlign: "center", mt: 1 }}>
+                {formError}
+              </Body2>
+            )}
+
             <Button
               type="submit"
               variant="contained"
               sx={{ marginTop: "20px" }}
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : undefined}
             >
-              Confirmar
+              {loading ? "Criando..." : "Confirmar"}
             </Button>
             <Box
               sx={{
@@ -140,6 +208,8 @@ export default function Page() {
                 },
               }}
               variant="outlined"
+              disabled={loading}
+              onClick={handleGoogleSignUp}
               startIcon={
                 <img
                   src="/icons/googleIcon.svg"
@@ -164,7 +234,7 @@ export default function Page() {
             }}
           >
             <Subtitle2 sx={{ color: "var(--neutral-60)" }}>
-              Não possui conta?
+              Já possui conta?
             </Subtitle2>
             <Link
               style={{
@@ -173,7 +243,7 @@ export default function Page() {
               }}
               href="/sign-in"
             >
-              Criar conta
+              Entrar
             </Link>
           </Box>
         </Card>
