@@ -1,4 +1,4 @@
-import { supabase } from "@/utils/supabase/supabaseClient";
+import { supabaseBrowser } from "@/utils/supabase/supabaseBrowserClient";
 
 /**
  * Faz logout no Supabase Auth, invalidando a sessão atual.
@@ -7,7 +7,7 @@ import { supabase } from "@/utils/supabase/supabaseClient";
  */
 export async function logOut(): Promise<boolean> {
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseBrowser.auth.signOut();
 
     if (error) {
       throw new Error(error.message || "Falha ao fazer logout");

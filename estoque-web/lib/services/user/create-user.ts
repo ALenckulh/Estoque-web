@@ -60,11 +60,12 @@ export async function createUser({
     enterpriseId = Number(myUserEnterpriseId);
   }
 
-  // 1) Cria usuário no Auth (isso muda a sessão local para o novo usuário)
-  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+  // 1) Cria usuário no Auth usando Admin API (bypassa signup disabled)
+  const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
-    options: name ? { data: { name } } : undefined,
+    email_confirm: true, // Auto-confirma email (bypass verification)
+    user_metadata: name ? { name } : undefined,
   });
 
   if (signUpError || !signUpData?.user) {

@@ -14,6 +14,7 @@ import {
   validateConfirmPassword,
 } from "@/utils/validations";
 import Link from "next/link";
+import { supabaseBrowser } from "@/utils/supabase/supabaseBrowserClient";
 
 export default function Page() {
   const router = useRouter();
@@ -59,7 +60,6 @@ export default function Page() {
           name: username,
           is_admin: true,
           is_owner: true,
-          // myUserEnterpriseId não é necessário para owner
         }),
       });
 
@@ -67,6 +67,16 @@ export default function Page() {
 
       if (!response.ok) {
         throw new Error(data.error || 'Erro ao criar conta.');
+      }
+
+      // Auto-login após criar conta
+      const { error: signInError } = await supabaseBrowser.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        throw new Error('Conta criada mas falha no login. Tente fazer login manualmente.');
       }
 
       router.push("/");
@@ -82,6 +92,14 @@ export default function Page() {
     setLoading(true);
 
     try {
+      // Marca que este é um fluxo de criação (será lido no callback)
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          "pending_user_creation",
+          JSON.stringify({ is_admin: true, is_owner: true })
+        );
+      }
+
       // Chama API para iniciar OAuth com Google (owner + admin)
       const response = await fetch('/api/user/google-signup', {
         method: 'POST',
@@ -97,6 +115,12 @@ export default function Page() {
 
       if (!response.ok) {
         throw new Error(result.error || 'Erro ao iniciar cadastro com Google.');
+      }
+
+      // Redireciona imediatamente para a URL do OAuth retornada
+      if (result?.data?.url) {
+        window.location.href = result.data.url as string;
+        return; // evita alterar loading após iniciar navegação
       }
 
     } catch (error: any) {

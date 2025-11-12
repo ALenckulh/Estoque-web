@@ -5,7 +5,7 @@ export const config = {
   matcher: ["/protected/:path*"], // protege todas as rotas dentro de /protected
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
 
   // Cria o client Supabase usando request + response

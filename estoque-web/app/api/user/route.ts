@@ -1,4 +1,4 @@
-import { createUser } from "@/lib/services/auth/create-user";
+import { createUser } from "@/lib/services/user/create-user";
 import { NextRequest, NextResponse } from "next/server";
 
 // POST /api/user - Cria um novo usuário.

@@ -1,4 +1,4 @@
-import { supabase } from "@/utils/supabase/supabaseClient";
+import { supabaseBrowser } from "@/utils/supabase/supabaseBrowserClient";
 
 /**
  * Inicia fluxo de autenticação OAuth com o provedor Google via Supabase.
@@ -15,7 +15,7 @@ export async function signInWithGoogle(redirectTo?: string) {
 			? { redirectTo }
 			: undefined;
 
-		const { data, error } = await supabase.auth.signInWithOAuth({
+		const { data, error } = await supabaseBrowser.auth.signInWithOAuth({
 			provider: "google",
 			options,
 		});

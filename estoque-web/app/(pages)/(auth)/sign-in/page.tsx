@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Divider,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import signInWithEmail from "@/lib/services/auth/sign-in";
 import signInWithGoogle from "@/lib/services/auth/sign-in-with-google";
@@ -20,28 +20,22 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import { validateEmail, validateSignInPassword } from "@/utils/validations";
 import Link from "next/link";
 
-export default function Page() {
+// Wrap useSearchParams usage inside a Suspense boundary to avoid warnings
+function OAuthCallbackHandler({
+  setGoogleError,
+}: {
+  setGoogleError: (msg: string) => void;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({
-    email: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [googleError, setGoogleError] = useState("");
 
-  // Verifica OAuth callback: se houver erro, exibe; se sucesso, redireciona para home
   useEffect(() => {
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
     const errorCode = searchParams.get("error_code");
 
     if (error) {
-      // Mapeia erros do OAuth para mensagens amigáveis
+      // Map OAuth errors to friendly messages
       let friendlyMessage = "Falha ao entrar com Google";
 
       if (
@@ -58,30 +52,45 @@ export default function Page() {
       }
 
       setGoogleError(friendlyMessage);
-      // Limpa a URL
+      // Clean URL
       router.replace("/sign-in");
       return;
     }
 
-    // Só verifica sessão se houver hash ou query params (retorno do OAuth)
+    // Only check session on OAuth callback (hash or query present)
     const hasOAuthParams =
-      window.location.hash || Array.from(searchParams.keys()).length > 0;
+      typeof window !== "undefined" &&
+      (window.location.hash || Array.from(searchParams.keys()).length > 0);
 
     if (hasOAuthParams) {
-      // Verifica se há sessão ativa (login bem-sucedido via OAuth)
       const checkSession = async () => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) {
-          // Login bem-sucedido - redireciona para home
           router.push("/");
         }
       };
 
       checkSession();
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, setGoogleError]);
+
+  return null;
+}
+
+export default function Page() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [googleError, setGoogleError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,6 +142,9 @@ export default function Page() {
 
   return (
     <div>
+      <Suspense fallback={null}>
+        <OAuthCallbackHandler setGoogleError={setGoogleError} />
+      </Suspense>
       <Appbar showTabs={false} showAvatar={false} />
       <div
         className="container"

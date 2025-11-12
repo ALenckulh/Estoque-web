@@ -1,4 +1,4 @@
-import { supabase } from "@/utils/supabase/supabaseClient";
+import { supabaseBrowser } from "@/utils/supabase/supabaseBrowserClient";
 
 /**
  * Faz login no Supabase Auth usando email + senha.
@@ -8,7 +8,7 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 export async function signInWithEmail(email: string, password: string) {
 
 	try {
-		const { data, error } = await supabase.auth.signInWithPassword({
+		const { data, error } = await supabaseBrowser.auth.signInWithPassword({
 			email,
 			password,
 		});
