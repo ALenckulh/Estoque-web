@@ -17,7 +17,7 @@ export function UserProvider({ children }: UserProviderProps) {
   const [OpenModalActive, setOpenModalActive] = useState<boolean>(false);
 
   useEffect(() => {
-    async function loadUserData() {
+    async function loadUserData() { //mudar para essa função ser chamada no sign-in
       try {
         const userId = await findMyUserId();
         setMyUserId(userId);
@@ -41,7 +41,7 @@ export function UserProvider({ children }: UserProviderProps) {
   }, []);
 
   return (
-    <userContext.Provider value={{ findUserId, setFindUserId, isUserClicked, setIsUserClicked, myUserId, myUserEnterpriseId, OpenModalInactive, setOpenModalInactive, OpenModalActive, setOpenModalActive }}>
+    <userContext.Provider value={{ findUserId, setFindUserId, isUserClicked, setIsUserClicked, myUserId, setMyUserId, myUserEnterpriseId, OpenModalInactive, setOpenModalInactive, OpenModalActive, setOpenModalActive, setMyUserEnterpriseId }}>
       {children}
     </userContext.Provider>
   );

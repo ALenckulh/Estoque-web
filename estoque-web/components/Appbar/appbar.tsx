@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { AppBar, Toolbar, Avatar, Menu, IconButton, Box } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import { Tab } from "@/components/ui/Tab/Tab";
 import MenuItem from "../ui/MenuItem";
 import { useRouter } from "next/navigation";
 import { logOut } from "@/lib/services/auth/log-out";
+import { useUser } from "@/hooks/userHook";
 
 interface TabItem {
   id: string;
@@ -36,6 +37,7 @@ export function Appbar({
   onTabChange,
 }: AppbarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { setFindUserId, setMyUserId, setMyUserEnterpriseId } = useUser();
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -51,6 +53,20 @@ export function Appbar({
     setAnchorEl(null);
     if (path) router.push(path);
   };
+  const handleLogOut = useCallback(async () => {
+    try {
+      await logOut();
+    } catch (e) {
+      console.error("Erro ao deslogar:", e);
+    } finally {
+      // Limpa contexto do usuário
+      setFindUserId?.(null);
+      setMyUserId?.(null);
+      setMyUserEnterpriseId?.(null);
+    
+      handleNavigate("/sign-in");
+    }
+  }, [setFindUserId, setMyUserId, setMyUserEnterpriseId]);
 
   const handleTabChange = (tabId: string) => {
     if (onTabChange) {
@@ -127,7 +143,7 @@ export function Appbar({
             <MenuItem onClick={() => handleNavigate("/help")} icon={"MessageCircleQuestion"}>
               Ajuda
             </MenuItem>
-            <MenuItem onClick={async () => { await logOut(); handleNavigate("/sign-in"); }} icon="LogOut" error={true}>
+            <MenuItem onClick={handleLogOut} icon="LogOut" error={true}>
               Sair
             </MenuItem>
           </Menu>

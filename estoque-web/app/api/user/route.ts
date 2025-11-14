@@ -7,12 +7,12 @@ import { NextRequest, NextResponse } from "next/server";
 // - Se is_owner === false: usa myUserEnterpriseId fornecido (do usuário logado que está criando).
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { name, email, password, is_admin, is_owner, myUserEnterpriseId } =
+  const { name, email, password, is_admin, is_owner, myUserEnterpriseId, authUserId } =
     body || {};
 
-  if (!email || !password) {
+  if (!email || !authUserId) {
     return NextResponse.json(
-      { error: "Email e senha são obrigatórios." },
+      { error: "Email e authUserId são obrigatórios." },
       { status: 400 }
     );
   }
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       is_admin,
       is_owner,
       myUserEnterpriseId,
+      authUserId,
     });
     return NextResponse.json(newUser, { status: 201 });
   } catch (error: any) {

@@ -53,10 +53,6 @@ export async function PATCH(
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
 
-    const { ativo } = await request.json();
-    if (typeof ativo !== "boolean")
-      throw new Error("Campo 'ativo' é obrigatório e deve ser booleano");
-
     const entity = await deleteEntity(id);
     return NextResponse.json({ success: true, entity });
   } catch (err: any) {

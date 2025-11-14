@@ -6,7 +6,7 @@ export const validateUsername = (username: string) => {
 
 export const validateOtp = (otp: string) => {
   if (!otp.trim()) return "O código OTP é obrigatório.";
-  if (otp.length !== 5) return "O código OTP deve ter 5 dígitos.";
+  if (otp.length !== 6) return "O código OTP deve ter 6 dígitos.";
   return "";
 };
 

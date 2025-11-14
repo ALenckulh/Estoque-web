@@ -6,7 +6,9 @@ export interface UserContextType {
   isUserClicked?: boolean;
   setIsUserClicked?: (clicked: boolean) => void;
   myUserId?: string | null;
+  setMyUserId?: (id: string | null) => void;
   myUserEnterpriseId?: string | null;
+  setMyUserEnterpriseId?: (id: string | null) => void;
   OpenModalInactive: boolean;
   setOpenModalInactive: (open: boolean) => void;
   OpenModalActive: boolean;

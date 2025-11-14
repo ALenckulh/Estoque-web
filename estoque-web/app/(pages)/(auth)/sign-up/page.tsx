@@ -2,22 +2,17 @@
 
 import { Appbar } from "@/components/Appbar/appbar";
 import { PasswordField } from "@/components/ui/PasswordField";
-import { H4, Subtitle2, Body2 } from "@/components/ui/Typography";
-import { Box, Button, Card, CircularProgress, Divider, TextField } from "@mui/material";
-import React, { useState } from "react";
+import { H4, Subtitle2 } from "@/components/ui/Typography";
+import { Box, Button, Card, CircularProgress, TextField } from "@mui/material";
+import React, { useState, useContext } from "react";
+import userContext from "@/contexts/userContext";
 import { useRouter } from "next/navigation";
-
-import {
-  validateUsername,
-  validateEmail,
-  validatePassword,
-  validateConfirmPassword,
-} from "@/utils/validations";
+import { validateUsername, validateEmail, validatePassword, validateConfirmPassword } from "@/utils/validations";
 import Link from "next/link";
-import { supabaseBrowser } from "@/utils/supabase/supabaseBrowserClient";
 
 export default function Page() {
   const router = useRouter();
+  const uctx = useContext(userContext);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,36 +45,49 @@ export default function Page() {
     setLoading(true);
 
     try {
-      // Cria usuário owner com admin = true via API (servidor)
-      const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          name: username,
-          is_admin: true,
-          is_owner: true,
-        }),
+      // 1) Cria usuário no Auth (ou verifica se já existe)
+      const authRes = await fetch("/api/auth/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name: username, email_confirm: false }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao criar conta.');
+      const authJson = await authRes.json();
+      if (!authRes.ok) {
+        throw new Error(authJson.error || "Erro ao criar usuário no Auth.");
       }
 
-      // Auto-login após criar conta
-      const { error: signInError } = await supabaseBrowser.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        throw new Error('Conta criada mas falha no login. Tente fazer login manualmente.');
+      // Se já existe e não está confirmado, redireciona para verificação
+      if (authJson.alreadyExists && !authJson.emailConfirmed) {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("pending_verify_email", email);
+          window.localStorage.setItem("pending_signup_name", username);
+        }
+        router.push(`/verify-email`);
+        return;
       }
 
-      router.push("/");
+      // Guarda authUserId no contexto
+      uctx?.setMyUserId?.(authJson.user.id as string);
+
+      // 2) Envia OTP e redireciona para verificação
+      try {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("pending_verify_email", email);
+          window.localStorage.setItem("pending_signup_name", username);
+        }
+        const otpRes = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        if (!otpRes.ok) {
+          const j = await otpRes.json();
+          throw new Error(j.error || "Falha ao enviar código de verificação");
+        }
+      } catch (otpErr: any) {
+        console.error("Erro ao enviar OTP:", otpErr);
+      }
+      router.push(`/verify-email`);
     } catch (error: any) {
       setFormError(error?.message || "Erro ao criar conta. Tente novamente.");
     } finally {
@@ -87,64 +95,12 @@ export default function Page() {
     }
   };
 
-  const handleGoogleSignUp = async () => {
-    setFormError("");
-    setLoading(true);
-
-    try {
-      // Marca que este é um fluxo de criação (será lido no callback)
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem(
-          "pending_user_creation",
-          JSON.stringify({ is_admin: true, is_owner: true })
-        );
-      }
-
-      // Chama API para iniciar OAuth com Google (owner + admin)
-      const response = await fetch('/api/user/google-signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          is_admin: true,
-          is_owner: true,
-          redirectTo: process.env.NEXT_PUBLIC_SIGN_IN_WITH_GOOGLE,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Erro ao iniciar cadastro com Google.');
-      }
-
-      // Redireciona imediatamente para a URL do OAuth retornada
-      if (result?.data?.url) {
-        window.location.href = result.data.url as string;
-        return; // evita alterar loading após iniciar navegação
-      }
-
-    } catch (error: any) {
-      setFormError(error?.message || "Erro ao iniciar cadastro com Google.");
-      setLoading(false);
-    }
-  };
-
   return (
     <div>
       <Appbar showTabs={false} showAvatar={false} />
-      <div
-        className="container"
-        style={{ alignItems: "center", justifyContent: "center" }}
-      >
-        <Card
-          sx={{
-            padding: "40px",
-            width: "fit-content",
-          }}
-        >
-          <H4
-            sx={{ paddingBottom: "40px", width: "100%", textAlign: "center" }}
-          >
+      <div className="container" style={{ alignItems: "center", justifyContent: "center" }}>
+        <Card sx={{ padding: "40px", width: "fit-content" }}>
+          <H4 sx={{ paddingBottom: "40px", width: "100%", textAlign: "center" }}>
             Criar conta
           </H4>
           <form onSubmit={handleSubmit} className="formContainer">
@@ -188,13 +144,6 @@ export default function Page() {
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
             />
-
-            {formError && (
-              <Body2 sx={{ color: "error.main", textAlign: "center", mt: 1 }}>
-                {formError}
-              </Body2>
-            )}
-
             <Button
               type="submit"
               variant="contained"
@@ -204,69 +153,15 @@ export default function Page() {
             >
               {loading ? "Criando..." : "Confirmar"}
             </Button>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                width: "100%",
-              }}
-            >
-              <Divider sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }} />
-              <Subtitle2
-                sx={{
-                  marginX: 1,
-                  color: "var(--neutral-70)",
-                }}
-              >
-                ou
-              </Subtitle2>
-              <Divider sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }} />
-            </Box>
-
-            <Button
-              color="secondary"
-              sx={{
-                "& .MuiButton-startIcon": {
-                  marginRight: "12px",
-                },
-              }}
-              variant="outlined"
-              disabled={loading}
-              onClick={handleGoogleSignUp}
-              startIcon={
-                <img
-                  src="/icons/googleIcon.svg"
-                  alt="Google Icon"
-                  height={20}
-                  width={20}
-                />
-              }
-            >
-              Criar com o Google
-            </Button>
+            {formError && (
+              <Subtitle2 sx={{ marginTop: 2, color: "var(--danger-0)" }}>{formError}</Subtitle2>
+            )}
           </form>
           <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: "4px",
-              width: "100%",
-              justifyContent: "center",
-              paddingTop: "40px",
-            }}
+            sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "4px", width: "100%", justifyContent: "center", paddingTop: "40px" }}
           >
-            <Subtitle2 sx={{ color: "var(--neutral-60)" }}>
-              Já possui conta?
-            </Subtitle2>
-            <Link
-              style={{
-                fontSize: "16px",
-                color: "var(--primary-10)",
-              }}
-              href="/sign-in"
-            >
+            <Subtitle2 sx={{ color: "var(--neutral-60)" }}>Já possui conta?</Subtitle2>
+            <Link style={{ fontSize: "16px", color: "var(--primary-10)" }} href="/sign-in">
               Entrar
             </Link>
           </Box>

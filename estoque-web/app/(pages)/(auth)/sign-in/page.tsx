@@ -108,7 +108,14 @@ export default function Page() {
 
     try {
       setLoading(true);
-      await signInWithEmail(email, password);
+      const result = await signInWithEmail(email, password);
+      if (result?.requireEmailVerification) {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("pending_verify_email", email);
+        }
+        router.push("/verify-email");
+        return;
+      }
       router.push("/");
     } catch (err: any) {
       setFormError(err?.message || "Falha no login");
@@ -118,19 +125,13 @@ export default function Page() {
   };
 
   const handleGoogleSignIn = async () => {
+    //ele tem que pegar o myAuthId para enviar para o verify-email que vai criar a conta
     setGoogleError("");
     try {
       setGoogleLoading(true);
-
-      // Garante que não vai criar conta nova (apenas login)
-      if (typeof window !== "undefined") {
-        sessionStorage.removeItem("pending_user_creation");
-      }
-
-      // Redireciona de volta para /sign-in após OAuth
+      // Mantemos o callback na própria página para garantir que o handler execute.
       const redirectTo = `${window.location.origin}/sign-in`;
       const data = await signInWithGoogle(redirectTo);
-
       if (data?.url) {
         window.location.href = data.url;
       }
@@ -139,6 +140,20 @@ export default function Page() {
       setGoogleLoading(false);
     }
   };
+
+  // Listener para garantir redirecionamento mesmo em fluxo de linking (USER_UPDATED)
+  useEffect(() => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session && (event === "SIGNED_IN" || event === "USER_UPDATED")) {
+          router.push("/");
+        }
+      }
+    );
+    return () => {
+      subscription.subscription.unsubscribe();
+    };
+  }, [router]);
 
   return (
     <div>
