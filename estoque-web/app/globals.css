@@ -58,72 +58,6 @@
   --shadow-sm: 0 4px 8px rgba(27, 29, 32, 0.08);
 }
 
-.h1 {
-  font-size: 96px;
-  font-weight: 400;
-}
-
-.h2 {
-  font-size: 60px;
-  font-weight: 400;
-}
-
-.h3 {
-  font-size: 48px;
-  font-weight: 400;
-}
-
-.h4 {
-  font-size: 34px;
-  font-weight: 500;
-}
-
-.body1 {
-  font-size: 24px;
-  font-weight: 500;
-  color: var(--neutral-90);
-}
-
-.body2 {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.body3 {
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.subtitle1 {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.subtitle2 {
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.detail1 {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.detail2 {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.detail3 {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.detail4 {
-  font-size: 12px;
-  font-weight: 500;
-}
-
 .button {
   font-size: 16px;
   font-weight: 600;
@@ -224,6 +158,35 @@
   border-right: none !important;
 }
 
+.productField {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 25% !important;
+  min-width: 150px !important;
+  border-right: 1px solid var(--neutral-40) !important;
+  padding-right: 8px !important;
+}
+
+.productField:last-child {
+  border-right: none !important;
+}
+
+.classificationField {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 25% !important;
+  min-width: 150px !important;
+  border-right: 1px solid var(--neutral-40) !important;
+  padding-right: 8px !important;
+}
+
+.classificationField:last-child {
+  width: calc(50% + 16px) !important;
+  border-right: none !important;
+}
+
 .description {
   display: flex !important;
   flex-direction: column !important;
@@ -247,4 +210,11 @@
   align-items: center !important;
   flex-direction: row !important;
   gap: 4px !important;
+}
+
+.formContainer {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  width: 400px;
 }

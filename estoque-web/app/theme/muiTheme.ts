@@ -16,6 +16,13 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          marginLeft: "0px",
+        },
+      },
+    },
     MuiIconButton: {
       styleOverrides: {
         root: {
@@ -245,6 +252,12 @@ const theme = createTheme({
     },
     MuiFormControl: { defaultProps: { size: "small" } },
     MuiAutocomplete: {
+      defaultProps: {
+        slotProps: {
+          paper: { sx: { overflowY: "auto" } },
+          listbox: { sx: { overflowY: "hidden" } },
+        },
+      },
       styleOverrides: {
         paper: { maxHeight: 200, marginTop: 4 },
         option: { fontSize: "1rem", padding: "4px 15px" },
@@ -326,7 +339,7 @@ const theme = createTheme({
     },
     MuiDrawer: {
       styleOverrides: {
-        paper: { width: 450, padding: 24 },
+        paper: { width: 448, padding: 24 },
       },
     },
     MuiTooltip: {
@@ -345,6 +358,14 @@ const theme = createTheme({
           borderRadius: 8,
           padding: "24px",
           boxShadow: "var(--shadow-sm)",
+        },
+      },
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          fontSize: "16px",
+          color: "var(--neutral-100)",    // opcional
         },
       },
     },

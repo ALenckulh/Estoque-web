@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -11,10 +11,14 @@ import {
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
-import { Box, Tooltip } from "@mui/material";
-import { Icon } from "@/components/ui/Icon";
+import { Box } from "@mui/material";
 import { entityList } from "@/utils/dataBaseExample";
-import { renderDateCell, renderIdCell, renderTooltip } from "@/components/Tables/CelRenderes";
+import {
+  renderDateCell,
+  renderDisabledCellWithIcons,
+  renderTooltip,
+} from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -45,7 +49,12 @@ export default function TableListEntity() {
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: renderIdCell,
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Entidade está desativada");
+          return messages.join("");
+        }),
     },
     {
       headerName: "Nome",
@@ -54,7 +63,8 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "E-mail",
@@ -63,7 +73,8 @@ export default function TableListEntity() {
       filter: "agTextColumnFilter",
       flex: 1,
       minWidth: 180,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Endereço",
@@ -72,7 +83,8 @@ export default function TableListEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Criado",
@@ -87,7 +99,7 @@ export default function TableListEntity() {
   const handleRowSelected = (event: RowSelectedEvent) => {
     if (event.node.isSelected()) {
       setLoading(true);
-      router.push(`/entity/${event.data.id}`);
+      router.push(`/entities/${event.data.id}`);
     }
   };
 
@@ -104,6 +116,9 @@ export default function TableListEntity() {
         theme={myTheme}
         enableCellTextSelection
         suppressDragLeaveHidesColumns
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
 
       {loading && (

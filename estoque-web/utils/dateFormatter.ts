@@ -1,4 +1,3 @@
-// utils/dateFormatter.ts
 export interface DateParts {
   day: number;
   month: number;

@@ -1,8 +1,7 @@
 import { ThemeOptions } from "@mui/material/styles";
-import { montserrat } from "../layout";
 
 export const typography: ThemeOptions["typography"] = {
-  fontFamily: montserrat.style.fontFamily,
+  fontFamily: "Montserrat, sans-serif",
   h1: { fontSize: "96px", fontWeight: 400 },
   h2: { fontSize: "60px", fontWeight: 400 },
   h3: { fontSize: "48px", fontWeight: 400 },

@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import {
+  ColDef,
+  ModuleRegistry,
+  AllCommunityModule,
+  ICellRendererParams,
+} from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { ICellRendererParams } from "ag-grid-community";
 import { itemHistoryList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
-  renderIdCell,
+  renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -18,10 +23,10 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 interface RowDataItem {
   groupId: number;
   fiscalNote: string;
-  entityId: number;
-  entityName: string;
+  itemId: number;
+  itemName: string;
   user: string;
-  movimentDate: string;
+  date: string;
   quantity: number;
   type: string;
   disabled?: boolean;
@@ -29,6 +34,7 @@ interface RowDataItem {
 
 export default function TableHistoryEntity() {
   const [rowData] = useState<RowDataItem[]>(itemHistoryList);
+
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
@@ -43,7 +49,12 @@ export default function TableHistoryEntity() {
       cellClassRules: {
         "cell-disabled": (params) => !!params.data?.disabled,
       },
-      cellRenderer: renderIdCell,
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Movimentação está desativada");
+          return messages.join("");
+        }),
     },
     {
       headerName: "Nota Fiscal",
@@ -54,16 +65,16 @@ export default function TableHistoryEntity() {
       flex: 1,
     },
     {
-      headerName: "ID Entidade",
+      headerName: "Item ID",
       minWidth: 120,
-      field: "entityId",
+      field: "itemId",
       sortable: true,
       filter: "agNumberColumnFilter",
       flex: 1,
     },
     {
-      headerName: "Nome da Entidade",
-      field: "entityName",
+      headerName: "Nome do Item",
+      field: "itemName",
       minWidth: 140,
       sortable: true,
       filter: "agTextColumnFilter",
@@ -71,7 +82,7 @@ export default function TableHistoryEntity() {
       cellRenderer: renderCopyTooltipCell,
     },
     {
-      headerName: "User responsável",
+      headerName: "Responsável",
       field: "user",
       sortable: true,
       filter: "agTextColumnFilter",
@@ -79,14 +90,13 @@ export default function TableHistoryEntity() {
       minWidth: 140,
       cellRenderer: renderCopyTooltipCell,
     },
-    
     {
-      headerName: "Data de movimentação",
-      field: "movimentDate",
+      headerName: "Data",
+      field: "date",
       sortable: true,
       filter: "agDateColumnFilter",
       flex: 1,
-      minWidth: 160,
+      minWidth: 140,
       cellRenderer: renderDateCell,
     },
     {
@@ -96,21 +106,6 @@ export default function TableHistoryEntity() {
       filter: "agNumberColumnFilter",
       flex: 1,
       minWidth: 120,
-       cellRenderer: (params: ICellRendererParams) => {
-    const data = params.data as { type?: string; quantity?: number };
-    if (!data) return null;
-
-    if (data.type === "saída") {
-      return (
-        <span style={{ color: "#E42D2D", fontWeight: "bold" }}>
-          - {data.quantity}
-        </span>
-      );
-    }
-
-    return <span>{data.quantity}</span>;
-  },
-
     },
   ]);
 
@@ -126,6 +121,9 @@ export default function TableHistoryEntity() {
         theme={myTheme}
         enableCellTextSelection={true}
         suppressDragLeaveHidesColumns={true}
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
     </div>
   );

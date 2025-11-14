@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Box, Fade, Button } from "@mui/material";
 import styles from "./Toast.module.css"; // Importa o CSS Module
 import { Icon } from "../Icon";
-import { icons } from 'lucide-react';
-
+import { icons } from "lucide-react";
+import { Body3 } from "../Typography";
 
 // ------------------ Tipagem ------------------
 export type ToastType = {
@@ -27,7 +27,7 @@ export const Toast: React.FC<ToastProps> = ({
   message,
   icon,
 }) => {
-  const toastClass = `${styles.toast} body3 ${styles[type]}`;
+  const toastClass = `${styles.toast} ${styles[type]}`;
 
   return (
     <div
@@ -40,7 +40,7 @@ export const Toast: React.FC<ToastProps> = ({
       }}
     >
       {icon && <Icon name={icon} />}
-      {message}
+      <Body3 sx={{color:"var(--neutral-0)"}}>{message}</Body3>
     </div>
   );
 };
@@ -55,7 +55,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts }) => {
     <Box
       sx={{
         position: "fixed",
-        top: 20,
+        top: 40,
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 9999,
@@ -74,34 +74,14 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts }) => {
           unmountOnExit
         >
           <div>
-            <Toast type={toast.type} message={toast.message} icon={toast.icon} />
+            <Toast
+              type={toast.type}
+              message={toast.message}
+              icon={toast.icon}
+            />
           </div>
         </Fade>
       ))}
     </Box>
   );
 };
-
-// ------------------ Hook para gerenciar toasts ------------------
-export const useToast  = () => {
-  const [toasts, setToasts] = useState<ToastType[]>([]);
-
-
-  const showToast = (message: string, type: "success" | "error" = "success", icon?: keyof typeof icons) => {
-    const id = Date.now();
-    const newToast: ToastType = { id, type, show: true, message, icon };
-
-    setToasts((prev) => [...prev, newToast]);
-
-    // Oculta depois de 3 segundos
-    setTimeout(() => {
-      setToasts((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, show: false } : t))
-      );
-    }, 1500);
-  };
-
-  return { toasts, showToast };
-};
-                                    
-                                                                    

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -11,10 +11,13 @@ import {
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
-import { Box, Tooltip } from "@mui/material";
-import { Icon } from "@/components/ui/Icon";
+import { Box } from "@mui/material";
 import { itemList } from "@/utils/dataBaseExample";
-import { renderDateCell, renderIdCell, renderTooltip } from "@/components/Tables/CelRenderes";
+import {
+  renderDisabledCellWithIcons,
+  renderTooltip,
+} from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -49,7 +52,12 @@ export default function TableListItems() {
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
-      cellRenderer: renderIdCell,
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Item está desativado");
+          return messages.join("");
+        }),
     },
     {
       headerName: "Nome",
@@ -58,7 +66,8 @@ export default function TableListItems() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Posição",
@@ -67,7 +76,8 @@ export default function TableListItems() {
       filter: "agTextColumnFilter",
       flex: 1,
       minWidth: 180,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Fabricante",
@@ -76,7 +86,8 @@ export default function TableListItems() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined; }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
     {
       headerName: "Segmento",
@@ -84,7 +95,8 @@ export default function TableListItems() {
       sortable: true,
       filter: "agTextColumnFilter",
       width: 120,
-      cellRenderer: (params: { value: string | undefined }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
 
     {
@@ -93,10 +105,9 @@ export default function TableListItems() {
       sortable: true,
       filter: "agTextColumnFilter",
       width: 120,
-      cellRenderer: (params: { value: string | undefined }) => renderTooltip(params.value),
+      cellRenderer: (params: { value: string | undefined }) =>
+        renderTooltip(params.value),
     },
-
-    
   ]);
 
   const handleRowSelected = (event: RowSelectedEvent) => {
@@ -119,6 +130,9 @@ export default function TableListItems() {
         theme={myTheme}
         enableCellTextSelection
         suppressDragLeaveHidesColumns
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
 
       {loading && (

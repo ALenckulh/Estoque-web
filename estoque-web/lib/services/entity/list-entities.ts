@@ -2,9 +2,9 @@
 import { listEntitiesDB } from "@/lib/data-base/entity/list-entities";
 import { Entity } from "@/lib/models/entity_model";
 
-export async function listEntities(): Promise<Entity[]> {
+export async function listEntities(enterprise_id: number): Promise<Entity[]> {
   try {
-    const entities = await listEntitiesDB();
+    const entities = await listEntitiesDB(enterprise_id);
     console.log(`Service: ${entities.length} entidades listadas`);
     return entities;
   } catch (error: any) {

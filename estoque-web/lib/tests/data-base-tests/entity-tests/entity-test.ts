@@ -51,7 +51,7 @@ async function testCreateEntitySuccess() {
 
 // Testes para listEntities
 async function testListEntitiesSuccess() {
-  const result = await listEntities();
+  const result = await listEntities(mockEntity.enterprise_id as unknown as number);
   assert(Array.isArray(result), "Resultado deveria ser um array");
   console.log(`   ✓ ${result.length} entidades listadas via service`);
 }
@@ -72,7 +72,7 @@ async function testUpdateEntitySuccess() {
 
 // Testes para deleteEntity (safe delete)
 async function testUpdateSafeDeleteEntity() {
-  const result = await deleteEntity(mockEntity.id!, true);
+  const result = await deleteEntity(mockEntity.id!);
   assert(result !== null, "Resultado deveria existir");
   console.log("   ✓ Entidade desativada via service");
 }

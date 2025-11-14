@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import {
+  ColDef,
+  ModuleRegistry,
+  AllCommunityModule,
+  ICellRendererParams,
+} from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { ICellRendererParams } from "ag-grid-community";
 import { historyList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
-  renderIdCell,
+  renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -42,7 +47,12 @@ export default function TableHistoryEntity() {
       cellClassRules: {
         "cell-disabled": (params) => !!params.data?.disabled,
       },
-      cellRenderer: renderIdCell,
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Movimentação está desativada");
+          return messages.join("");
+        }),
     },
     {
       headerName: "Nota Fiscal",
@@ -109,6 +119,9 @@ export default function TableHistoryEntity() {
         theme={myTheme}
         enableCellTextSelection={true}
         suppressDragLeaveHidesColumns={true}
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
     </div>
   );
