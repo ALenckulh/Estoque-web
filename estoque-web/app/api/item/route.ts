@@ -6,7 +6,7 @@ import { deleteItem } from "@/lib/services/item/delete-item";
 // POST /api/item -> Cria um novo item
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, description, quantity, quantity_alert, unity, segment_id, manufacturer, position, group_id, enterprise_id } = body;
+  const { name, description, quantity, quantity_alert, unit, segment_id, manufacturer, position, group_id, enterprise_id } = body;
 
   if (!name || !quantity || !enterprise_id) {
     return NextResponse.json(
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       description,
       quantity,
       quantity_alert,
-      unity,
+      unit,
       segment_id,
       manufacturer,
       position,

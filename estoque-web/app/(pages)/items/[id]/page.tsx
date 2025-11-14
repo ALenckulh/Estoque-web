@@ -47,7 +47,7 @@ export default function Page() {
   const [productName, setProductName] = useState<string>("");
   const [productErrors, setProductErrors] = useState<{ name?: string }>({});
   const [selectedMeasureUnity, setSelectedMeasureUnity] = useState<Option | null>(null);
-  const [selectedManufacturer, setSelectedManufacturer] = useState<Option | null>(null);
+  const [manufacturer, setManufacturer] = useState<string>("");
   const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
   const [alertQuantity, setAlertQuantity] = useState<number | "">("");
@@ -56,7 +56,7 @@ export default function Page() {
 
   const [initialProductName, setInitialProductName] = useState<string>("");
   const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(null);
-  const [initialManufacturer, setInitialManufacturer] = useState<Option | null>(null);
+  const [initialManufacturer, setInitialManufacturer] = useState<string>("");
   const [initialSegment, setInitialSegment] = useState<Option | null>(null);
   const [initialGroup, setInitialGroup] = useState<Option | null>(null);
   const [initialAlertQuantity, setInitialAlertQuantity] = useState<number | "">("");
@@ -66,7 +66,7 @@ export default function Page() {
   const isDirty = 
     productName !== initialProductName ||
     selectedMeasureUnity?.value !== initialMeasureUnity?.value ||
-    selectedManufacturer?.value !== initialManufacturer?.value ||
+    manufacturer !== initialManufacturer ||
     selectedSegment?.value !== initialSegment?.value ||
     selectedGroup?.value !== initialGroup?.value ||
     alertQuantity !== initialAlertQuantity ||
@@ -184,15 +184,10 @@ export default function Page() {
         setSelectedMeasureUnity(unitOption || null);
         setInitialMeasureUnity(unitOption || null);
       }
-      // Fabricante - adiciona opção se não existir
+      // Fabricante - agora é TextField simples
       if (item.manufacturer) {
-        let manuOption = manufacturerOptions.find((opt: Option): boolean => opt.value === item.manufacturer);
-        if (!manuOption) {
-          manuOption = { label: String(item.manufacturer), value: item.manufacturer };
-          setManufacturerOptions(prev => prev.some((opt: Option): boolean => opt.value === manuOption!.value) ? prev : [...prev, manuOption!]);
-        }
-        setSelectedManufacturer(manuOption || { label: String(item.manufacturer), value: item.manufacturer });
-        setInitialManufacturer(manuOption || { label: String(item.manufacturer), value: item.manufacturer });
+        setManufacturer(String(item.manufacturer));
+        setInitialManufacturer(String(item.manufacturer));
       }
       // Segmento - adiciona opção se não existir
       if (item.segment) {
@@ -244,17 +239,11 @@ export default function Page() {
         setSelectedMeasureUnity(null);
       }
       
-      // Fabricante
+      // Fabricante - agora é TextField simples
       if (item.manufacturer) {
-        let manuOption = manufacturerOptions.find(opt => opt.value === item.manufacturer);
-        if (!manuOption) {
-          const newOpt = { label: String(item.manufacturer), value: item.manufacturer };
-          setManufacturerOptions(prev => prev.some(opt => opt.value === newOpt.value) ? prev : [...prev, newOpt]);
-          manuOption = newOpt;
-        }
-        setSelectedManufacturer(manuOption);
+        setManufacturer(String(item.manufacturer));
       } else {
-        setSelectedManufacturer(null);
+        setManufacturer("");
       }
       
       // Segmento
@@ -333,7 +322,7 @@ export default function Page() {
                     >
                       Editar
                     </Button>
-                    {item?.disabled ? (
+                    {item ? (item.disabled ? (
                       <IconButton
                         onClick={() => setOpenModalActive(true)}
                         tooltip="Ativar"
@@ -347,7 +336,7 @@ export default function Page() {
                         buttonProps={{ color: "error", variant: "outlined" }}
                         icon="Trash"
                       />
-                    )}
+                    )) : null}
                     <Dialog
                       open={openModalInactive}
                       onClose={() => setOpenModalInactive(false)}
@@ -413,19 +402,21 @@ export default function Page() {
                   </Container>
                 </Container>
               </Container>
-              <Box className="status">
-                <Icon
-                  name="Circle"
-                  size={10}
-                  color={
-                    item?.disabled ? "var(--neutral-50)" : "var(--success-10)"
-                  }
-                  fill={
-                    item?.disabled ? "var(--neutral-50)" : "var(--success-10)"
-                  }
-                />
-                <Subtitle2>{item?.disabled ? "Inativo" : "Ativo"}</Subtitle2>
-              </Box>
+              {item && (
+                <Box className="status">
+                  <Icon
+                    name="Circle"
+                    size={10}
+                    color={
+                      item.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                    }
+                    fill={
+                      item.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                    }
+                  />
+                  <Subtitle2>{item.disabled ? "Inativo" : "Ativo"}</Subtitle2>
+                </Box>
+              )}
 
               <Box
                 className="mainContainer"
@@ -586,19 +577,13 @@ export default function Page() {
                   >
                     <Detail1>Classificação</Detail1>
 
-                    <Autocomplete
-                      options={manufacturerOptions}
-                      getOptionLabel={(option) => option.label}
-                      value={selectedManufacturer}
-                      onChange={(_, newValue) => setSelectedManufacturer(newValue)}
-                      isOptionEqualToValue={(option, val) => option.value === val?.value}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Fabricante"
-                          placeholder="Selecione..."
-                        />
-                      )}
+                    <TextField
+                      label="Fabricante"
+                      placeholder="Digite o fabricante..."
+                      variant="outlined"
+                      value={manufacturer}
+                      onChange={(e) => setManufacturer(e.target.value)}
+                      fullWidth
                     />
                     <Autocomplete
                       options={segmentOptions}

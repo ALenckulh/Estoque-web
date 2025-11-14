@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -15,6 +15,7 @@ import {
   renderDateCell,
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -33,6 +34,7 @@ interface RowDataItem {
 
 export default function TableHistoryEntity() {
   const [rowData] = useState<RowDataItem[]>(itemHistoryList);
+
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
@@ -119,6 +121,9 @@ export default function TableHistoryEntity() {
         theme={myTheme}
         enableCellTextSelection={true}
         suppressDragLeaveHidesColumns={true}
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
     </div>
   );

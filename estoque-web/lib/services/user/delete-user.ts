@@ -1,9 +1,9 @@
 import { User } from "../../models/user_model";
-import { deleteUserDB } from "../../data-base/user/delete-user";
+import { updateSafeDeleteUserDB } from "../../data-base/user/update-safe-delete-user";
 
-export async function deleteUser(id: number): Promise<User> {
+export async function deleteUser(id: string): Promise<User> {
     try {
-        const deletedUser = await deleteUserDB(id);
+        const deletedUser = await updateSafeDeleteUserDB(id);
         return deletedUser;
     } catch (error) {
         throw new Error(`Erro ao deletar usuário -> ${error}`);

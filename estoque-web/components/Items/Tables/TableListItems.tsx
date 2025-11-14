@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -17,6 +17,7 @@ import {
   renderDisabledCellWithIcons,
   renderTooltip,
 } from "@/components/Tables/CelRenderes";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -129,6 +130,9 @@ export default function TableListItems() {
         theme={myTheme}
         enableCellTextSelection
         suppressDragLeaveHidesColumns
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
 
       {loading && (

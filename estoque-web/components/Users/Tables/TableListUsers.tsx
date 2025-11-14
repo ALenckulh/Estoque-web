@@ -20,6 +20,7 @@ import {
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
 import { IconButton } from "@/components/ui/IconButton";
+import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -177,8 +178,10 @@ export default function TableListUsers() {
         theme={myTheme}
         enableCellTextSelection
         suppressDragLeaveHidesColumns
+        paginationPageSizeSelector={false}
+        localeText={AG_GRID_LOCALE_PT_BR}
+        loadingOverlayComponent={() => {}}
       />
-
       {loading && (
         <Box
           position="fixed"

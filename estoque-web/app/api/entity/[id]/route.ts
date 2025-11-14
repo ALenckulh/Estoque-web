@@ -53,30 +53,7 @@ export async function PATCH(
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
 
-    const { ativo } = await request.json();
-    if (typeof ativo !== "boolean")
-      throw new Error("Campo 'ativo' é obrigatório e deve ser booleano");
-
-    const entity = await deleteEntity(id, ativo);
-    return NextResponse.json({ success: true, entity });
-  } catch (err: any) {
-    return NextResponse.json(
-      { success: false, message: err.message },
-      { status: 500 }
-    );
-  }
-}
-
-// ✅ DELETE /api/entity/[id] -> exclusão permanente
-export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    if (!id) throw new Error("ID é obrigatório");
-
-    const entity = await deleteEntity(id, false);
+    const entity = await deleteEntity(id);
     return NextResponse.json({ success: true, entity });
   } catch (err: any) {
     return NextResponse.json(

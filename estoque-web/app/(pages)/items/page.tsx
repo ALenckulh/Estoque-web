@@ -37,8 +37,7 @@ export default function Page() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedMeasureUnity, setSelectedMeasureUnity] =
     useState<Option | null>(null); // Autocomplete
-  const [selectedManufacturer, setSelectedManufacturer] =
-    useState<Option | null>(null);
+  const [manufacturer, setManufacturer] = useState<string>(""); // TextField simples
   const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
   const [productName, setProductName] = useState("");
@@ -340,6 +339,7 @@ export default function Page() {
                       variant="contained"
                       startIcon={<Icon name="Check" />}
                       onClick={() => setAnchorPopover(null)}
+                      disabled={isFilterEmpty}
                       fullWidth
                     >
                       Aplicar
@@ -461,22 +461,13 @@ export default function Page() {
                 sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
               >
                 <Detail1>Classificação</Detail1>
-                <Autocomplete
-                  options={manufacturerOptions}
-                  getOptionLabel={(option) => option.label}
-                  value={selectedManufacturer}
-                  onChange={(_, newValue) => setSelectedManufacturer(newValue)}
-                  isOptionEqualToValue={(option, val) =>
-                    option.value === val?.value
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Fabricante"
-                      placeholder="Selecione..."
-                      variant="outlined"
-                    />
-                  )}
+                <TextField
+                  label="Fabricante"
+                  placeholder="Digite o fabricante..."
+                  variant="outlined"
+                  value={manufacturer}
+                  onChange={(e) => setManufacturer(e.target.value)}
+                  fullWidth
                 />
                 <Autocomplete
                   options={segmentOptions}

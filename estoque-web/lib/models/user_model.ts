@@ -1,30 +1,27 @@
 export class User {
-  id?: number;
-  name: string;
-  email: string;
-  password: string;
-  admin: boolean;
+  id: string;
   enterprise_id: number;
+  is_admin: boolean;
   safe_delete: boolean;
-  created_at: string;
+  is_owner: boolean;
+  name?: string;
+  email?: string;
 
   constructor(
-    name: string,
-    email: string,
-    password: string,
-    admin: boolean = false,
-    enterprise_id: number = 0,
+    id: string,
+    enterprise_id: number,
+    is_admin: boolean = false,
     safe_delete: boolean = false,
-    created_at: string = new Date().toISOString(),
-    id?: number
+    is_owner: boolean = false,
+    name?: string,
+    email?: string
   ) {
+    this.id = id;
+    this.enterprise_id = enterprise_id;
+    this.is_admin = is_admin;
+    this.safe_delete = safe_delete;
+    this.is_owner = is_owner;
     this.name = name;
     this.email = email;
-    this.password = password;
-    this.admin = admin;
-    this.enterprise_id = enterprise_id;
-    this.safe_delete = safe_delete;
-    this.created_at = created_at;
-    if (id !== undefined) this.id = id;
   }
 }

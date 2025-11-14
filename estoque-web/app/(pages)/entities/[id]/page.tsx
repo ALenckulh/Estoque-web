@@ -158,7 +158,7 @@ export default function Page() {
                     >
                       Editar
                     </Button>
-                    {entity?.disabled ? (
+                    {entity ? (entity.disabled ? (
                       <IconButton
                         onClick={() => setOpenModalActive(true)}
                         tooltip="Ativar"
@@ -172,7 +172,7 @@ export default function Page() {
                         buttonProps={{ color: "error", variant: "outlined" }}
                         icon="Trash"
                       />
-                    )}
+                    )) : null}
                     <Dialog
                       open={openModalInactive}
                       onClose={() => setOpenModalInactive(false)}
@@ -238,19 +238,21 @@ export default function Page() {
                   </Container>
                 </Container>
               </Container>
-              <Box className="status">
-                <Icon
-                  name="Circle"
-                  size={10}
-                  color={
-                    entity?.disabled ? "var(--neutral-50)" : "var(--success-10)"
-                  }
-                  fill={
-                    entity?.disabled ? "var(--neutral-50)" : "var(--success-10)"
-                  }
-                />
-                <Subtitle2>{entity?.disabled ? "Inativo" : "Ativo"}</Subtitle2>
-              </Box>
+              {entity && (
+                <Box className="status">
+                  <Icon
+                    name="Circle"
+                    size={10}
+                    color={
+                      entity.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                    }
+                    fill={
+                      entity.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                    }
+                  />
+                  <Subtitle2>{entity.disabled ? "Inativo" : "Ativo"}</Subtitle2>
+                </Box>
+              )}
               <Container className="contactInfo">
                 {contactList.map(({ label, value }) => (
                   <Box key={label} className="contactField">
