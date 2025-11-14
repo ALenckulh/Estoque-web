@@ -3,7 +3,7 @@
 import { Appbar } from "@/components/Appbar/appbar";
 import { Detail1, H4 } from "@/components/ui/Typography";
 import { Box, Button, Card, CircularProgress } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/utils/supabase/supabaseClient";
 import { Subtitle2 } from "@/components/ui/Typography";
@@ -11,7 +11,8 @@ import { MuiOtpInput } from "mui-one-time-password-input";
 import { matchIsNumeric, validateOtp } from "@/utils/validations";
 import { useUser } from "@/hooks/userHook";
 
-export default function Page() {
+
+function VerifyEmailInner() {
   const router = useRouter();
   const search = useSearchParams();
   const { myUserId } = useUser();
@@ -241,5 +242,13 @@ export default function Page() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailInner />
+    </Suspense>
   );
 }
