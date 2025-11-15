@@ -12,72 +12,13 @@ import {
   Divider,
 } from "@mui/material";
 import React, { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import signInWithEmail from "@/lib/services/auth/sign-in";
 import signInWithGoogle from "@/lib/services/auth/sign-in-with-google";
 import { supabase } from "@/utils/supabase/supabaseClient";
 
 import { validateEmail, validateSignInPassword } from "@/utils/validations";
 import Link from "next/link";
-
-// Wrap useSearchParams usage inside a Suspense boundary to avoid warnings
-function OAuthCallbackHandler({
-  setGoogleError,
-}: {
-  setGoogleError: (msg: string) => void;
-}) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const error = searchParams.get("error");
-    const errorDescription = searchParams.get("error_description");
-    const errorCode = searchParams.get("error_code");
-
-    if (error) {
-      // Map OAuth errors to friendly messages
-      let friendlyMessage = "Falha ao entrar com Google";
-
-      if (
-        errorCode === "signup_disabled" ||
-        errorDescription?.includes("Signups not allowed")
-      ) {
-        friendlyMessage =
-          "Esta conta não existe. Por favor, crie uma conta primeiro.";
-      } else if (error === "access_denied") {
-        friendlyMessage =
-          "Acesso negado. Você cancelou o login ou não tem permissão.";
-      } else if (errorDescription) {
-        friendlyMessage = decodeURIComponent(errorDescription);
-      }
-
-      setGoogleError(friendlyMessage);
-      // Clean URL
-      router.replace("/sign-in");
-      return;
-    }
-
-    // Only check session on OAuth callback (hash or query present)
-    const hasOAuthParams =
-      typeof window !== "undefined" &&
-      (window.location.hash || Array.from(searchParams.keys()).length > 0);
-
-    if (hasOAuthParams) {
-      const checkSession = async () => {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (session) {
-          router.push("/");
-        }
-      };
-
-      checkSession();
-    }
-  }, [searchParams, router, setGoogleError]);
-
-  return null;
-}
 
 export default function Page() {
   const router = useRouter();
@@ -108,34 +49,98 @@ export default function Page() {
 
     try {
       setLoading(true);
+      console.log("[sign-in] handleSubmit: calling signInWithEmail", { email });
       const result = await signInWithEmail(email, password);
-      if (result?.requireEmailVerification) {
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("pending_verify_email", email);
+      console.log("[sign-in] handleSubmit: signInWithEmail result", result);
+
+      // Support both { user, session } and { data: { user, session } }
+      const hasSession = !!(result && (result.user || result.session));
+      console.log(
+        "[sign-in] handleSubmit: result, hasSession",
+        result,
+        hasSession
+      );
+
+      if (hasSession) {
+        try {
+          console.log('[sign-in] handleSubmit: session found, attempting to sync to server cookies');
+          const _r: any = result;
+          const access_token = _r?.session?.access_token ?? _r?.data?.session?.access_token;
+          const refresh_token = _r?.session?.refresh_token ?? _r?.data?.session?.refresh_token;
+          const expires_in = _r?.session?.expires_in ?? _r?.data?.session?.expires_in;
+
+          if (access_token && refresh_token) {
+            try {
+              const syncResp = await fetch("/api/auth/sync-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ access_token, refresh_token, expires_in }),
+                credentials: "same-origin",
+              });
+              const syncJson = await syncResp.json().catch(() => ({}));
+              console.log("[sign-in] sync-session response", syncResp.status, syncJson);
+              if (!syncResp.ok) {
+                console.warn("[sign-in] sync-session failed, continuing but middleware may redirect");
+              }
+            } catch (syncErr) {
+              console.error("[sign-in] sync-session error", syncErr);
+            }
+          } else {
+            console.warn("[sign-in] no tokens to sync to server");
+          }
+
+          console.log('[sign-in] handleSubmit: attempting router.push("/")');
+          await router.push("/");
+          // small delay to allow navigation to happen and middleware to run
+          setTimeout(() => {
+            console.log(
+              "[sign-in] after router.push, location.href =",
+              window.location.href
+            );
+            console.log("[sign-in] document.cookie =", document.cookie);
+            supabase.auth.getSession().then(({ data }) => {
+              console.log(
+                "[sign-in] supabase.getSession after push",
+                data?.session ?? null
+              );
+            });
+          }, 300);
+        } catch (navErr) {
+          console.error("[sign-in] router.push error", navErr);
         }
-        router.push("/verify-email");
-        return;
+      } else {
+        console.log("[sign-in] handleSubmit: no session, showing error");
+        setFormError("Falha no login. Verifique suas credenciais.");
       }
-      router.push("/");
     } catch (err: any) {
+      console.error("[sign-in] handleSubmit error", err);
       setFormError(err?.message || "Falha no login");
     } finally {
       setLoading(false);
+      console.log("[sign-in] handleSubmit end");
     }
   };
 
   const handleGoogleSignIn = async () => {
-    //ele tem que pegar o myAuthId para enviar para o verify-email que vai criar a conta
+    console.log("[sign-in] handleGoogleSignIn start");
     setGoogleError("");
     try {
       setGoogleLoading(true);
-      // Mantemos o callback na própria página para garantir que o handler execute.
       const redirectTo = `${window.location.origin}/sign-in`;
+      console.log("[sign-in] handleGoogleSignIn: calling signInWithGoogle", {
+        redirectTo,
+      });
       const data = await signInWithGoogle(redirectTo);
+      console.log(
+        "[sign-in] handleGoogleSignIn: signInWithGoogle returned",
+        data
+      );
       if (data?.url) {
+        console.log("[sign-in] handleGoogleSignIn: redirecting to", data.url);
         window.location.href = data.url;
       }
     } catch (err: any) {
+      console.error("[sign-in] handleGoogleSignIn error", err);
       setGoogleError(err?.message || "Falha ao iniciar login com Google");
       setGoogleLoading(false);
     }
@@ -145,7 +150,9 @@ export default function Page() {
   useEffect(() => {
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("[sign-in] onAuthStateChange event", { event, session });
         if (session && (event === "SIGNED_IN" || event === "USER_UPDATED")) {
+          console.log("[sign-in] onAuthStateChange -> redirecting to /");
           router.push("/");
         }
       }
@@ -155,11 +162,79 @@ export default function Page() {
     };
   }, [router]);
 
+  // Handle OAuth callback errors and session check on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    const errorDescription = params.get("error_description");
+    const errorCode = params.get("error_code");
+
+    console.log("[sign-in] oauth callback params", {
+      error,
+      errorDescription,
+      errorCode,
+    });
+    if (error) {
+      // Map OAuth errors to friendly messages
+      let friendlyMessage = "Falha ao entrar com Google";
+      if (
+        errorCode === "signup_disabled" ||
+        errorDescription?.includes("Signups not allowed")
+      ) {
+        friendlyMessage =
+          "Esta conta não existe. Por favor, crie uma conta primeiro.";
+      } else if (error === "access_denied") {
+        friendlyMessage =
+          "Acesso negado. Você cancelou o login ou não tem permissão.";
+      } else if (errorDescription) {
+        friendlyMessage = decodeURIComponent(errorDescription);
+      }
+
+      setGoogleError(friendlyMessage);
+      // Clean the query params to keep UI tidy
+      router.replace("/sign-in");
+      return;
+    }
+
+    // If there are OAuth params (hash or query), check session and redirect if logged in
+    const hasOAuthParams =
+      window.location.hash || Array.from(params.keys()).length > 0;
+    console.log("[sign-in] hasOAuthParams", hasOAuthParams);
+    if (hasOAuthParams) {
+      (async () => {
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          console.log("[sign-in] oauth session check", session);
+          if (session) {
+            try {
+              await fetch("/api/auth/sync-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  access_token: session.access_token,
+                  refresh_token: session.refresh_token,
+                  expires_in: session.expires_in,
+                }),
+                credentials: "same-origin",
+              });
+            } catch (e) {
+              console.error("[sign-in] oauth sync-session error", e);
+            }
+            router.push("/");
+          }
+        } catch (e) {
+          console.error("[sign-in] oauth session check error", e);
+        }
+      })();
+    }
+  }, [router]);
+
   return (
     <div>
-      <Suspense fallback={null}>
-        <OAuthCallbackHandler setGoogleError={setGoogleError} />
-      </Suspense>
       <Appbar showTabs={false} showAvatar={false} />
       <div
         className="container"

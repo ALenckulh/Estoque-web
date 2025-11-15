@@ -12,6 +12,18 @@ export async function logOut(): Promise<boolean> {
     if (error) {
       throw new Error(error.message || "Falha ao fazer logout");
     }
+    // Também limpa as cookies HttpOnly no servidor para o middleware parar de autenticar
+    try {
+      await fetch("/api/auth/sign-out", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } catch (e) {
+      // Não bloquear o fluxo de logout do cliente caso a chamada falhe
+      // O token já foi revogado no Supabase e o localStorage limpo
+      // O middleware deve parar de autenticar assim que os cookies expirarem
+      // ou no próximo ciclo de refresh falho.
+    }
 
     return true;
   } catch (err: any) {
