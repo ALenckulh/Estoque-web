@@ -26,7 +26,7 @@ import {
     MenuItem,
 } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
 import { NotFound } from "@/components/Feedback/NotFound";
 import TableMovimentHistory from "@/components/MovimentHistory/Tables/TableMovimentHistory";
