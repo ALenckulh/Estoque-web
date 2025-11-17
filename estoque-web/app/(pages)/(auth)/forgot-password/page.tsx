@@ -2,14 +2,12 @@
 
 import { Appbar } from "@/components/Appbar/appbar";
 import { Detail1, H4, Subtitle2 } from "@/components/ui/Typography";
-import { Box, Button, Card, TextField, CircularProgress } from "@mui/material";
+import { Button, Card, TextField, CircularProgress } from "@mui/material";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { validateEmail } from "@/utils/validations";
 import resetPasswordRequest from "@/lib/services/auth/reset-password-request";
 
 export default function Page() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

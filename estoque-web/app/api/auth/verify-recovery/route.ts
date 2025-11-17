@@ -24,12 +24,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "token_hash is required" }, { status: 400 });
     }
 
-    // Try both shapes: some Supabase SDKs expect `token`, others may accept `token_hash`.
-    let result = await supabaseAdmin.auth.verifyOtp({ token: token_hash, type: "recovery" });
+    // Prefer the typed `token_hash` shape. If the SDK behaves differently in some
+    // environments, try a second call using a loose `any` cast as a fallback.
+    let result = await supabaseAdmin.auth.verifyOtp({ token_hash: token_hash, type: "recovery" } as any);
 
     if (result.error) {
-      // fallback to the alternative param name
-      result = await supabaseAdmin.auth.verifyOtp({ token_hash: token_hash, type: "recovery" } as any);
+      // fallback: try using `token` field in case some runtime expects that shape
+      result = await supabaseAdmin.auth.verifyOtp({ token: token_hash, type: "recovery" } as any);
     }
 
     if (result.error) {
