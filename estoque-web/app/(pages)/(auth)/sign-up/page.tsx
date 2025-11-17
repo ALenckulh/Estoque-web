@@ -16,6 +16,7 @@ export default function Page() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
     email: "",
@@ -26,6 +27,7 @@ export default function Page() {
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
+    setSuccessMessage("");
 
     const newErrors: Record<string, string> = {
       username: validateUsername(username),
@@ -65,11 +67,11 @@ export default function Page() {
         return;
       }
 
-      // Sucesso: opcionalmente mostrar mensagem ou limpar campos
-      // Por enquanto apenas limpa campos sensíveis e mostra mensagem breve
+      // Sucesso: mostrar mensagem para verificar email
       setPassword("");
       setConfirmPassword("");
       setFormError(""); // limpa erro
+      setSuccessMessage("Verifique seu e-mail para confirmar sua conta.");
     } catch (error: any) {
       setFormError(error?.message || "Erro ao criar conta. Tente novamente.");
     } finally {
@@ -137,6 +139,9 @@ export default function Page() {
             </Button>
             {formError && (
               <Subtitle2 sx={{ marginTop: 2, color: "var(--danger-0)" }}>{formError}</Subtitle2>
+            )}
+            {successMessage && (
+              <Subtitle2 sx={{ marginTop: 2, color: "var(--success-20)" }}>{successMessage}</Subtitle2>
             )}
           </form>
           <Box

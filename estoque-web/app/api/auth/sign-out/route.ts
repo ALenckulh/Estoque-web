@@ -1,10 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { serverLogOut } from "@/lib/services/auth/log-out-server";
+import { serverSignOut } from "@/lib/services/auth/sign-out";
 
 export async function POST(request: NextRequest) {
   try {
     const res = NextResponse.json({ ok: true });
-    const { error } = await serverLogOut(request, res);
+    const { error } = await serverSignOut(request, res);
     if (error) {
       console.error("[sign-out] service error", error);
       return NextResponse.json({ error: error.message || "internal" }, { status: 500 });
