@@ -1,21 +1,38 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import { Detail4 } from "@/components/ui/Typography";
+import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
+import { RowDataItem } from "@/components/Items/Tables/TableListItems";
+import { Icon } from "@/components/ui/Icon";
+import { IconButton } from "@/components/ui/IconButton";
+import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
+import { itemList } from "@/utils/dataBaseExample";
 import {
   Box,
   Button,
   Card,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Drawer,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TableMovimentHistory from "@/components/MovimentHistory/Tables/TableMovimentHistory";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("historico");
-  const [item, setItem] = useState(null);
+  const [item, setItem] = useState<RowDataItem | null>(null);
   const params = useParams();
   const id = params.id;
   const [openDrawer, setOpenDrawer] = useState(false);

@@ -1,19 +1,36 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
+import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
+import { RowDataItem } from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
-import { Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typography";
+import { IconButton } from "@/components/ui/IconButton";
+import { Body1, Detail1, Detail2, Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typography";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
+import { itemList } from "@/utils/dataBaseExample";
 import {
     Autocomplete,
     Box,
     Button,
     Card,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Drawer,
     TextField,
+    FormControl,
+    InputLabel,
+    InputAdornment,
+    Select,
+    MenuItem,
 } from "@mui/material";
-import React, { useState } from "react";
-import { Add } from "@mui/icons-material";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { Close, Add } from "@mui/icons-material";
 
 type Option = {
     label: string;
