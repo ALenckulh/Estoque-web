@@ -12,7 +12,6 @@ import {
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
 
-// Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface RowDataItem {
