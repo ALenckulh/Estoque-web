@@ -5,7 +5,9 @@ import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
 import { RowDataItem } from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail2, Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typograph";
+import { Body1, Detail1, Detail2, Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typography";
+import { ToastContainer } from "@/components/ui/Toast/Toast";
+import { useToast } from "@/hooks/toastHook";
 import { itemList } from "@/utils/dataBaseExample";
 import {
     Autocomplete,
@@ -28,12 +30,6 @@ import {
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import CopyTooltip from "@/components/ui/CopyTooltip";
-import { NotFound } from "@/components/NotFound";
-import { EntityIdLoading } from "@/components/Entity/Loading/EntityIdLoading";
-import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
-import TableMovimentHistory from "@/components/MovimentHistory/Tables/TableMovimentHistory";
-import { DateField } from "@/components/ui/DateField";
 import { Close, Add } from "@mui/icons-material";
 
 type Option = {
@@ -43,16 +39,8 @@ type Option = {
 
 export default function Page() {
     const [selectedTab, setSelectedTab] = useState("itens");
-    const [item, setItem] = useState<RowDataItem | null>(null);
     const params = useParams();
-    const id = params.id;
-    const [openDrawer, setOpenDrawer] = useState(false);
-    const [notFound, setNotFound] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [openModalInactive, setOpenModalInactive] = useState(false);
-    const [openModalActive, setOpenModalActive] = useState(false);
     const { toasts, showToast } = useToast();
-    const [date, setDate] = React.useState<Date | null>(null);
 
     const [productItems, setProductItems] = useState([{ produto: null, quantidade: null }]);
 
@@ -60,14 +48,6 @@ export default function Page() {
         { label: "Produto A", value: "A" },
         { label: "Produto B", value: "B" },
         { label: "Produto C", value: "C" },
-    ];
-
-    const quantidadeOptions: Option[] = [
-        { label: "1", value: 1 },
-        { label: "2", value: 2 },
-        { label: "3", value: 3 },
-        { label: "4", value: 4 },
-        { label: "5", value: 5 },
     ];
 
     const handleAddItem = () => {

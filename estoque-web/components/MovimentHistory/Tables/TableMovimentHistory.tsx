@@ -5,11 +5,11 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { ICellRendererParams } from "ag-grid-community";
-import { movimentHistoryList } from "@/utils/dataBaseExample";
+import { itemMovimentList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
-  renderIdCell,
+  renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
 
 // Registrar todos os módulos Community
@@ -28,7 +28,7 @@ interface RowDataItem {
 }
 
 export default function TableHistoryEntity() {
-  const [rowData] = useState<RowDataItem[]>(movimentHistoryList);
+  const [rowData] = useState<RowDataItem[]>(itemMovimentList);
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
@@ -41,10 +41,15 @@ export default function TableHistoryEntity() {
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: {
-        "cell-disabled": (params) => !!params.data?.disabled,
-      },
-      cellRenderer: renderIdCell,
-    },
+              "cell-disabled": (params) => !!params.data?.disabled,
+            },
+            cellRenderer: (params: ICellRendererParams<any, any>) =>
+              renderDisabledCellWithIcons(params, (data) => {
+                const messages = [];
+                if (data.disabled) messages.push("Movimentação está desativada");
+                return messages.join("");
+              }),
+          },
     {
       headerName: "Nota Fiscal",
       minWidth: 140,
@@ -95,21 +100,20 @@ export default function TableHistoryEntity() {
       filter: "agNumberColumnFilter",
       flex: 1,
       minWidth: 120,
-       cellRenderer: (params: ICellRendererParams) => {
-    const data = params.data as { type?: string; quantity?: number };
-    if (!data) return null;
+      cellRenderer: (params: ICellRendererParams) => {
+        const data = params.data as { type?: string; quantity?: number };
+        if (!data) return null;
 
-    if (data.type === "saída") {
-      return (
-        <span style={{ color: "#E42D2D", fontWeight: "bold" }}>
-          - {data.quantity}
-        </span>
-      );
-    }
+        if (data.type === "saída") {
+          return (
+            <span style={{ color: "#E42D2D", fontWeight: "bold" }}>
+              - {data.quantity}
+            </span>
+          );
+        }
 
-    return <span>{data.quantity}</span>;
-  },
-
+        return <span>{data.quantity}</span>;
+      },
     },
   ]);
 

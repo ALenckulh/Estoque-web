@@ -1,12 +1,11 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
 import { RowDataItem } from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
-import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail2, Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typograph";
-import { itemList } from "@/utils/dataBaseExample";
+import { Subtitle2, Subtitle1 } from "@/components/ui/Typography";
+import { ToastContainer } from "@/components/ui/Toast/Toast";
+import { useToast } from "@/hooks/toastHook";
 import {
     Autocomplete,
     Box,
@@ -29,9 +28,7 @@ import {
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
-import { NotFound } from "@/components/NotFound";
-import { EntityIdLoading } from "@/components/Entity/Loading/EntityIdLoading";
-import { ToastContainer, useToast } from "@/components/ui/Toast/Toast";
+import { NotFound } from "@/components/Feedback/NotFound";
 import TableMovimentHistory from "@/components/MovimentHistory/Tables/TableMovimentHistory";
 import { DateField } from "@/components/ui/DateField";
 import { Close, Add } from "@mui/icons-material";
