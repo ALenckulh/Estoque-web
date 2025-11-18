@@ -86,7 +86,7 @@ export default function Page() {
                   <CircularProgress
                     size={20}
                     thickness={5}
-                    sx={{ color: "var(--neutral-40)" }}
+                    sx={{ color: "inherit" }}
                   />
                 ) : null
               }

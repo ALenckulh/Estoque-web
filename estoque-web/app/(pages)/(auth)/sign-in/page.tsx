@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import signInWithEmail from "@/lib/services/auth/sign-in";
 import signInWithGoogle from "@/lib/services/auth/sign-in-with-google";
 import { supabase } from "@/utils/supabase/supabaseClient";
+import resendVerificationEmail from "@/lib/services/auth/resend-verification";
 
 import { validateEmail, validateSignInPassword } from "@/utils/validations";
 import Link from "next/link";
@@ -33,11 +34,13 @@ export default function Page() {
   const [formError, setFormError] = useState("");
   const [googleError, setGoogleError] = useState("");
   const [isCheckingOAuthUser, setIsCheckingOAuthUser] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setFormError("");
+    setVerificationMessage("");
     const newErrors: Record<string, string> = {
       email: validateEmail(email),
       password: validateSignInPassword(password),
@@ -58,16 +61,23 @@ export default function Page() {
       if (hasSession) {
         try {
           const _r: any = result;
-          const access_token = _r?.session?.access_token ?? _r?.data?.session?.access_token;
-          const refresh_token = _r?.session?.refresh_token ?? _r?.data?.session?.refresh_token;
-          const expires_in = _r?.session?.expires_in ?? _r?.data?.session?.expires_in;
+          const access_token =
+            _r?.session?.access_token ?? _r?.data?.session?.access_token;
+          const refresh_token =
+            _r?.session?.refresh_token ?? _r?.data?.session?.refresh_token;
+          const expires_in =
+            _r?.session?.expires_in ?? _r?.data?.session?.expires_in;
 
           if (access_token && refresh_token) {
             try {
               await fetch("/api/auth/sync-session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ access_token, refresh_token, expires_in }),
+                body: JSON.stringify({
+                  access_token,
+                  refresh_token,
+                  expires_in,
+                }),
                 credentials: "same-origin",
               });
             } catch (syncErr) {
@@ -77,13 +87,44 @@ export default function Page() {
           }
 
           await router.push("/");
-        } catch (navErr) {
-        }
+        } catch (navErr) {}
       } else {
         setFormError("Falha no login. Verifique suas credenciais.");
       }
     } catch (err: any) {
-      setFormError(err?.message || "Falha no login");
+      const raw = (err?.message || "").toLowerCase();
+
+      // Email not confirmed -> resend verification and show message
+      if (raw.includes("email not confirmed") || raw.includes("email confirmation")) {
+        await resendVerificationEmail(email);
+        setVerificationMessage(
+          "Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada."
+        );
+        // don't set formError in this case; verificationMessage is shown
+      } else {
+        // Map common error messages to friendly Portuguese text
+        let friendly = "Falha no login. Verifique suas credenciais.";
+
+        if (
+          raw.includes("invalid login credentials") ||
+          raw.includes("invalid email or password") ||
+          raw.includes("invalid password") ||
+          raw.includes("invalid_login_credentials") ||
+          raw.includes("invalid login")
+        ) {
+          friendly = "E-mail ou senha incorretos.";
+        } else if (raw.includes("user not found") || raw.includes("no user found") || raw.includes("user_not_found")) {
+          friendly = "Conta não encontrada.";
+        } else if (raw.includes("too many requests") || raw.includes("rate limit") || raw.includes("too many")) {
+          friendly = "Muitas tentativas. Tente novamente mais tarde.";
+        } else if (raw.includes("invalid input") || raw.includes("invalid email") || raw.includes("email inválido")) {
+          friendly = "E-mail inválido.";
+        } else if (raw.includes("internal error") || raw.includes("internal server error")) {
+          friendly = "Erro interno. Tente novamente mais tarde.";
+        }
+
+        setFormError(friendly);
+      }
     } finally {
       setLoading(false);
     }
@@ -110,7 +151,7 @@ export default function Page() {
       (event, session) => {
         // NÃO redirecionar se estamos validando usuário OAuth
         if (isCheckingOAuthUser) return;
-        
+
         if (session && (event === "SIGNED_IN" || event === "USER_UPDATED")) {
           router.push("/");
         }
@@ -193,7 +234,10 @@ export default function Page() {
               } else {
                 // usuário não existe no app: desloga e mostra mensagem amigável
                 try {
-                  await fetch("/api/auth/sign-out", { method: "POST", credentials: "same-origin" });
+                  await fetch("/api/auth/sign-out", {
+                    method: "POST",
+                    credentials: "same-origin",
+                  });
                 } catch (e) {
                   // Sign out failed, continue anyway
                 }
@@ -202,7 +246,9 @@ export default function Page() {
                     "Conta inexistente removida do provedor de Auth. Entre em contato com o administrador."
                   );
                 } else {
-                  setGoogleError("Conta não existe no sistema. Entre em contato com o administrador.");
+                  setGoogleError(
+                    "Conta não existe no sistema. Entre em contato com o administrador."
+                  );
                 }
                 setIsCheckingOAuthUser(false);
                 // remove query params and stay on sign-in page
@@ -279,7 +325,7 @@ export default function Page() {
                   <CircularProgress
                     size={20}
                     thickness={5}
-                    sx={{ color: "var(--neutral-40)" }}
+                    sx={{ color: "inherit" }}
                   />
                 ) : null
               }
@@ -289,6 +335,11 @@ export default function Page() {
             {formError && (
               <Subtitle2 sx={{ marginTop: 2, color: "var(--danger-0)" }}>
                 {formError}
+              </Subtitle2>
+            )}
+            {verificationMessage && (
+              <Subtitle2 sx={{ marginTop: 2, color: "var(--success-20)" }}>
+                {verificationMessage}
               </Subtitle2>
             )}
             <Box
@@ -321,7 +372,7 @@ export default function Page() {
                   <CircularProgress
                     size={20}
                     thickness={5}
-                    sx={{ color: "var(--neutral-40)" }}
+                    sx={{ color: "inherit" }}
                   />
                 ) : (
                   <img
