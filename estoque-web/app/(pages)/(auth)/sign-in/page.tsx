@@ -17,6 +17,7 @@ import signInWithEmail from "@/lib/services/auth/sign-in";
 import signInWithGoogle from "@/lib/services/auth/sign-in-with-google";
 import { supabase } from "@/utils/supabase/supabaseClient";
 import resendVerificationEmail from "@/lib/services/auth/resend-verification";
+import loadAndStoreUserEnterprise from "@/lib/services/user/load-user-enterprise";
 
 import { validateEmail, validateSignInPassword } from "@/utils/validations";
 import Link from "next/link";
@@ -80,6 +81,12 @@ export default function Page() {
                 }),
                 credentials: "same-origin",
               });
+              // After session sync, load & persist enterprise id once
+              try {
+                await loadAndStoreUserEnterprise();
+              } catch (e) {
+                // ignore
+              }
             } catch (syncErr) {
               // Sync failed, continue anyway
             }
@@ -215,6 +222,12 @@ export default function Page() {
                 }),
                 credentials: "same-origin",
               });
+              // After session sync, load & persist enterprise id once
+              try {
+                await loadAndStoreUserEnterprise();
+              } catch (e) {
+                // ignore
+              }
             } catch (e) {
               // Sync failed, continue anyway
             }
