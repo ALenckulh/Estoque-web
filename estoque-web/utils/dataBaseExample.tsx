@@ -901,3 +901,210 @@ export const itemHistoryList = [
     type: "saída"
   },
 ]
+export const itemMovimentList = [
+    {
+    groupId: 201,
+    fiscalNote: "NF-2025-101",
+    entityId: 9001,
+    itemId: 1,
+    user: "tecnico.ana@empresa.com",
+    movimentDate: "2025-09-25T09:15:00",
+    quantity: 50,
+    type: "entrada"
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-102",
+    entityId: 9002,
+    itemId: 2,
+    user: "eng.bruno@empresa.com",
+    movimentDate: "2025-09-25T10:20:00",
+    quantity: 25,
+    type: "saída",
+    disabled: true
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-103",
+    entityId: 9003,
+    itemId: 3,
+    user: "eletrica.carla@empresa.com",
+    movimentDate: "2025-09-24T14:45:00",
+    quantity: 100,
+    type: "entrada"
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-104",
+    entityId: 9004,
+    itemId: 4,
+    user: "tec.daniel@empresa.com",
+    movimentDate: "2025-09-24T16:30:00",
+    quantity: 500,
+    type: "entrada"
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-105",
+    entityId: 9005,
+    itemId: 5,
+    user: "montador.eduardo@empresa.com",
+    movimentDate: "2025-09-23T11:00:00",
+    quantity: 200,
+    type: "saída"
+  },
+  {
+    groupId: 205,
+    fiscalNote: "NF-2025-106",
+    entityId: 9006,
+    itemId: 6,
+    user: "tec.fernanda@empresa.com",
+    movimentDate: "2025-09-23T13:15:00",
+    quantity: 150,
+    type: "entrada"
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-107",
+    entityId: 9007,
+    itemId: 7,
+    user: "projetista.gabriel@empresa.com",
+    movimentDate: "2025-09-22T09:50:00",
+    quantity: 30,
+    type: "saída",
+    disabled: true
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-108",
+    entityId: 9008,
+    itemId: 8,
+    user: "eletricista.heloisa@empresa.com",
+    movimentDate: "2025-09-22T15:10:00",
+    quantity: 15,
+    type: "entrada"
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-109",
+    entityId: 9009,
+    itemId: 9,
+    user: "dev.igor@empresa.com",
+    movimentDate: "2025-09-21T10:40:00",
+    quantity: 40,
+    type: "entrada"
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-110",
+    entityId: 9010,
+    itemId: 10,
+    user: "montador.juliana@empresa.com",
+    movimentDate: "2025-09-21T12:55:00",
+    quantity: 80,
+    type: "saída"
+  },
+  {
+    groupId: 205,
+    fiscalNote: "NF-2025-111",
+    entityId: 9011,
+    itemId: 11,
+    user: "eletricista.kaio@empresa.com",
+    movimentDate: "2025-09-20T09:30:00",
+    quantity: 10,
+    type: "entrada"
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-112",
+    entityId: 9012,
+    itemId: 12,
+    user: "seguranca.larissa@empresa.com",
+    movimentDate: "2025-09-20T11:25:00",
+    quantity: 35,
+    type: "entrada"
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-113",
+    entityId: 9013,
+    itemId: 13,
+    user: "controle.marcos@empresa.com",
+    movimentDate: "2025-09-19T14:15:00",
+    quantity: 60,
+    type: "saída",
+    disabled: true
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-114",
+    entityId: 9014,
+    itemId: 14,
+    user: "clock.natalia@empresa.com",
+    movimentDate: "2025-09-19T16:40:00",
+    quantity: 45,
+    type: "entrada"
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-115",
+    entityId: 9015,
+    itemId: 15,
+    user: "retificador.octavio@empresa.com",
+    movimentDate: "2025-09-18T10:05:00",
+    quantity: 300,
+    type: "saída"
+  },
+  {
+    groupId: 205,
+    fiscalNote: "NF-2025-116",
+    entityId: 9016,
+    itemId: 16,
+    user: "ajuste.paula@empresa.com",
+    movimentDate: "2025-09-18T12:50:00",
+    quantity: 75,
+    type: "entrada"
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-117",
+    entityId: 9017,
+    itemId: 17,
+    user: "comunicacao.quiteria@empresa.com",
+    movimentDate: "2025-09-17T09:20:00",
+    quantity: 20,
+    type: "entrada"
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-118",
+    entityId: 9018,
+    itemId: 18,
+    user: "alimentacao.rafael@empresa.com",
+    movimentDate: "2025-09-17T14:30:00",
+    quantity: 12,
+    type: "saída",
+    disabled: true
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-119",
+    entityId: 9019,
+    itemId: 19,
+    user: "ambiente.sandra@empresa.com",
+    movimentDate: "2025-09-16T11:45:00",
+    quantity: 25,
+    type: "entrada"
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-120",
+    entityId: 9020,
+    itemId: 20,
+    user: "ventilacao.thiago@empresa.com",
+    movimentDate: "2025-09-16T13:55:00",
+    quantity: 18,
+    type: "saída"
+  }
+];
+
