@@ -14,6 +14,7 @@ export async function readEntityDisplayDB(enterprise_id: number): Promise<Entity
     .from("entity_display")
     .select("id, entity_display")
     .eq("enterprise_id", enterprise_id)
+    .eq("safe_delete", false)
     .order("entity_display", { ascending: true });
 
   if (error) {

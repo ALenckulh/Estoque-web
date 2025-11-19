@@ -1,5 +1,8 @@
-import { supabase } from "@/utils/supabase/supabaseClient";
 import { fetchItemById } from "@/lib/data-base/item/fetch-item-by-id";
+import { updateItemQuantity } from "@/lib/data-base/item/update-item-quantity";
+import { getLastGroupId } from "@/lib/data-base/movement/get-last-group-id";
+import { insertMovements } from "@/lib/data-base/movement/insert-movements";
+import { deleteMovementsByGroup } from "@/lib/data-base/movement/delete-movements-by-group";
 
 interface MovementItem {
   item_id: number;
@@ -27,16 +30,14 @@ export async function createMovement({
   enterprise_id,
   items,
 }: CreateMovementParams) {
+  // Rastrear alterações para rollback
+  const updatedItems: Array<{ id: number; oldQuantity: number }> = [];
+  let insertedMovementGroupId: number | null = null;
+
   try {
     // Buscar o último group_id
-    const { data: lastMovement } = await supabase
-      .from("movement_history")
-      .select("group_id")
-      .order("group_id", { ascending: false })
-      .limit(1)
-      .single();
-
-    const newGroupId = lastMovement ? lastMovement.group_id + 1 : 1;
+    const lastGroupId = await getLastGroupId();
+    const newGroupId = lastGroupId ? lastGroupId + 1 : 1;
 
     const movementsToInsert: any[] = [];
 
@@ -76,12 +77,10 @@ export async function createMovement({
         newQuantity -= effectiveQuantity;
       }
 
-      const { error: updateError } = await supabase
-        .from("item")
-        .update({ quantity: newQuantity })
-        .eq("id", item_id);
+      // Salvar quantidade antiga antes de atualizar (para rollback)
+      updatedItems.push({ id: item_id, oldQuantity: item.quantity });
 
-      if (updateError) throw updateError;
+      await updateItemQuantity(item_id, newQuantity);
 
       movementsToInsert.push({
         group_id: newGroupId,
@@ -98,12 +97,10 @@ export async function createMovement({
       });
     }
 
-    const { data: movements, error: movementError } = await supabase
-      .from("movement_history")
-      .insert(movementsToInsert)
-      .select();
+    const movements = await insertMovements(movementsToInsert);
 
-    if (movementError) throw movementError;
+    // Marcar que a movimentação foi inserida com sucesso
+    insertedMovementGroupId = newGroupId;
 
     return {
       message: "Movimentação registrada com sucesso.",
@@ -111,6 +108,33 @@ export async function createMovement({
       movements,
     };
   } catch (error: any) {
+    // ROLLBACK: reverter todas as alterações
+    console.error("Erro ao criar movimentação. Iniciando rollback...", error);
+
+    // 1. Reverter quantidades dos itens
+    for (const { id, oldQuantity } of updatedItems) {
+      try {
+        await updateItemQuantity(id, oldQuantity);
+        console.log(`Rollback do item ${id}: quantidade restaurada para ${oldQuantity}`);
+      } catch (rollbackError) {
+        console.error(`CRÍTICO: Falha no rollback do item ${id}:`, rollbackError);
+        // Continuar tentando reverter os demais itens
+      }
+    }
+
+    // 2. Excluir movimentações inseridas (se houver)
+    if (insertedMovementGroupId !== null) {
+      try {
+        await deleteMovementsByGroup(insertedMovementGroupId);
+        console.log(`Rollback: movimentações do group_id ${insertedMovementGroupId} excluídas`);
+      } catch (deleteError) {
+        console.error(
+          `CRÍTICO: Falha ao excluir movimentações do group_id ${insertedMovementGroupId}:`,
+          deleteError
+        );
+      }
+    }
+
     throw new Error(`Erro ao criar movimentação: ${error.message}`);
   }
 }
