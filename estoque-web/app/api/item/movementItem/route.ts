@@ -24,10 +24,10 @@ export async function GET(req: NextRequest) {
     }
 
     // 2️⃣ Busca movimentações diretamente pelo item_id
-   const movements = await listItemMovements(item.id!, item.enterprise_id!);
+    const movements = await listItemMovements(item.id!, item.enterprise_id!);
 
     // 3️⃣ Retorno organizado
-     return NextResponse.json({
+    return NextResponse.json({
       success: true,
       historico_movimentacao: movements.map((m: any) => ({
         id_mov: m.id,
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
         data_movimentacao: m.data_movimentacao,
         usuario_responsavel: m.user_id,
         quantidade_movimentada: m.quantity,
-        safe_delete: m.safe_delete, 
+        safe_delete: m.safe_delete,
       })),
     });
   } catch (err: any) {
