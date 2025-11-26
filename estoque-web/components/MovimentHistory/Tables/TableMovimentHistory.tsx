@@ -22,7 +22,6 @@ interface RowDataItem {
   user: string;
   movimentDate: string;
   quantity: number;
-  type: string;
   disabled?: boolean;
 }
 
@@ -34,21 +33,21 @@ export default function TableHistoryEntity() {
       headerName: "ID do Grupo",
       field: "groupId",
       sortable: true,
-      width: 120,
+      width: 140,
       pinned: "left",
       filter: "agNumberColumnFilter",
       suppressMovable: true,
       lockPosition: "left",
       cellClassRules: {
-              "cell-disabled": (params) => !!params.data?.disabled,
-            },
-            cellRenderer: (params: ICellRendererParams<any, any>) =>
-              renderDisabledCellWithIcons(params, (data) => {
-                const messages = [];
-                if (data.disabled) messages.push("Movimentação está desativada");
-                return messages.join("");
-              }),
-          },
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
+      cellRenderer: (params: ICellRendererParams<any, any>) =>
+        renderDisabledCellWithIcons(params, (data) => {
+          const messages = [];
+          if (data.disabled) messages.push("Movimentação está desativada");
+          return messages.join("");
+        }),
+    },
     {
       headerName: "Nota Fiscal",
       minWidth: 140,
@@ -100,18 +99,17 @@ export default function TableHistoryEntity() {
       flex: 1,
       minWidth: 120,
       cellRenderer: (params: ICellRendererParams) => {
-        const data = params.data as { type?: string; quantity?: number };
-        if (!data) return null;
+        const value = params.value ?? params.data?.quantity;
+        const n = Number(value);
+        if (value === undefined || value === null || Number.isNaN(n)) return <span>-</span>;
 
-        if (data.type === "saída") {
-          return (
-            <span style={{ color: "#E42D2D", fontWeight: "bold" }}>
-              - {data.quantity}
-            </span>
-          );
-        }
+        const style = n < 0 ? { color: "var(--danger-0)" } : undefined;
 
-        return <span>{data.quantity}</span>;
+        return (
+          <div style={{ paddingLeft: "10px" }}>
+            <span style={style}>{n}</span>
+          </div>
+        );
       },
     },
   ]);

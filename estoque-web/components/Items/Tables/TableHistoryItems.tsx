@@ -28,7 +28,6 @@ interface RowDataItem {
   user: string;
   date: string;
   quantity: number;
-  type: string;
   disabled?: boolean;
 }
 
@@ -106,6 +105,24 @@ export default function TableHistoryEntity() {
       filter: "agNumberColumnFilter",
       flex: 1,
       minWidth: 120,
+      cellRenderer: (params: ICellRendererParams) => {
+        const data = params.data as { type?: string; quantity?: number } | undefined;
+        const raw = params.value ?? data?.quantity;
+        if (raw === undefined || raw === null) return <span>-</span>;
+        const n = Number(raw);
+        if (!Number.isFinite(n)) return <span>{String(raw)}</span>;
+
+        // If quantity is negative, highlight in danger color
+        if (n < 0) {
+          return <span style={{ color: "var(--danger-0)" }}>{n}</span>;
+        }
+
+        return (
+          <div style={{ paddingLeft: "10px" }}>
+            <span>{n}</span>
+          </div>
+        );
+      },
     },
   ]);
 

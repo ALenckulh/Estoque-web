@@ -62,3 +62,108 @@ export const validateEntityName = (name: string) => {
 export const validateProductName = (name: string) => {
   return validateRequiredField(name, "nome do produto");
 };
+
+export const validateNF = (nf: string) => {
+  if (!nf) return "NF é obrigatório.";
+  if (!/^[0-9]{9}$/.test(nf)) return "NF deve conter 9 dígitos numéricos.";
+  return "";
+};
+
+export const validateEntitySelected = (entity: any) => {
+  if (!entity) return "A entidade é obrigatória.";
+  return "";
+};
+
+export const validateClienteSelected = (cliente: any) => {
+  if (!cliente) return "O cliente é obrigatório.";
+  return "";
+};
+
+export const validateFornecedorSelected = (fornecedor: any) => {
+  if (!fornecedor) return "O fornecedor é obrigatório.";
+  return "";
+};
+
+export type ProductRow = { produto: any; quantidade: string | null };
+
+export const validateProductRows = (rows: ProductRow[]) => {
+  const errors: Array<{ produto?: string; quantidade?: string }> = [];
+
+  // must have at least one product selected
+  const hasAnyProduct = rows.some((r) => !!r.produto);
+  if (!hasAnyProduct) {
+    // set error on first row product field
+    errors[0] = { produto: "Deve haver pelo menos um produto." } as any;
+    return { valid: false, errors };
+  }
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const hasProduct = !!r.produto;
+    const hasQuantity = !!r.quantidade && String(r.quantidade).trim() !== "";
+    errors[i] = {};
+
+    if (hasProduct && !hasQuantity) {
+      errors[i].quantidade = `A quantidade é obrigatória.`;
+    }
+
+    if (!hasProduct && hasQuantity) {
+      errors[i].produto = `O produto é obrigatório.`;
+    }
+
+    if (hasProduct && hasQuantity) {
+      // normalize comma to dot
+      const normalized = String(r.quantidade).replace(".", "").replace(",", ".");
+      const n = Number(normalized);
+      if (!Number.isFinite(n) || !(n > 0)) {
+        errors[i].quantidade = `A quantidade deve ser um número positivo.`;
+      }
+    }
+  }
+
+  const anyErrors = errors.some((e) => e && (e.produto || e.quantidade));
+  return { valid: !anyErrors, errors };
+};
+
+export const validateProductRowsNegative = (rows: ProductRow[]) => {
+  const errors: Array<{ produto?: string; quantidade?: string }> = [];
+
+  // must have at least one product selected
+  const hasAnyProduct = rows.some((r) => !!r.produto);
+  if (!hasAnyProduct) {
+    // set error on first row product field
+    errors[0] = { produto: "Deve haver pelo menos um produto." } as any;
+    return { valid: false, errors };
+  }
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const hasProduct = !!r.produto;
+    const hasQuantity = !!r.quantidade && String(r.quantidade).trim() !== "";
+    errors[i] = {};
+
+    if (hasProduct && !hasQuantity) {
+      errors[i].quantidade = `A quantidade é obrigatória.`;
+    }
+
+    if (!hasProduct && hasQuantity) {
+      errors[i].produto = `O produto é obrigatório.`;
+    }
+
+    if (hasProduct && hasQuantity) {
+      // normalize comma to dot and remove minus sign for parsing
+      const normalized = String(r.quantidade).replace(".", "").replace(",", ".").replace("-", "");
+      const n = Number(normalized);
+      if (!Number.isFinite(n) || !(n > 0)) {
+        errors[i].quantidade = `A quantidade deve ser um número positivo.`;
+      }
+      // check if the original value has minus sign (required for output)
+      if (!String(r.quantidade).startsWith("-")) {
+        errors[i].quantidade = `A quantidade deve ser negativa.`;
+      }
+    }
+  }
+
+  const anyErrors = errors.some((e) => e && (e.produto || e.quantidade));
+  return { valid: !anyErrors, errors };
+};
