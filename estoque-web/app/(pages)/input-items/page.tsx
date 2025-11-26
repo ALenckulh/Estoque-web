@@ -14,6 +14,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   validateNF,
   validateFornecedorSelected,
@@ -35,7 +36,7 @@ export default function Page() {
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }
-  const [selectedTab, setSelectedTab] = useState("itens");
+  const [selectedTab, setSelectedTab] = useState("");
   const [selectedEntityOption, setSelectedEntityOption] =
     useState<Option | null>(null);
   const { toasts, showToast } = useToast();
@@ -50,6 +51,7 @@ export default function Page() {
   const [productItems, setProductItems] = useState([
     { produto: null, quantidade: null },
   ]);
+  const router = useRouter();
 
   const produtoOptions: Option[] = [
     { label: "Produto A", value: "A" },
@@ -366,8 +368,8 @@ export default function Page() {
             </Button>
           </Card>
 
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-            <Button variant="outlined" color="secondary">
+            <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+            <Button variant="outlined" color="secondary" onClick={() => router.push('/items')}>
               Cancelar
             </Button>
             <Button variant="contained" onClick={() => handleConfirm()}>

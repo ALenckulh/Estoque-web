@@ -704,7 +704,6 @@ export const itemHistoryList = [
     user: "tecnico.ana@empresa.com",
     date: "2025-09-25T09:15:00",
     quantity: 50,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -713,8 +712,7 @@ export const itemHistoryList = [
     itemName: "Placa de Circuito Impresso",
     user: "eng.bruno@empresa.com",
     date: "2025-09-25T10:20:00",
-    quantity: 25,
-    type: "saída",
+    quantity: -25,
     disabled: true,
   },
   {
@@ -725,7 +723,6 @@ export const itemHistoryList = [
     user: "eletricista.carla@empresa.com",
     date: "2025-09-24T14:45:00",
     quantity: 100,
-    type: "entrada"
   },
   {
     groupId: 203,
@@ -735,7 +732,6 @@ export const itemHistoryList = [
     user: "tec.daniel@empresa.com",
     date: "2025-09-24T16:30:00",
     quantity: 500,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -744,8 +740,7 @@ export const itemHistoryList = [
     itemName: "LED Vermelho 5mm",
     user: "montador.eduardo@empresa.com",
     date: "2025-09-23T11:00:00",
-    quantity: 200,
-    type: "saída"
+    quantity: -200,
   },
   {
     groupId: 205,
@@ -755,7 +750,6 @@ export const itemHistoryList = [
     user: "tec.fernanda@empresa.com",
     date: "2025-09-23T13:15:00",
     quantity: 150,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -764,8 +758,7 @@ export const itemHistoryList = [
     itemName: "Display LCD 16x2",
     user: "projetista.gabriel@empresa.com",
     date: "2025-09-22T09:50:00",
-    quantity: 30,
-    type: "saída",
+    quantity: -30,
     disabled: true,
   },
   {
@@ -776,7 +769,6 @@ export const itemHistoryList = [
     user: "eletricista.heloisa@empresa.com",
     date: "2025-09-22T15:10:00",
     quantity: 15,
-    type: "entrada"
   },
   {
     groupId: 203,
@@ -786,7 +778,6 @@ export const itemHistoryList = [
     user: "dev.igor@empresa.com",
     date: "2025-09-21T10:40:00",
     quantity: 40,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -795,8 +786,7 @@ export const itemHistoryList = [
     itemName: "Conector USB Type-C",
     user: "montador.juliana@empresa.com",
     date: "2025-09-21T12:55:00",
-    quantity: 80,
-    type: "saída"
+    quantity: -80,
   },
   {
     groupId: 205,
@@ -806,7 +796,6 @@ export const itemHistoryList = [
     user: "eletricista.kaio@empresa.com",
     date: "2025-09-20T09:30:00",
     quantity: 10,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -816,7 +805,6 @@ export const itemHistoryList = [
     user: "seguranca.larissa@empresa.com",
     date: "2025-09-20T11:25:00",
     quantity: 35,
-    type: "entrada"
   },
   {
     groupId: 202,
@@ -825,8 +813,7 @@ export const itemHistoryList = [
     itemName: "Relé 5V",
     user: "controle.marcos@empresa.com",
     date: "2025-09-19T14:15:00",
-    quantity: 60,
-    type: "saída",
+    quantity: -60,
     disabled: true,
   },
   {
@@ -837,7 +824,6 @@ export const itemHistoryList = [
     user: "clock.natalia@empresa.com",
     date: "2025-09-19T16:40:00",
     quantity: 45,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -846,8 +832,7 @@ export const itemHistoryList = [
     itemName: "Diodo 1N4007",
     user: "retificador.octavio@empresa.com",
     date: "2025-09-18T10:05:00",
-    quantity: 300,
-    type: "saída"
+    quantity: -300,
   },
   {
     groupId: 205,
@@ -857,7 +842,6 @@ export const itemHistoryList = [
     user: "ajuste.paula@empresa.com",
     date: "2025-09-18T12:50:00",
     quantity: 75,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -867,7 +851,6 @@ export const itemHistoryList = [
     user: "comunicacao.quiteria@empresa.com",
     date: "2025-09-17T09:20:00",
     quantity: 20,
-    type: "entrada"
   },
   {
     groupId: 202,
@@ -876,8 +859,7 @@ export const itemHistoryList = [
     itemName: "Fonte Linear 5V",
     user: "alimentacao.rafael@empresa.com",
     date: "2025-09-17T14:30:00",
-    quantity: 12,
-    type: "saída",
+    quantity: -12,
     disabled: true,
   },
   {
@@ -888,7 +870,6 @@ export const itemHistoryList = [
     user: "ambiente.sandra@empresa.com",
     date: "2025-09-16T11:45:00",
     quantity: 25,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -897,8 +878,7 @@ export const itemHistoryList = [
     itemName: "Cooler 12V",
     user: "ventilacao.thiago@empresa.com",
     date: "2025-09-16T13:55:00",
-    quantity: 18,
-    type: "saída"
+    quantity: -18,
   },
 ]
 export const itemMovimentList = [
@@ -910,7 +890,6 @@ export const itemMovimentList = [
     user: "tecnico.ana@empresa.com",
     movimentDate: "2025-09-25T09:15:00",
     quantity: 50,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -919,8 +898,7 @@ export const itemMovimentList = [
     itemId: 2,
     user: "eng.bruno@empresa.com",
     movimentDate: "2025-09-25T10:20:00",
-    quantity: 25,
-    type: "saída",
+    quantity: -25,
     disabled: true
   },
   {
@@ -931,7 +909,6 @@ export const itemMovimentList = [
     user: "eletrica.carla@empresa.com",
     movimentDate: "2025-09-24T14:45:00",
     quantity: 100,
-    type: "entrada"
   },
   {
     groupId: 203,
@@ -941,7 +918,6 @@ export const itemMovimentList = [
     user: "tec.daniel@empresa.com",
     movimentDate: "2025-09-24T16:30:00",
     quantity: 500,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -950,8 +926,7 @@ export const itemMovimentList = [
     itemId: 5,
     user: "montador.eduardo@empresa.com",
     movimentDate: "2025-09-23T11:00:00",
-    quantity: 200,
-    type: "saída"
+    quantity: -200,
   },
   {
     groupId: 205,
@@ -961,7 +936,6 @@ export const itemMovimentList = [
     user: "tec.fernanda@empresa.com",
     movimentDate: "2025-09-23T13:15:00",
     quantity: 150,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -970,8 +944,7 @@ export const itemMovimentList = [
     itemId: 7,
     user: "projetista.gabriel@empresa.com",
     movimentDate: "2025-09-22T09:50:00",
-    quantity: 30,
-    type: "saída",
+    quantity: -30,
     disabled: true
   },
   {
@@ -982,7 +955,6 @@ export const itemMovimentList = [
     user: "eletricista.heloisa@empresa.com",
     movimentDate: "2025-09-22T15:10:00",
     quantity: 15,
-    type: "entrada"
   },
   {
     groupId: 203,
@@ -992,7 +964,6 @@ export const itemMovimentList = [
     user: "dev.igor@empresa.com",
     movimentDate: "2025-09-21T10:40:00",
     quantity: 40,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -1001,8 +972,7 @@ export const itemMovimentList = [
     itemId: 10,
     user: "montador.juliana@empresa.com",
     movimentDate: "2025-09-21T12:55:00",
-    quantity: 80,
-    type: "saída"
+    quantity: -80,
   },
   {
     groupId: 205,
@@ -1012,7 +982,6 @@ export const itemMovimentList = [
     user: "eletricista.kaio@empresa.com",
     movimentDate: "2025-09-20T09:30:00",
     quantity: 10,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -1022,7 +991,6 @@ export const itemMovimentList = [
     user: "seguranca.larissa@empresa.com",
     movimentDate: "2025-09-20T11:25:00",
     quantity: 35,
-    type: "entrada"
   },
   {
     groupId: 202,
@@ -1031,8 +999,7 @@ export const itemMovimentList = [
     itemId: 13,
     user: "controle.marcos@empresa.com",
     movimentDate: "2025-09-19T14:15:00",
-    quantity: 60,
-    type: "saída",
+    quantity: -60,
     disabled: true
   },
   {
@@ -1043,7 +1010,6 @@ export const itemMovimentList = [
     user: "clock.natalia@empresa.com",
     movimentDate: "2025-09-19T16:40:00",
     quantity: 45,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -1052,8 +1018,7 @@ export const itemMovimentList = [
     itemId: 15,
     user: "retificador.octavio@empresa.com",
     movimentDate: "2025-09-18T10:05:00",
-    quantity: 300,
-    type: "saída"
+    quantity: -300,
   },
   {
     groupId: 205,
@@ -1063,7 +1028,6 @@ export const itemMovimentList = [
     user: "ajuste.paula@empresa.com",
     movimentDate: "2025-09-18T12:50:00",
     quantity: 75,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -1073,7 +1037,6 @@ export const itemMovimentList = [
     user: "comunicacao.quiteria@empresa.com",
     movimentDate: "2025-09-17T09:20:00",
     quantity: 20,
-    type: "entrada"
   },
   {
     groupId: 202,
@@ -1082,8 +1045,7 @@ export const itemMovimentList = [
     itemId: 18,
     user: "alimentacao.rafael@empresa.com",
     movimentDate: "2025-09-17T14:30:00",
-    quantity: 12,
-    type: "saída",
+    quantity: -12,
     disabled: true
   },
   {
@@ -1094,7 +1056,6 @@ export const itemMovimentList = [
     user: "ambiente.sandra@empresa.com",
     movimentDate: "2025-09-16T11:45:00",
     quantity: 25,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -1103,8 +1064,7 @@ export const itemMovimentList = [
     itemId: 20,
     user: "ventilacao.thiago@empresa.com",
     movimentDate: "2025-09-16T13:55:00",
-    quantity: 18,
-    type: "saída"
+    quantity: -18,
   }
 ];
 

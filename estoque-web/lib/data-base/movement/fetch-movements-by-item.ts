@@ -15,7 +15,7 @@ export async function fetchMovementsByItem(itemId: number, enterpriseId: number)
       user_id,
       item_id,
       quantity,
-      safe_delete
+      safe_delete,
     `)
     .eq("item_id", itemId)
     .eq("enterprise_id", enterpriseId)
