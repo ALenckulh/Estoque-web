@@ -24,6 +24,7 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { validateProductName } from "@/utils/validations";
+
 type Option = {
   label: string;
   value: string | number;
@@ -383,10 +384,10 @@ export default function Page() {
                   },
                 }}
               >
-                <MenuItem onClick={handleCloseMenu} icon="Plus">
+                <MenuItem onClick={() => router.push("/input-items")} icon="Plus">
                   Entrada
                 </MenuItem>
-                <MenuItem onClick={handleCloseMenu} icon="Minus">
+                <MenuItem onClick={() => router.push("/output-items")} icon="Minus">
                   Saída
                 </MenuItem>
               </Menu>

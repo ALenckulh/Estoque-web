@@ -30,7 +30,7 @@ export function Appbar({
   tabItems = [
     { id: "itens", label: "Itens", url: "/items" },
     { id: "entidade", label: "Entidades", url: "/entities" },
-    { id: "historico", label: "Histórico", url: "" },
+    { id: "historico", label: "Histórico", url: "/movement-history" },
   ],
   selectedTab = "itens",
   onTabChange,

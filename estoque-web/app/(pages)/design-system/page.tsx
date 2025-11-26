@@ -24,7 +24,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import React from "react";
-import { DateField } from "@/components/ui/DateField";
 import AgGridExample from "@/components/Tables/TableExample";
 import { Icon } from "@/components/ui/Icon";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
@@ -41,7 +40,6 @@ type Option = {
 export default function DesignSystem() {
   const [valor, setValor] = useState<string | number>(""); // Select
   const [selectedOption, setSelectedOption] = useState<Option | null>(null); // Autocomplete
-  const [date, setDate] = React.useState<Date | null>(null);
   const { toasts, showToast } = useToast();
   const [openModal, setOpenModal] = useState(false);
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
@@ -350,13 +348,6 @@ export default function DesignSystem() {
                 size="small"
               />
             )}
-          />
-
-          {/* DatePicker */}
-          <DateField
-            label="Data de término"
-            value={date}
-            onChange={(newDate) => setDate(newDate)}
           />
 
           {/* PasswordField */}

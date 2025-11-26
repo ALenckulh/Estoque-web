@@ -704,7 +704,6 @@ export const itemHistoryList = [
     user: "tecnico.ana@empresa.com",
     date: "2025-09-25T09:15:00",
     quantity: 50,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -713,8 +712,7 @@ export const itemHistoryList = [
     itemName: "Placa de Circuito Impresso",
     user: "eng.bruno@empresa.com",
     date: "2025-09-25T10:20:00",
-    quantity: 25,
-    type: "saída",
+    quantity: -25,
     disabled: true,
   },
   {
@@ -725,7 +723,6 @@ export const itemHistoryList = [
     user: "eletricista.carla@empresa.com",
     date: "2025-09-24T14:45:00",
     quantity: 100,
-    type: "entrada"
   },
   {
     groupId: 203,
@@ -735,7 +732,6 @@ export const itemHistoryList = [
     user: "tec.daniel@empresa.com",
     date: "2025-09-24T16:30:00",
     quantity: 500,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -744,8 +740,7 @@ export const itemHistoryList = [
     itemName: "LED Vermelho 5mm",
     user: "montador.eduardo@empresa.com",
     date: "2025-09-23T11:00:00",
-    quantity: 200,
-    type: "saída"
+    quantity: -200,
   },
   {
     groupId: 205,
@@ -755,7 +750,6 @@ export const itemHistoryList = [
     user: "tec.fernanda@empresa.com",
     date: "2025-09-23T13:15:00",
     quantity: 150,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -764,8 +758,7 @@ export const itemHistoryList = [
     itemName: "Display LCD 16x2",
     user: "projetista.gabriel@empresa.com",
     date: "2025-09-22T09:50:00",
-    quantity: 30,
-    type: "saída",
+    quantity: -30,
     disabled: true,
   },
   {
@@ -776,7 +769,6 @@ export const itemHistoryList = [
     user: "eletricista.heloisa@empresa.com",
     date: "2025-09-22T15:10:00",
     quantity: 15,
-    type: "entrada"
   },
   {
     groupId: 203,
@@ -786,7 +778,6 @@ export const itemHistoryList = [
     user: "dev.igor@empresa.com",
     date: "2025-09-21T10:40:00",
     quantity: 40,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -795,8 +786,7 @@ export const itemHistoryList = [
     itemName: "Conector USB Type-C",
     user: "montador.juliana@empresa.com",
     date: "2025-09-21T12:55:00",
-    quantity: 80,
-    type: "saída"
+    quantity: -80,
   },
   {
     groupId: 205,
@@ -806,7 +796,6 @@ export const itemHistoryList = [
     user: "eletricista.kaio@empresa.com",
     date: "2025-09-20T09:30:00",
     quantity: 10,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -816,7 +805,6 @@ export const itemHistoryList = [
     user: "seguranca.larissa@empresa.com",
     date: "2025-09-20T11:25:00",
     quantity: 35,
-    type: "entrada"
   },
   {
     groupId: 202,
@@ -825,8 +813,7 @@ export const itemHistoryList = [
     itemName: "Relé 5V",
     user: "controle.marcos@empresa.com",
     date: "2025-09-19T14:15:00",
-    quantity: 60,
-    type: "saída",
+    quantity: -60,
     disabled: true,
   },
   {
@@ -837,7 +824,6 @@ export const itemHistoryList = [
     user: "clock.natalia@empresa.com",
     date: "2025-09-19T16:40:00",
     quantity: 45,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -846,8 +832,7 @@ export const itemHistoryList = [
     itemName: "Diodo 1N4007",
     user: "retificador.octavio@empresa.com",
     date: "2025-09-18T10:05:00",
-    quantity: 300,
-    type: "saída"
+    quantity: -300,
   },
   {
     groupId: 205,
@@ -857,7 +842,6 @@ export const itemHistoryList = [
     user: "ajuste.paula@empresa.com",
     date: "2025-09-18T12:50:00",
     quantity: 75,
-    type: "entrada"
   },
   {
     groupId: 201,
@@ -867,7 +851,6 @@ export const itemHistoryList = [
     user: "comunicacao.quiteria@empresa.com",
     date: "2025-09-17T09:20:00",
     quantity: 20,
-    type: "entrada"
   },
   {
     groupId: 202,
@@ -876,8 +859,7 @@ export const itemHistoryList = [
     itemName: "Fonte Linear 5V",
     user: "alimentacao.rafael@empresa.com",
     date: "2025-09-17T14:30:00",
-    quantity: 12,
-    type: "saída",
+    quantity: -12,
     disabled: true,
   },
   {
@@ -888,7 +870,6 @@ export const itemHistoryList = [
     user: "ambiente.sandra@empresa.com",
     date: "2025-09-16T11:45:00",
     quantity: 25,
-    type: "entrada"
   },
   {
     groupId: 204,
@@ -897,7 +878,193 @@ export const itemHistoryList = [
     itemName: "Cooler 12V",
     user: "ventilacao.thiago@empresa.com",
     date: "2025-09-16T13:55:00",
-    quantity: 18,
-    type: "saída"
+    quantity: -18,
   },
 ]
+export const itemMovimentList = [
+    {
+    groupId: 201,
+    fiscalNote: "NF-2025-101",
+    entityId: 9001,
+    itemId: 1,
+    user: "tecnico.ana@empresa.com",
+    movimentDate: "2025-09-25T09:15:00",
+    quantity: 50,
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-102",
+    entityId: 9002,
+    itemId: 2,
+    user: "eng.bruno@empresa.com",
+    movimentDate: "2025-09-25T10:20:00",
+    quantity: -25,
+    disabled: true
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-103",
+    entityId: 9003,
+    itemId: 3,
+    user: "eletrica.carla@empresa.com",
+    movimentDate: "2025-09-24T14:45:00",
+    quantity: 100,
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-104",
+    entityId: 9004,
+    itemId: 4,
+    user: "tec.daniel@empresa.com",
+    movimentDate: "2025-09-24T16:30:00",
+    quantity: 500,
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-105",
+    entityId: 9005,
+    itemId: 5,
+    user: "montador.eduardo@empresa.com",
+    movimentDate: "2025-09-23T11:00:00",
+    quantity: -200,
+  },
+  {
+    groupId: 205,
+    fiscalNote: "NF-2025-106",
+    entityId: 9006,
+    itemId: 6,
+    user: "tec.fernanda@empresa.com",
+    movimentDate: "2025-09-23T13:15:00",
+    quantity: 150,
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-107",
+    entityId: 9007,
+    itemId: 7,
+    user: "projetista.gabriel@empresa.com",
+    movimentDate: "2025-09-22T09:50:00",
+    quantity: -30,
+    disabled: true
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-108",
+    entityId: 9008,
+    itemId: 8,
+    user: "eletricista.heloisa@empresa.com",
+    movimentDate: "2025-09-22T15:10:00",
+    quantity: 15,
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-109",
+    entityId: 9009,
+    itemId: 9,
+    user: "dev.igor@empresa.com",
+    movimentDate: "2025-09-21T10:40:00",
+    quantity: 40,
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-110",
+    entityId: 9010,
+    itemId: 10,
+    user: "montador.juliana@empresa.com",
+    movimentDate: "2025-09-21T12:55:00",
+    quantity: -80,
+  },
+  {
+    groupId: 205,
+    fiscalNote: "NF-2025-111",
+    entityId: 9011,
+    itemId: 11,
+    user: "eletricista.kaio@empresa.com",
+    movimentDate: "2025-09-20T09:30:00",
+    quantity: 10,
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-112",
+    entityId: 9012,
+    itemId: 12,
+    user: "seguranca.larissa@empresa.com",
+    movimentDate: "2025-09-20T11:25:00",
+    quantity: 35,
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-113",
+    entityId: 9013,
+    itemId: 13,
+    user: "controle.marcos@empresa.com",
+    movimentDate: "2025-09-19T14:15:00",
+    quantity: -60,
+    disabled: true
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-114",
+    entityId: 9014,
+    itemId: 14,
+    user: "clock.natalia@empresa.com",
+    movimentDate: "2025-09-19T16:40:00",
+    quantity: 45,
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-115",
+    entityId: 9015,
+    itemId: 15,
+    user: "retificador.octavio@empresa.com",
+    movimentDate: "2025-09-18T10:05:00",
+    quantity: -300,
+  },
+  {
+    groupId: 205,
+    fiscalNote: "NF-2025-116",
+    entityId: 9016,
+    itemId: 16,
+    user: "ajuste.paula@empresa.com",
+    movimentDate: "2025-09-18T12:50:00",
+    quantity: 75,
+  },
+  {
+    groupId: 201,
+    fiscalNote: "NF-2025-117",
+    entityId: 9017,
+    itemId: 17,
+    user: "comunicacao.quiteria@empresa.com",
+    movimentDate: "2025-09-17T09:20:00",
+    quantity: 20,
+  },
+  {
+    groupId: 202,
+    fiscalNote: "NF-2025-118",
+    entityId: 9018,
+    itemId: 18,
+    user: "alimentacao.rafael@empresa.com",
+    movimentDate: "2025-09-17T14:30:00",
+    quantity: -12,
+    disabled: true
+  },
+  {
+    groupId: 203,
+    fiscalNote: "NF-2025-119",
+    entityId: 9019,
+    itemId: 19,
+    user: "ambiente.sandra@empresa.com",
+    movimentDate: "2025-09-16T11:45:00",
+    quantity: 25,
+  },
+  {
+    groupId: 204,
+    fiscalNote: "NF-2025-120",
+    entityId: 9020,
+    itemId: 20,
+    user: "ventilacao.thiago@empresa.com",
+    movimentDate: "2025-09-16T13:55:00",
+    quantity: -18,
+  }
+];
+

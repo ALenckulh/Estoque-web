@@ -1,46 +1,39 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import {
-  ColDef,
-  ModuleRegistry,
-  AllCommunityModule,
-  ICellRendererParams,
-} from "ag-grid-community";
+import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { itemHistoryList } from "@/utils/dataBaseExample";
+import { ICellRendererParams } from "ag-grid-community";
+import { itemMovimentList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
-import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
-// Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface RowDataItem {
   groupId: number;
   fiscalNote: string;
+  entityId: number;
   itemId: number;
-  itemName: string;
   user: string;
-  date: string;
+  movimentDate: string;
   quantity: number;
   disabled?: boolean;
 }
 
 export default function TableHistoryEntity() {
-  const [rowData] = useState<RowDataItem[]>(itemHistoryList);
-
+  const [rowData] = useState<RowDataItem[]>(itemMovimentList);
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
-      headerName: "Grupo ID",
+      headerName: "ID do Grupo",
       field: "groupId",
       sortable: true,
-      width: 120,
+      width: 140,
       pinned: "left",
       filter: "agNumberColumnFilter",
       suppressMovable: true,
@@ -64,24 +57,16 @@ export default function TableHistoryEntity() {
       flex: 1,
     },
     {
-      headerName: "Item ID",
-      minWidth: 120,
-      field: "itemId",
+      headerName: "Data de movimentação",
+      field: "movimentDate",
       sortable: true,
-      filter: "agNumberColumnFilter",
+      filter: "agDateColumnFilter",
       flex: 1,
+      minWidth: 160,
+      cellRenderer: renderDateCell,
     },
     {
-      headerName: "Nome do Item",
-      field: "itemName",
-      minWidth: 140,
-      sortable: true,
-      filter: "agTextColumnFilter",
-      flex: 1,
-      cellRenderer: renderCopyTooltipCell,
-    },
-    {
-      headerName: "Responsável",
+      headerName: "User responsável",
       field: "user",
       sortable: true,
       filter: "agTextColumnFilter",
@@ -90,13 +75,21 @@ export default function TableHistoryEntity() {
       cellRenderer: renderCopyTooltipCell,
     },
     {
-      headerName: "Data",
-      field: "date",
+      headerName: "ID Entidade",
+      minWidth: 120,
+      field: "entityId",
       sortable: true,
-      filter: "agDateColumnFilter",
+      filter: "agNumberColumnFilter",
       flex: 1,
+    },
+    {
+      headerName: "ID Item",
+      field: "itemId",
       minWidth: 140,
-      cellRenderer: renderDateCell,
+      sortable: true,
+      filter: "agTextColumnFilter",
+      flex: 1,
+      cellRenderer: renderCopyTooltipCell,
     },
     {
       headerName: "Quantidade",
@@ -106,20 +99,15 @@ export default function TableHistoryEntity() {
       flex: 1,
       minWidth: 120,
       cellRenderer: (params: ICellRendererParams) => {
-        const data = params.data as { type?: string; quantity?: number } | undefined;
-        const raw = params.value ?? data?.quantity;
-        if (raw === undefined || raw === null) return <span>-</span>;
-        const n = Number(raw);
-        if (!Number.isFinite(n)) return <span>{String(raw)}</span>;
+        const value = params.value ?? params.data?.quantity;
+        const n = Number(value);
+        if (value === undefined || value === null || Number.isNaN(n)) return <span>-</span>;
 
-        // If quantity is negative, highlight in danger color
-        if (n < 0) {
-          return <span style={{ color: "var(--danger-0)" }}>{n}</span>;
-        }
+        const style = n < 0 ? { color: "var(--danger-0)" } : undefined;
 
         return (
           <div style={{ paddingLeft: "10px" }}>
-            <span>{n}</span>
+            <span style={style}>{n}</span>
           </div>
         );
       },
@@ -138,9 +126,6 @@ export default function TableHistoryEntity() {
         theme={myTheme}
         enableCellTextSelection={true}
         suppressDragLeaveHidesColumns={true}
-        paginationPageSizeSelector={false}
-        localeText={AG_GRID_LOCALE_PT_BR}
-        loadingOverlayComponent={() => {}}
       />
     </div>
   );

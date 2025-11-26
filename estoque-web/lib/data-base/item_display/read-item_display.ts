@@ -16,6 +16,7 @@ export async function readItemDisplayDB(enterprise_id: number): Promise<ItemDisp
     .from("item_display")
     .select("id, display_name")
     .eq("enterprise_id", enterprise_id)
+    .eq("safe_delete", false)
     .order("display_name", { ascending: true });
 
   if (error) {
