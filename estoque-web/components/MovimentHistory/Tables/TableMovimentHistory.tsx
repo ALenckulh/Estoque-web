@@ -22,7 +22,6 @@ interface RowDataItem {
   user: string;
   movimentDate: string;
   quantity: number;
-  type: string;
   disabled?: boolean;
 }
 

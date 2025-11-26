@@ -28,7 +28,6 @@ interface RowDataItem {
   user: string;
   date: string;
   quantity: number;
-  type: string;
   disabled?: boolean;
 }
 
