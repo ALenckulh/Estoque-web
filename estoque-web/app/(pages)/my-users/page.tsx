@@ -583,7 +583,7 @@ export default function Page() {
                           fontSize: "16px",
                           color: "var(--primary-10)",
                         }}
-                        href="#"
+                        href="/forgot-password"
                       >
                         Esqueci minha senha?
                       </Link>
