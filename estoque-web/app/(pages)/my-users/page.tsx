@@ -24,6 +24,7 @@ import {
   FormControlLabel,
   TextField,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -97,6 +98,7 @@ export default function Page() {
     useState("");
   const [editUsername, setEditUsername] = useState("");
   const [editIsAdmin, setEditIsAdmin] = useState(false);
+  const [newIsAdmin, setNewIsAdmin] = useState(false);
   // Guardar valores iniciais para detectar alterações (dirty state)
   const [initialUsername, setInitialUsername] = useState("");
   const [initialIsAdmin, setInitialIsAdmin] = useState(false);
@@ -111,12 +113,15 @@ export default function Page() {
     editConfirmFuturePassword: "",
     otp: "",
   });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [creating, setCreating] = useState(false);
 
   const { toasts, showToast } = useToast();
   const {
     findUserId,
     setFindUserId,
     myUserId,
+    myUserEnterpriseId,
     setOpenModalActive,
     setOpenModalInactive,
     OpenModalActive,
@@ -158,28 +163,6 @@ export default function Page() {
     setOtp(newValue);
   };
 
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const error = validateOtp(otp);
-
-    if (error) {
-      setErrors((prevErrors: Record<string, string>) => ({
-        ...prevErrors,
-        otp: error,
-      }));
-      return;
-    }
-
-    setIsCreateDrawerOpen(false);
-    setTimeout(() => setChangeSection(false), 100);
-    showToast(
-      `Usuário ${newUsername} criado com sucesso!`,
-      "success",
-      "CircleCheck"
-    );
-  };
-
   const handleCloseEditDrawer = () => {
     setIsEditDrawerOpen(false);
     setFindUserId(null);
@@ -194,7 +177,7 @@ export default function Page() {
     setEditConfirmFuturePassword("");
   };
 
-  const handleContinueCreateUser = (e: React.FormEvent) => {
+  const handleCreateUser = (e: React.FormEvent) => {
     e.preventDefault();
 
     const newUsernameError = validateUsername(newUsername);
@@ -221,9 +204,60 @@ export default function Page() {
 
     if (hasError) return;
 
-    setTimeout(() => {
-      setChangeSection(true);
-    }, 0);
+    // Call backend to create user (is_owner: false, is_admin from checkbox,
+    // enterprise id from provider). On success, persist pending verification
+    // and try to send OTP, then advance to OTP section.
+    const payload = {
+      user: newUsername,
+      email: newEmail,
+      password: newPassword,
+      is_owner: false,
+      is_admin: Boolean(newIsAdmin),
+      myUserEnterpriseId: myUserEnterpriseId,
+    } as any;
+
+    setCreating(true);
+    fetch("/api/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        // try to parse body like sign-up page to detect server-side reported errors
+        let json: any = null;
+        try {
+          json = await res.json();
+        } catch (err) {
+          // ignore parse errors
+        }
+
+        if (json && (json.error || json.errors)) {
+          const serverMessage = json.error || json.message || JSON.stringify(json.errors);
+          setErrors((prev) => ({ ...prev, newEmail: serverMessage }));
+          return;
+        }
+
+        if (!res.ok) {
+          const message = json?.message || "Erro ao criar usuário";
+          setErrors((prev) => ({ ...prev, newEmail: message }));
+          return;
+        }
+
+        // Success: capture email, clear inputs and show success message similar to sign-up
+        const emailToShow = newEmail;
+        setNewUsername("");
+        setNewEmail("");
+        setNewPassword("");
+        setNewConfirmPassword("");
+        setNewIsAdmin(false);
+        setErrors({});
+        const msg = `Verifique o e-mail "${emailToShow}" para confirmar sua conta.`;
+        setSuccessMessage(msg);
+      })
+      .catch(() => {
+        setErrors((prev) => ({ ...prev, newEmail: "Erro ao criar usuário" }));
+      })
+      .finally(() => setCreating(false));
   };
 
   const handleConfirmUpdateUser = (e: React.FormEvent) => {
@@ -293,7 +327,10 @@ export default function Page() {
           <Button
             variant="contained"
             startIcon={<Icon name="Plus" />}
-            onClick={() => setIsCreateDrawerOpen(true)}
+            onClick={() => {
+              setSuccessMessage("");
+              setIsCreateDrawerOpen(true);
+            }}
           >
             Criar usuário
           </Button>
@@ -367,151 +404,72 @@ export default function Page() {
           open={isCreateDrawerOpen}
           onClose={() => {
             setErrors({});
+            setSuccessMessage("");
             setIsCreateDrawerOpen(false);
             setTimeout(() => setChangeSection(false), 100);
           }}
         >
-          {changeSection ? (
-            <Container>
-              <IconButton
-                icon="ArrowLeft"
-                tooltip="Voltar"
-                buttonProps={{ variant: "text" }}
-                onClick={() => setChangeSection(false)}
+          <Container style={DRAWER_CONTAINER_STYLE}>
+            <Body1>Criar usuário</Body1>
+            <form className="formContainer" onSubmit={handleCreateUser}>
+              <TextField
+                label="Usuário"
+                onChange={(e) => setNewUsername(e.target.value)}
+                error={!!errors.newUsername}
+                helperText={errors.newUsername}
               />
-              <Body1
-                sx={{
-                  paddingTop: "20px",
-                  paddingBottom: "12px",
-                }}
-              >
-                Verifique seu e-mail
-              </Body1>
-              <Detail1
-                sx={{
-                  paddingBottom: "40px",
-                }}
-              >
-                Enviamos um código de 5 dígitos para o seu e-mail
-              </Detail1>
-              <form onSubmit={handleCreateUser} className="formContainer">
-                <Box>
-                  {/* @ts-expect-error: type conflict between React versions */}
-                  <MuiOtpInput
-                    value={otp}
-                    onChange={handleChangeOtp}
-                    length={5}
-                    autoFocus
-                    validateChar={matchIsNumeric}
-                    TextFieldsProps={{ error: Boolean(errors.otp) }}
-                  />
-                  <Detail1
-                    sx={{
-                      color: "var(--danger-10)",
-                      height: "20px",
-                      marginTop: "8px",
-                    }}
-                  >
-                    {errors.otp}
-                  </Detail1>
-                </Box>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ marginTop: "20px" }}
-                >
-                  Verificar
-                </Button>
-              </form>
-            </Container>
-          ) : (
-            <Container style={DRAWER_CONTAINER_STYLE}>
-              <Body1>Criar usuário</Body1>
-              <form
-                className="formContainer"
-                onSubmit={handleContinueCreateUser}
-              >
-                <TextField
-                  label="Usuário"
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  error={!!errors.newUsername}
-                  helperText={errors.newUsername}
-                />
-                <TextField
-                  label="E-mail"
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  error={!!errors.newEmail}
-                  helperText={errors.newEmail}
-                />
-                <PasswordField
-                  label="Senha"
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  error={!!errors.newPassword}
-                  helperText={errors.newPassword}
-                />
-                <PasswordField
-                  label="Confirmar senha"
-                  onChange={(e) => setNewConfirmPassword(e.target.value)}
-                  error={!!errors.newConfirmPassword}
-                  helperText={errors.newConfirmPassword}
-                />
-                <Button
-                  variant="contained"
-                  type="submit"
-                  sx={{ marginTop: "40px" }}
-                >
-                  Confirmar
-                </Button>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    width: "100%",
-                  }}
-                >
-                  <Divider
-                    sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
-                  />
-                  <Subtitle2
-                    sx={{
-                      marginX: 1,
-                      color: "var(--neutral-70)",
-                    }}
-                  >
-                    ou
-                  </Subtitle2>
-                  <Divider
-                    sx={{ flexGrow: 1, borderColor: "var(--neutral-30)" }}
-                  />
-                </Box>
-                <Button
-                  color="secondary"
-                  sx={{
-                    "& .MuiButton-startIcon": {
-                      marginRight: "12px",
-                    },
-                  }}
-                  variant="outlined"
-                  startIcon={
-                    <img
-                      src="/icons/googleIcon.svg"
-                      alt="Google Icon"
-                      height={20}
-                      width={20}
+              <TextField
+                label="E-mail"
+                onChange={(e) => setNewEmail(e.target.value)}
+                error={!!errors.newEmail}
+                helperText={errors.newEmail}
+              />
+              <PasswordField
+                label="Senha"
+                onChange={(e) => setNewPassword(e.target.value)}
+                error={!!errors.newPassword}
+                helperText={errors.newPassword}
+              />
+              <PasswordField
+                label="Confirmar senha"
+                onChange={(e) => setNewConfirmPassword(e.target.value)}
+                error={!!errors.newConfirmPassword}
+                helperText={errors.newConfirmPassword}
+              />
+              <Box sx={ADMIN_CHECKBOX_CONTAINER_STYLE}>
+                <FormControlLabel
+                  label="Permitir ações de administrador"
+                  control={
+                    <Checkbox
+                      checked={newIsAdmin}
+                      onChange={(e) => setNewIsAdmin(e.target.checked)}
                     />
                   }
-                  onClick={() => {
-                    setIsCreateDrawerOpen(false);
-                    setTimeout(() => setChangeSection(false), 100);
-                  }}
+                />
+                <Tooltip
+                  arrow
+                  title="Permite gerenciar adicionar, editar e deletar todos os usuários, exceto a conta criadora do estoque."
                 >
-                  Criar com o Google
-                </Button>
-              </form>
-            </Container>
-          )}
+                  <Icon name="Info" color="var(--neutral-50)" />
+                </Tooltip>
+              </Box>
+
+              <Button
+                variant="contained"
+                type="submit"
+                sx={{ marginTop: "40px" }}
+                startIcon={creating ? <CircularProgress size={20} color="inherit" /> : undefined}
+                disabled={creating}
+              >
+                {creating ? "Criando..." : "Confirmar"}
+              </Button>
+              {successMessage && (
+                <Subtitle2 sx={{ marginTop: 2, color: "var(--success-20)" }}>
+                  {successMessage}
+                </Subtitle2>
+              )}
+            </form>
+          </Container>
         </Drawer>
 
         {/* Drawer para editar usuário */}
