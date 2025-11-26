@@ -1,34 +1,47 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import { Detail1, H4 } from "@/components/ui/Typography";
-import { Box, Button, Card, TextField } from "@mui/material";
+import { Detail1, H4, Subtitle2 } from "@/components/ui/Typography";
+import { Button, Card, TextField, CircularProgress } from "@mui/material";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { validateEmail } from "@/utils/validations";
+import resetPasswordRequest from "@/lib/services/auth/reset-password-request";
 
 export default function Page() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (newValue: string) => {
     setError("");
     setEmail(newValue);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccessMessage("");
 
+    const validationError = validateEmail(email);
 
-    const error = validateEmail(email);
-
-    if (error) {
-      setError(error);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
-    router.push("forgot-password/verify-email");
+    try {
+      setLoading(true);
+      await resetPasswordRequest(email);
+      setSuccessMessage(
+        "Se este email estiver cadastrado, você receberá um link para redefinir sua senha."
+      );
+      setEmail("");
+    } catch (err: any) {
+      setError(err?.message || "Erro ao enviar email de recuperação");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,10 +74,30 @@ export default function Page() {
               onChange={(e) => handleChange(e.target.value)}
               error={!!error}
               helperText={error}
+              disabled={loading}
             />
-            <Button type="submit" variant="contained" sx={{ marginTop: "20px" }}>
-              Confirmar
+            <Button 
+              type="submit" 
+              variant="contained" 
+              sx={{ marginTop: "20px" }}
+              disabled={loading}
+              startIcon={
+                loading ? (
+                  <CircularProgress
+                    size={20}
+                    thickness={5}
+                    sx={{ color: "inherit" }}
+                  />
+                ) : null
+              }
+            >
+              {loading ? "Enviando..." : "Confirmar"}
             </Button>
+            {successMessage && (
+              <Subtitle2 sx={{ marginTop: 2, color: "var(--success-0)" }}>
+                {successMessage}
+              </Subtitle2>
+            )}
           </form>
         </Card>
       </div>

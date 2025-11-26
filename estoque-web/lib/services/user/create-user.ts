@@ -1,3 +1,4 @@
+import { supabase } from "@/utils/supabase/supabaseClient";
 import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 import { User } from "@/lib/models/user_model";
 import { insertUser } from "@/lib/data-base/user/insert-user";
@@ -8,7 +9,6 @@ import { insertSegmentsDB } from "@/lib/data-base/segment/insert-segments";
 import unitsData from "@/utils/data/unit.json";
 import groupsData from "@/utils/data/group.json";
 import segmentsData from "@/utils/data/segment.json";
-// authUserId agora é fornecido externamente; não criamos usuário no Auth aqui.
 
 export interface CreateUserParams {
   email: string;
@@ -17,7 +17,6 @@ export interface CreateUserParams {
   is_owner: boolean;
   name?: string;
   myUserEnterpriseId?: string | null;
-  authUserId: string;
 }
 
 /**
@@ -36,7 +35,6 @@ export async function createUser({
   is_owner,
   name,
   myUserEnterpriseId,
-  authUserId,
 }: CreateUserParams): Promise<User> {
   let enterpriseId: number | undefined;
   let createdEnterpriseIdForOwner: number | undefined;
@@ -62,9 +60,15 @@ export async function createUser({
     enterpriseId = Number(myUserEnterpriseId);
   }
 
-  // 1) authUserId deve ser fornecido por quem chama (usuário já criado no Auth)
-  if (!authUserId) {
-    // Se não vier, desfaz enterprise criada (quando owner) e falha
+  // 1) Cria usuário no Auth (isso muda a sessão local para o novo usuário)
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    email,
+    password,
+    options: name ? { data: { name } } : undefined,
+  });
+
+  if (signUpError || !signUpData?.user) {
+    // Rollback enterprise criada (apenas owner)
     if (is_owner && createdEnterpriseIdForOwner) {
       try {
         await supabaseAdmin
@@ -72,12 +76,17 @@ export async function createUser({
           .delete()
           .eq("id", createdEnterpriseIdForOwner);
       } catch (rbErr) {
-        // mesmo se rollback falhar, lançamos erro original
+        throw new Error(
+          `Erro ao criar usuário no Auth: ${signUpError?.message || "Desconhecido"}. Falha no rollback da enterprise: ${(rbErr as any)?.message || String(rbErr)}`
+        );
       }
     }
-    throw new Error("authUserId é obrigatório para criar usuário da aplicação.");
+    throw new Error(
+      `Erro ao criar usuário no Auth: ${signUpError?.message || "Desconhecido"}`
+    );
   }
 
+  const authUserId = signUpData.user.id;
   const newUser = new User(
     authUserId,
     enterpriseId!,
@@ -105,12 +114,6 @@ export async function createUser({
           rbErr
         );
       }
-    }
-    // Remover usuário no Auth em caso de falha para evitar órfãos
-    try {
-      await supabaseAdmin.auth.admin.deleteUser(authUserId);
-    } catch (rbAuthErr) {
-      console.error("Falha ao remover usuário no Auth após erro em insertUser:", rbAuthErr);
     }
     throw err;
   }

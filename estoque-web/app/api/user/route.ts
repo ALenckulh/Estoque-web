@@ -1,57 +1,41 @@
 import { createUser } from "@/lib/services/user/create-user";
 import { NextRequest, NextResponse } from "next/server";
 
-// POST /api/user - Cria um novo usuário.
-// Lógica de enterprise:
-// - Se is_owner === true: cria uma nova enterprise automaticamente e popula dados base.
-// - Se is_owner === false: usa myUserEnterpriseId fornecido (do usuário logado que está criando).
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const { name, email, password, is_admin, is_owner, myUserEnterpriseId, authUserId } =
-    body || {};
-
-  if (!email || !authUserId) {
-    return NextResponse.json(
-      { error: "Email e authUserId são obrigatórios." },
-      { status: 400 }
-    );
-  }
-  if (typeof is_owner !== "boolean") {
-    return NextResponse.json(
-      { error: "is_owner (boolean) é obrigatório." },
-      { status: 400 }
-    );
-  }
-  if (typeof is_admin !== "boolean") {
-    return NextResponse.json(
-      { error: "is_admin (boolean) é obrigatório." },
-      { status: 400 }
-    );
-  }
-  if (!is_owner && !myUserEnterpriseId) {
-    return NextResponse.json(
-      {
-        error: "myUserEnterpriseId é obrigatório para usuários não-owner.",
-      },
-      { status: 400 }
-    );
-  }
-
   try {
-    const newUser = await createUser({
-      name,
+    const body = await req.json();
+    const {
       email,
       password,
-      is_admin,
-      is_owner,
-      myUserEnterpriseId,
-      authUserId,
+      name,
+      is_admin = false,
+      is_owner = false,
+      myUserEnterpriseId = null,
+    } = body || {};
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email e senha são obrigatórios" },
+        { status: 400 }
+      );
+    }
+
+    const newUser = await createUser({
+      email: String(email).trim(),
+      password: String(password),
+      is_admin: Boolean(is_admin),
+      is_owner: Boolean(is_owner),
+      name: typeof name === "string" ? name : undefined,
+      myUserEnterpriseId: myUserEnterpriseId ?? undefined,
     });
-    return NextResponse.json(newUser, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error?.message || "Erro ao criar usuário." },
-      { status: 500 }
-    );
+
+    console.log("[api/auth/sign-up] created app user id:", newUser?.id ?? null);
+
+    return NextResponse.json({ user: newUser }, { status: 201 });
+  } catch (err: any) {
+    console.error("[api/auth/sign-up] error:", err);
+    const message = err?.message || "Falha ao criar usuário";
+    const status = err?.statusCode || 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

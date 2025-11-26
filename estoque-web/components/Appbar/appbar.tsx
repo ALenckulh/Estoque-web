@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useContext, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { AppBar, Toolbar, Avatar, Menu, IconButton, Box } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,7 +8,6 @@ import { Icon } from "@/components/ui/Icon";
 import { Tab } from "@/components/ui/Tab/Tab";
 import MenuItem from "../ui/MenuItem";
 import { useRouter } from "next/navigation";
-import { logOut } from "@/lib/services/auth/log-out";
 import { useUser } from "@/hooks/userHook";
 
 interface TabItem {
@@ -54,19 +53,23 @@ export function Appbar({
     if (path) router.push(path);
   };
   const handleLogOut = useCallback(async () => {
-    try {
-      await logOut();
-    } catch (e) {
-      console.error("Erro ao deslogar:", e);
-    } finally {
-      // Limpa contexto do usuário
-      setFindUserId?.(null);
-      setMyUserId?.(null);
-      setMyUserEnterpriseId?.(null);
-    
-      handleNavigate("/sign-in");
-    }
-  }, [setFindUserId, setMyUserId, setMyUserEnterpriseId]);
+  try {    
+    // Limpar cookies HttpOnly no servidor
+    await fetch("/api/auth/sign-out", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+  } catch (e) {
+    console.error("Erro ao deslogar:", e);
+  } finally {
+    // Limpa contexto do usuário
+    setFindUserId?.(null);
+    setMyUserId?.(null);
+    setMyUserEnterpriseId?.(null);
+  
+    handleNavigate("/sign-in");
+  }
+}, [setFindUserId, setMyUserId, setMyUserEnterpriseId]);
 
   const handleTabChange = (tabId: string) => {
     if (onTabChange) {

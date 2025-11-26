@@ -4,21 +4,19 @@ import { Appbar } from "@/components/Appbar/appbar";
 import { PasswordField } from "@/components/ui/PasswordField";
 import { H4, Subtitle2 } from "@/components/ui/Typography";
 import { Box, Button, Card, CircularProgress, TextField } from "@mui/material";
-import React, { useState, useContext } from "react";
-import userContext from "@/contexts/userContext";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { validateUsername, validateEmail, validatePassword, validateConfirmPassword } from "@/utils/validations";
 import Link from "next/link";
 
 export default function Page() {
-  const router = useRouter();
-  const uctx = useContext(userContext);
+  
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({
     username: "",
     email: "",
@@ -26,9 +24,10 @@ export default function Page() {
     confirmPassword: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
+    setSuccessMessage("");
 
     const newErrors: Record<string, string> = {
       username: validateUsername(username),
@@ -45,49 +44,34 @@ export default function Page() {
     setLoading(true);
 
     try {
-      // 1) Cria usuário no Auth (ou verifica se já existe)
-      const authRes = await fetch("/api/auth/sign-up", {
+      // Call the server API to create the user (app + auth as implemented server-side)
+      const res = await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name: username, email_confirm: false }),
+        body: JSON.stringify({ email, password, name: username, is_owner: true, is_admin: true }),
       });
-      const authJson = await authRes.json();
-      if (!authRes.ok) {
-        throw new Error(authJson.error || "Erro ao criar usuário no Auth.");
+
+      // Tenta ler o JSON da resposta (pode lançar se o body não for JSON)
+      let json: any = null;
+      try {
+        json = await res.json();
+      } catch (parseErr) {
+        // fallback: resposta sem JSON
+        console.error("[sign-up] failed to parse response JSON", parseErr);
       }
 
-      // Se já existe e não está confirmado, redireciona para verificação
-      if (authJson.alreadyExists && !authJson.emailConfirmed) {
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("pending_verify_email", email);
-          window.localStorage.setItem("pending_signup_name", username);
-        }
-        router.push(`/verify-email`);
+      // Se o servidor retornou um objeto de erro mesmo com 200, também tratamos
+      if (json && (json.error || json.errors)) {
+        const serverMessage = json.error || json.message || JSON.stringify(json.errors);
+        setFormError(serverMessage);
         return;
       }
 
-      // Guarda authUserId no contexto
-      uctx?.setMyUserId?.(authJson.user.id as string);
-
-      // 2) Envia OTP e redireciona para verificação
-      try {
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem("pending_verify_email", email);
-          window.localStorage.setItem("pending_signup_name", username);
-        }
-        const otpRes = await fetch("/api/auth/send-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        if (!otpRes.ok) {
-          const j = await otpRes.json();
-          throw new Error(j.error || "Falha ao enviar código de verificação");
-        }
-      } catch (otpErr: any) {
-        console.error("Erro ao enviar OTP:", otpErr);
-      }
-      router.push(`/verify-email`);
+      // Sucesso: mostrar mensagem para verificar email
+      setPassword("");
+      setConfirmPassword("");
+      setFormError(""); // limpa erro
+      setSuccessMessage("Verifique seu e-mail para confirmar sua conta.");
     } catch (error: any) {
       setFormError(error?.message || "Erro ao criar conta. Tente novamente.");
     } finally {
@@ -155,6 +139,9 @@ export default function Page() {
             </Button>
             {formError && (
               <Subtitle2 sx={{ marginTop: 2, color: "var(--danger-0)" }}>{formError}</Subtitle2>
+            )}
+            {successMessage && (
+              <Subtitle2 sx={{ marginTop: 2, color: "var(--success-20)" }}>{successMessage}</Subtitle2>
             )}
           </form>
           <Box
