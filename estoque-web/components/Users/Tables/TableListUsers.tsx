@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -21,6 +21,7 @@ import {
 import { IconButton } from "@/components/ui/IconButton";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 import { api } from "@/utils/axios";
+import { useQuery } from "@tanstack/react-query";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -35,7 +36,6 @@ export interface DataUser {
 export default function TableListUsers() {
   const [loading, setLoading] = useState(false);
   const [isButtonClicked, setIsButtonClicked] = useState(false);
-  const [rowData, setRowData] = useState<DataUser[]>([]);
   const gridRef = useRef<AgGridReact<DataUser>>(null);
   const {
     setFindUserId,
@@ -45,24 +45,17 @@ export default function TableListUsers() {
     setOpenModalActive,
   } = useUser();
 
-  useEffect(() => {
-    async function fetchUsers() {
-      if (!myUserEnterpriseId) return;
-
-      try {
-        const response = await api.get("/user/listUser", {
-          params: { enterprise_id: myUserEnterpriseId },
-        });
-
-        setRowData(response.data.users);
-      } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
-      } finally {
-      }
-    }
-
-    fetchUsers();
-  }, [myUserEnterpriseId]);
+  const { data: rowData = [] } = useQuery({
+    queryKey: ["users", myUserEnterpriseId],
+    queryFn: async () => {
+      if (!myUserEnterpriseId) return [];
+      const response = await api.get("/user/listUser", {
+        params: { enterprise_id: myUserEnterpriseId },
+      });
+      return response.data.users as DataUser[];
+    },
+    enabled: !!myUserEnterpriseId,
+  });
 
   const getRowStyle = (
     params: RowClassParams<DataUser>
