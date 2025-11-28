@@ -203,7 +203,7 @@
       // enterprise id from provider). On success, persist pending verification
       // and try to send OTP, then advance to OTP section.
       const payload = {
-        user: newUsername,
+        name: newUsername,
         email: newEmail,
         password: newPassword,
         is_owner: false,

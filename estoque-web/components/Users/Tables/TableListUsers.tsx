@@ -27,7 +27,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 export interface DataUser {
   id: string;
-  user: string;
+  name: string;
   email: string;
   is_admin: boolean;
   disabled: boolean;
@@ -80,7 +80,7 @@ export default function TableListUsers() {
       { headerName: "ID", field: "id", hide: true },
       {
         headerName: "Usuário",
-        field: "user",
+        field: "name",
         minWidth: 180,
         sortable: true,
         filter: "agTextColumnFilter",
