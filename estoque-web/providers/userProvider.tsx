@@ -15,6 +15,7 @@ export function UserProvider({ children }: UserProviderProps) {
   const [myUserEnterpriseId, setMyUserEnterpriseId] = useState<string | null>(null);
   const [OpenModalInactive, setOpenModalInactive] = useState<boolean>(false);
   const [OpenModalActive, setOpenModalActive] = useState<boolean>(false);
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   // Wrapper setter that also persists to localStorage
   const updateMyUserEnterpriseId = (id: string | null) => {
@@ -33,6 +34,10 @@ export function UserProvider({ children }: UserProviderProps) {
         // ignore storage errors
       }
     }
+  };
+
+  const triggerRefresh = () => {
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   // On mount try to populate from localStorage or fetch once
@@ -63,7 +68,7 @@ export function UserProvider({ children }: UserProviderProps) {
   }, []);
 
   return (
-    <userContext.Provider value={{ findUserId, setFindUserId, isUserClicked, setIsUserClicked, myUserId, setMyUserId, myUserEnterpriseId, OpenModalInactive, setOpenModalInactive, OpenModalActive, setOpenModalActive, setMyUserEnterpriseId: updateMyUserEnterpriseId }}>
+    <userContext.Provider value={{ findUserId, setFindUserId, isUserClicked, setIsUserClicked, myUserId, setMyUserId, myUserEnterpriseId, OpenModalInactive, setOpenModalInactive, OpenModalActive, setOpenModalActive, setMyUserEnterpriseId: updateMyUserEnterpriseId, refreshTrigger, triggerRefresh }}>
       {children}
     </userContext.Provider>
   );

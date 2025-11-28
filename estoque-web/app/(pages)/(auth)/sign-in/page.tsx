@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import signInWithEmail from "@/lib/services/auth/sign-in";
 import signInWithGoogle from "@/lib/services/auth/sign-in-with-google";
 import { supabase } from "@/utils/supabase/supabaseClient";
+import { api } from "@/utils/axios";
 import resendVerificationEmail from "@/lib/services/auth/resend-verification";
 import loadAndStoreUserEnterprise from "@/lib/services/user/load-user-enterprise";
 
@@ -71,16 +72,15 @@ export default function Page() {
 
           if (access_token && refresh_token) {
             try {
-              await fetch("/api/auth/sync-session", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  access_token,
-                  refresh_token,
-                  expires_in,
-                }),
-                credentials: "same-origin",
-              });
+              try {
+                await api.post(
+                  "/auth/sync-session",
+                  { access_token, refresh_token, expires_in },
+                  { withCredentials: true }
+                );
+              } catch (syncErr) {
+                // Sync failed, continue anyway
+              }
               // After session sync, load & persist enterprise id once
               try {
                 await loadAndStoreUserEnterprise();
@@ -230,16 +230,19 @@ export default function Page() {
           } = await supabase.auth.getSession();
           if (session) {
             try {
-              await fetch("/api/auth/sync-session", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  access_token: session.access_token,
-                  refresh_token: session.refresh_token,
-                  expires_in: session.expires_in,
-                }),
-                credentials: "same-origin",
-              });
+              try {
+                await api.post(
+                  "/auth/sync-session",
+                  {
+                    access_token: session.access_token,
+                    refresh_token: session.refresh_token,
+                    expires_in: session.expires_in,
+                  },
+                  { withCredentials: true }
+                );
+              } catch (e) {
+                // Sync failed, continue anyway
+              }
               // After session sync, load & persist enterprise id once
               try {
                 await loadAndStoreUserEnterprise();
@@ -252,38 +255,41 @@ export default function Page() {
 
             // Depois do sync, verfica se existe um app user correspondente
             try {
-              const checkResp = await fetch("/api/auth/check-app-user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "same-origin",
-              });
-              const checkJson = await checkResp.json().catch(() => ({}));
-              const exists = !!checkJson?.exists;
-              if (exists) {
+              try {
+                const checkResp = await api.post(
+                  "/auth/check-app-user",
+                  {},
+                  { withCredentials: true }
+                );
+                const checkJson = checkResp?.data || {};
+                const exists = !!checkJson?.exists;
+                if (exists) {
+                  setIsCheckingOAuthUser(false);
+                  router.push("/");
+                } else {
+                  // usuário não existe no app: desloga e mostra mensagem amigável
+                  try {
+                    await api.post("/auth/sign-out", {}, { withCredentials: true });
+                  } catch (e) {
+                    // Sign out failed, continue anyway
+                  }
+                  if (checkJson?.deleted) {
+                    setGoogleError(
+                      "Conta inexistente removida do provedor de Auth. Entre em contato com o administrador."
+                    );
+                  } else {
+                    setGoogleError(
+                      "Conta não existe no sistema. Entre em contato com o administrador."
+                    );
+                  }
+                  setIsCheckingOAuthUser(false);
+                  // remove query params and stay on sign-in page
+                  router.replace("/sign-in");
+                }
+              } catch (e) {
+                // fallback: allow navigation
                 setIsCheckingOAuthUser(false);
                 router.push("/");
-              } else {
-                // usuário não existe no app: desloga e mostra mensagem amigável
-                try {
-                  await fetch("/api/auth/sign-out", {
-                    method: "POST",
-                    credentials: "same-origin",
-                  });
-                } catch (e) {
-                  // Sign out failed, continue anyway
-                }
-                if (checkJson?.deleted) {
-                  setGoogleError(
-                    "Conta inexistente removida do provedor de Auth. Entre em contato com o administrador."
-                  );
-                } else {
-                  setGoogleError(
-                    "Conta não existe no sistema. Entre em contato com o administrador."
-                  );
-                }
-                setIsCheckingOAuthUser(false);
-                // remove query params and stay on sign-in page
-                router.replace("/sign-in");
               }
             } catch (e) {
               // fallback: allow navigation

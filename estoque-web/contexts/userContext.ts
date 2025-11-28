@@ -13,6 +13,8 @@ export interface UserContextType {
   setOpenModalInactive: (open: boolean) => void;
   OpenModalActive: boolean;
   setOpenModalActive: (open: boolean) => void;
+  refreshTrigger: number;
+  triggerRefresh: () => void;
 }
 
 const userContext = createContext<UserContextType | null>(null);

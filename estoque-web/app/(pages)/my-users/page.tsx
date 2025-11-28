@@ -5,7 +5,7 @@
   import { IconButton } from "@/components/ui/IconButton";
   import { PasswordField } from "@/components/ui/PasswordField";
   import { ToastContainer } from "@/components/ui/Toast/Toast";
-  import { Body1, Body4, Detail1, Subtitle2 } from "@/components/ui/Typography";
+  import { Body1, Body4, Subtitle2 } from "@/components/ui/Typography";
   import { useToast } from "@/hooks/toastHook";
   import { useUser } from "@/hooks/userHook";
   import { usersList } from "@/utils/dataBaseExample";
@@ -111,19 +111,18 @@
     const [successMessage, setSuccessMessage] = useState("");
     const [creating, setCreating] = useState(false);
 
-    const { toasts, showToast } = useToast();
-    const {
-      findUserId,
-      setFindUserId,
-      myUserId,
-      myUserEnterpriseId,
-      setOpenModalActive,
-      setOpenModalInactive,
-      OpenModalActive,
-      OpenModalInactive,
-    } = useUser();
-
-    const [otp, setOtp] = useState("");
+  const { toasts, showToast } = useToast();
+  const {
+    findUserId,
+    setFindUserId,
+    myUserId,
+    myUserEnterpriseId,
+    setOpenModalActive,
+    setOpenModalInactive,
+    OpenModalActive,
+    OpenModalInactive,
+    triggerRefresh,
+  } = useUser();    const [otp, setOtp] = useState("");
 
     useEffect(() => {
       if (findUserId) {
@@ -248,6 +247,9 @@
           setErrors({});
           const msg = `Verifique o e-mail "${emailToShow}" para confirmar sua conta.`;
           setSuccessMessage(msg);
+          
+          // Recarregar tabela de usuários
+          triggerRefresh();
         })
         .catch(() => {
           setErrors((prev) => ({ ...prev, newEmail: "Erro ao criar usuário" }));
