@@ -5,7 +5,6 @@ import { PasswordField } from "@/components/ui/PasswordField";
 import { H4, Subtitle2 } from "@/components/ui/Typography";
 import { Box, Button, Card, CircularProgress, TextField } from "@mui/material";
 import React, { useState } from "react";
-import { api } from "@/utils/axios";
 import { validateUsername, validateEmail, validatePassword, validateConfirmPassword } from "@/utils/validations";
 import Link from "next/link";
 
@@ -45,15 +44,21 @@ export default function Page() {
     setLoading(true);
 
     try {
-      const res = await api.post("/user", {
-        email,
-        password,
-        name: username,
-        is_owner: true,
-        is_admin: true,
+      // Call the server API to create the user (app + auth as implemented server-side)
+      const res = await fetch("/api/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name: username, is_owner: true, is_admin: true }),
       });
 
-      const json = res?.data;
+      // Tenta ler o JSON da resposta (pode lançar se o body não for JSON)
+      let json: any = null;
+      try {
+        json = await res.json();
+      } catch (parseErr) {
+        // fallback: resposta sem JSON
+        console.error("[sign-up] failed to parse response JSON", parseErr);
+      }
 
       // Se o servidor retornou um objeto de erro mesmo com 200, também tratamos
       if (json && (json.error || json.errors)) {
@@ -67,15 +72,8 @@ export default function Page() {
       setConfirmPassword("");
       setFormError(""); // limpa erro
       setSuccessMessage("Verifique seu e-mail para confirmar sua conta.");
-    } catch (err: any) {
-      // axios error response handling
-      if (err?.response?.data) {
-        const body = err.response.data;
-        const serverMessage = body.error || body.message || (body.errors ? JSON.stringify(body.errors) : undefined);
-        setFormError(serverMessage || err.message || "Erro ao criar conta. Tente novamente.");
-      } else {
-        setFormError(err?.message || "Erro ao criar conta. Tente novamente.");
-      }
+    } catch (error: any) {
+      setFormError(error?.message || "Erro ao criar conta. Tente novamente.");
     } finally {
       setLoading(false);
     }

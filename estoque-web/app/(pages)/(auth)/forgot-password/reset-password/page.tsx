@@ -12,7 +12,6 @@ import {
 import { PasswordField } from "@/components/ui/PasswordField";
 import updatePassword from "@/lib/services/auth/update-password";
 import { supabase } from "@/utils/supabase/supabaseClient";
-import { api } from "@/utils/axios";
 import { Loading } from "@/components/Feedback/Loading";
 
 export default function Page() {
@@ -44,18 +43,17 @@ export default function Page() {
       if (tokenHash && type === 'recovery') {
         try {
           // Call server API to verify token_hash (server uses supabaseAdmin)
-          let data: any = undefined;
-          try {
-            const res = await api.post(
-              "/auth/verify-recovery",
-              { token_hash: tokenHash },
-              { withCredentials: true }
-            );
-            data = res?.data;
-          } catch (err) {
-            setFormError(
-              "Link inválido ou expirado. Solicite um novo link de recuperação."
-            );
+          const res = await fetch('/api/auth/verify-recovery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token_hash: tokenHash }),
+            credentials: 'same-origin',
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            setFormError('Link inválido ou expirado. Solicite um novo link de recuperação.');
             setSessionValid(false);
             return;
           }
@@ -145,15 +143,16 @@ export default function Page() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         try {
-          await api.post(
-            "/auth/sync-session",
-            {
+          await fetch("/api/auth/sync-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
               access_token: session.access_token,
               refresh_token: session.refresh_token,
               expires_in: session.expires_in,
-            },
-            { withCredentials: true }
-          );
+            }),
+            credentials: "same-origin",
+          });
         } catch (syncErr) {
           // Continue mesmo se sync falhar
         }

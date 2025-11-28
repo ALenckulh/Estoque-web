@@ -18,7 +18,6 @@ import {
   renderTooltip,
 } from "@/components/Tables/CelRenderes";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
-import { useItem } from "@/hooks/itemHook";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -40,13 +39,7 @@ export interface RowDataItem {
 export default function TableListItems() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [rowData, setRowData] = useState<RowDataItem[]>(itemList);
-  const { refreshTrigger } = useItem();
-
-  useEffect(() => {
-    // Recarregar dados quando refreshTrigger mudar
-    setRowData(itemList);
-  }, [refreshTrigger]);
+  const [rowData] = useState<RowDataItem[]>(itemList);
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {

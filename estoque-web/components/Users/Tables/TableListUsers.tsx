@@ -43,7 +43,6 @@ export default function TableListUsers() {
     myUserEnterpriseId,
     setOpenModalInactive,
     setOpenModalActive,
-    refreshTrigger,
   } = useUser();
 
   useEffect(() => {
@@ -63,7 +62,7 @@ export default function TableListUsers() {
     }
 
     fetchUsers();
-  }, [myUserEnterpriseId, refreshTrigger]);
+  }, [myUserEnterpriseId]);
 
   const getRowStyle = (
     params: RowClassParams<DataUser>
