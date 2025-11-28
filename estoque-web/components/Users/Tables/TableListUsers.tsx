@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -13,7 +13,6 @@ import {
 } from "ag-grid-community";
 import { Box } from "@mui/material";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { usersList } from "@/utils/dataBaseExample";
 import { useUser } from "@/hooks/userHook";
 import {
   renderTooltip,
@@ -21,6 +20,7 @@ import {
 } from "@/components/Tables/CelRenderes";
 import { IconButton } from "@/components/ui/IconButton";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
+import { api } from "@/utils/axios";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -35,9 +35,34 @@ export interface DataUser {
 export default function TableListUsers() {
   const [loading, setLoading] = useState(false);
   const [isButtonClicked, setIsButtonClicked] = useState(false);
-  const [rowData] = useState<DataUser[]>(usersList);
+  const [rowData, setRowData] = useState<DataUser[]>([]);
   const gridRef = useRef<AgGridReact<DataUser>>(null);
-  const { setFindUserId, myUserId, setOpenModalInactive, setOpenModalActive } = useUser();
+  const {
+    setFindUserId,
+    myUserId,
+    myUserEnterpriseId,
+    setOpenModalInactive,
+    setOpenModalActive,
+  } = useUser();
+
+  useEffect(() => {
+    async function fetchUsers() {
+      if (!myUserEnterpriseId) return;
+
+      try {
+        const response = await api.get("/user/listUser", {
+          params: { enterprise_id: myUserEnterpriseId },
+        });
+
+        setRowData(response.data.users);
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+      } finally {
+      }
+    }
+
+    fetchUsers();
+  }, [myUserEnterpriseId]);
 
   const getRowStyle = (
     params: RowClassParams<DataUser>
@@ -133,9 +158,12 @@ export default function TableListUsers() {
           const disabled = params.data.disabled;
           return (
             <IconButton
-              icon={ disabled ? "SquareCheck" : "Trash" }
-              buttonProps={{ variant: "text", color: disabled ? "success" : "error" }}
-              tooltip={ disabled ? "Ativar usuário" : "Inativar usuário" }
+              icon={disabled ? "SquareCheck" : "Trash"}
+              buttonProps={{
+                variant: "text",
+                color: disabled ? "success" : "error",
+              }}
+              tooltip={disabled ? "Ativar usuário" : "Inativar usuário"}
               onClick={() => {
                 if (disabled) {
                   setOpenModalActive(true);
