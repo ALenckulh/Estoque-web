@@ -30,7 +30,7 @@ export interface DataUser {
   name: string;
   email: string;
   is_admin: boolean;
-  disabled: boolean;
+  safe_delete: boolean;
 }
 
 export default function TableListUsers() {
@@ -38,12 +38,16 @@ export default function TableListUsers() {
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const gridRef = useRef<AgGridReact<DataUser>>(null);
   const {
-    setFindUserId,
+    setFoundUserId,
     myUserId,
     myUserEnterpriseId,
-    setOpenModalInactive,
-    setOpenModalActive,
+    setOpenDialog,
+    OpenDialog,
+    setFoundUserDisabled,
+    setEditDrawerOpen,
   } = useUser();
+
+  console.log("myUserId:", myUserId);
 
   const { data: rowData = [] } = useQuery({
     queryKey: ["users", myUserEnterpriseId],
@@ -85,13 +89,13 @@ export default function TableListUsers() {
         sortable: true,
         filter: "agTextColumnFilter",
         flex: 1,
-        cellClassRules: { "cell-disabled": (p) => !!p.data?.disabled },
+        cellClassRules: { "cell-disabled": (p) => !!p.data?.safe_delete },
         cellRenderer: (params: ICellRendererParams<any, any>) =>
           renderDisabledCellWithIcons(
             params,
             (data) => {
               const messages = [];
-              if (data.disabled) messages.push("Usuário está desativado");
+              if (data.safe_delete) messages.push("Usuário está desativado");
               if (data.id === myUserId)
                 messages.push("Este é o seu usuário atual");
               return messages.join("");
@@ -106,12 +110,12 @@ export default function TableListUsers() {
         filter: "agTextColumnFilter",
         flex: 1,
         minWidth: 180,
-        cellClassRules: { "cell-disabled": (p) => !!p.data?.disabled },
+        cellClassRules: { "cell-disabled": (p) => !!p.data?.safe_delete },
         cellRenderer: (params: {
-          data: { disabled: boolean; id: string };
+          data: { safe_delete: boolean; id: string };
           value: string;
         }) =>
-          params.data?.disabled
+          params.data?.safe_delete
             ? renderTooltip(params.value, "Usuário está desativado")
             : params.data.id === myUserId
               ? renderTooltip(params.value, "Este é o seu usuário atual")
@@ -124,12 +128,12 @@ export default function TableListUsers() {
         filter: "agTextColumnFilter",
         flex: 1,
         minWidth: 180,
-        cellClassRules: { "cell-disabled": (p) => !!p.data?.disabled },
+        cellClassRules: { "cell-disabled": (p) => !!p.data?.safe_delete },
         cellRenderer: (params: {
-          data: { disabled: boolean; id: string };
+          data: { safe_delete: boolean; id: string };
           value: string;
         }) =>
-          params.data?.disabled
+          params.data?.safe_delete
             ? renderTooltip(
                 params.value ? "Admin" : "Default",
                 "Usuário está desativado"
@@ -147,24 +151,24 @@ export default function TableListUsers() {
         headerName: "Actions",
         sortable: true,
         width: 80,
-        cellRenderer: (params: { data: { disabled: boolean } }) => {
-          const disabled = params.data.disabled;
+        cellRenderer: (params: {
+          data: { safe_delete: boolean; id: string };
+        }) => {
+          const safe_delete = params.data.safe_delete;
+          const id = params.data.id;
           return (
             <IconButton
-              icon={disabled ? "SquareCheck" : "Trash"}
+              icon={safe_delete ? "SquareCheck" : "Trash"}
               buttonProps={{
                 variant: "text",
-                color: disabled ? "success" : "error",
+                color: safe_delete ? "success" : "error",
               }}
-              tooltip={disabled ? "Ativar usuário" : "Inativar usuário"}
+              tooltip={safe_delete ? "Ativar usuário" : "Inativar usuário"}
               onClick={() => {
-                if (disabled) {
-                  setOpenModalActive(true);
-                  setIsButtonClicked(true);
-                } else {
-                  setOpenModalInactive(true);
-                  setIsButtonClicked(true);
-                }
+                setIsButtonClicked(true);
+                setFoundUserId?.(id);
+                setFoundUserDisabled?.(Boolean(safe_delete));
+                setOpenDialog(true);
               }}
             />
           );
@@ -176,13 +180,25 @@ export default function TableListUsers() {
 
   const handleRowSelected = (event: RowSelectedEvent<DataUser>) => {
     const row = event.data;
-    if (!row || row.disabled || isButtonClicked) return;
+    const isDeleted =
+      row == null ||
+      row.safe_delete === true ||
+      // some APIs use `disabled` instead of `safe_delete`
+      (row as any).disabled === true;
+
+    if (isDeleted || isButtonClicked) return;
 
     setLoading(true);
-    setFindUserId?.(row.id);
+    setFoundUserId?.(row.id);
+    setEditDrawerOpen?.(true);
     setLoading(false);
     event.node.setSelected(false);
   };
+
+  // reset local click guard when dialog closes
+  React.useEffect(() => {
+    if (!OpenDialog) setIsButtonClicked(false);
+  }, [OpenDialog]);
 
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>
@@ -203,6 +219,7 @@ export default function TableListUsers() {
         localeText={AG_GRID_LOCALE_PT_BR}
         loadingOverlayComponent={() => {}}
       />
+
       {loading && (
         <Box
           position="fixed"

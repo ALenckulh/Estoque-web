@@ -8,13 +8,13 @@ import {
   TooltipProps,
 } from "@mui/material";
 import { Icon } from "./Icon";
-import { icons, LucideProps } from "lucide-react";
+import { icons } from "lucide-react";
 
-interface IconButtonProps extends LucideProps {
+interface IconButtonProps {
   type?: "circle" | "default";
   tooltip: string;
   icon: keyof typeof icons;
-  onClick: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   buttonProps?: Partial<ButtonProps>;
   muiIconButtonProps?: Partial<MuiIconButtonProps>;
   tooltipProps?: Omit<TooltipProps, "title" | "children">;

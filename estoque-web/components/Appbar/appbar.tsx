@@ -36,7 +36,7 @@ export function Appbar({
   onTabChange,
 }: AppbarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { setFindUserId, setMyUserId, setMyUserEnterpriseId } = useUser();
+  const { setFoundUserId, setMyUserId, setMyUserEnterpriseId } = useUser();
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -63,13 +63,13 @@ export function Appbar({
     console.error("Erro ao deslogar:", e);
   } finally {
     // Limpa contexto do usuário
-    setFindUserId?.(null);
+    setFoundUserId?.(null);
     setMyUserId?.(null);
     setMyUserEnterpriseId?.(null);
   
     handleNavigate("/sign-in");
   }
-}, [setFindUserId, setMyUserId, setMyUserEnterpriseId]);
+}, [setFoundUserId, setMyUserId, setMyUserEnterpriseId]);
 
   const handleTabChange = (tabId: string) => {
     if (onTabChange) {
