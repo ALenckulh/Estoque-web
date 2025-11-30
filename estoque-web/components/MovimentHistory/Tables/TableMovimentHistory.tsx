@@ -1,16 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { ICellRendererParams } from "ag-grid-community";
-import { itemMovimentList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
   renderDisabledCellWithIcons,
 } from "@/components/Tables/CelRenderes";
+import { useUser } from "@/hooks/userHook";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/utils/axios";
+import { Loading } from "@/components/Feedback/Loading";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -19,16 +22,38 @@ interface RowDataItem {
   fiscalNote: string;
   entityId: number;
   itemId: number;
-  user: string;
-  movimentDate: string;
+  user: string; // user_id
+  movimentDate: string; // formatted date
   quantity: number;
   disabled?: boolean;
 }
 
 export default function TableHistoryEntity() {
-  const [rowData] = useState<RowDataItem[]>(itemMovimentList);
+  const { myUserEnterpriseId } = useUser();
 
-  const [columnDefs] = useState<ColDef<RowDataItem>[]>([
+  const { data: rowData = [] } = useQuery({
+    queryKey: ["movements", myUserEnterpriseId],
+    enabled: !!myUserEnterpriseId,
+    queryFn: async () => {
+      if (!myUserEnterpriseId) return [] as RowDataItem[];
+      const resp = await api.get("/movement", {
+        params: { enterprise_id: myUserEnterpriseId },
+      });
+      const list = (resp?.data?.movements ?? []) as any[];
+      return list.map((m) => ({
+        groupId: Number(m.group_id),
+        fiscalNote: m.nota_fiscal ?? "",
+        entityId: Number(m.enterprise_id),
+        itemId: Number(m.item_id),
+        user: String(m.user_id ?? ""),
+        movimentDate: m.data_movimentacao ?? m.date ?? "",
+        quantity: Number(m.quantity ?? 0),
+      })) as RowDataItem[];
+    },
+  });
+
+  const columnDefs = useMemo<ColDef<RowDataItem>[]>(
+    () => [
     {
       headerName: "ID do Grupo",
       field: "groupId",
@@ -112,7 +137,11 @@ export default function TableHistoryEntity() {
         );
       },
     },
-  ]);
+  ], [/* no deps */]);
+
+  if (!myUserEnterpriseId) {
+    return <Loading />;
+  }
 
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>

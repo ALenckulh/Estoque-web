@@ -5,6 +5,8 @@ import { Icon } from "@/components/ui/Icon";
 import { Subtitle2, Subtitle1 } from "@/components/ui/Typography";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/hooks/userHook";
 import {
   Autocomplete,
   Box,
@@ -52,6 +54,8 @@ export default function Page() {
     { produto: null, quantidade: null },
   ]);
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { myUserEnterpriseId } = useUser();
 
   const produtoOptions: Option[] = [
     { label: "Produto A", value: "A" },
@@ -119,6 +123,8 @@ export default function Page() {
     if (nfErr || entErr || !rowsResult.valid) return;
 
     showToast("Movimentação registrada com sucesso.", "success");
+    // invalidar lista de movimentações para recarregar
+    queryClient.invalidateQueries({ queryKey: ["movements", myUserEnterpriseId] });
     // limpar campos após submissão bem sucedida
     setNf("");
     setSelectedEntityOption(null);
