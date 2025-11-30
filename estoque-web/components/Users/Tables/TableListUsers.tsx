@@ -12,6 +12,7 @@ import {
   RowStyle,
 } from "ag-grid-community";
 import { Box } from "@mui/material";
+import { Loading } from "@/components/Feedback/Loading";
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useUser } from "@/hooks/userHook";
 import {
@@ -49,7 +50,7 @@ export default function TableListUsers() {
 
   console.log("myUserId:", myUserId);
 
-  const { data: rowData = [] } = useQuery({
+  const { data: rowData = [], refetch } = useQuery({
     queryKey: ["users", myUserEnterpriseId],
     queryFn: async () => {
       if (!myUserEnterpriseId) return [];
@@ -156,20 +157,33 @@ export default function TableListUsers() {
         }) => {
           const safe_delete = params.data.safe_delete;
           const id = params.data.id;
+          const isSelf = id === myUserId;
+          const tooltipText = isSelf
+            ? "Não é permitido desativar o próprio usuário, peça para outro usuário admin desativá-lo"
+            : safe_delete
+              ? "Ativar usuário"
+              : "Inativar usuário";
+
           return (
             <IconButton
               icon={safe_delete ? "SquareCheck" : "Trash"}
               buttonProps={{
                 variant: "text",
                 color: safe_delete ? "success" : "error",
+                disabled: isSelf,
               }}
-              tooltip={safe_delete ? "Ativar usuário" : "Inativar usuário"}
-              onClick={() => {
-                setIsButtonClicked(true);
-                setFoundUserId?.(id);
-                setFoundUserDisabled?.(Boolean(safe_delete));
-                setOpenDialog(true);
-              }}
+              tooltip={tooltipText}
+              onClick={
+                isSelf
+                  ? undefined
+                  : (e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation();
+                      setIsButtonClicked(true);
+                      setFoundUserId?.(id);
+                      setFoundUserDisabled?.(Boolean(safe_delete));
+                      setOpenDialog(true);
+                    }
+              }
             />
           );
         },
@@ -197,8 +211,20 @@ export default function TableListUsers() {
 
   // reset local click guard when dialog closes
   React.useEffect(() => {
-    if (!OpenDialog) setIsButtonClicked(false);
+    let timer: number | undefined;
+    if (!OpenDialog) {
+      // Delay clearing the guard to avoid AG Grid selection events
+      // fired during data rebind/refresh right after the dialog closes.
+      timer = window.setTimeout(() => setIsButtonClicked(false), 300);
+    }
+    return () => {
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
   }, [OpenDialog]);
+
+  if (!myUserEnterpriseId) {
+    return <Loading />;
+  }
 
   return (
     <div className="ag-theme-alpine" style={{ height: "100%", width: "100%" }}>

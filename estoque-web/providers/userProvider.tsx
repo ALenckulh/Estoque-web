@@ -63,6 +63,20 @@ export function UserProvider({ children }: UserProviderProps) {
     }
   }, []);
 
+  // Tenta novamente carregar enterprise_id quando obtivermos myUserId mas ainda não temos enterprise
+  useEffect(() => {
+    if (myUserId && !myUserEnterpriseId) {
+      (async () => {
+        try {
+          const value = await loadAndStoreUserEnterprise();
+          if (value) {
+            updateMyUserEnterpriseId(value);
+          }
+        } catch {}
+      })();
+    }
+  }, [myUserId, myUserEnterpriseId]);
+
   return (
     <userContext.Provider
       value={{

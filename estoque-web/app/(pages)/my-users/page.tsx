@@ -166,6 +166,39 @@ export default function Page() {
     }
   }, [userEdit]);
 
+  // Prefill edit form via axios when drawer opens and an id is selected
+  useEffect(() => {
+    if (!editDrawerOpen || !foundUserId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get(`/user/${foundUserId}`);
+        const usr = res?.data?.user ?? res?.data; // support either { user } or raw user
+        if (!usr) return;
+
+        if (cancelled) return;
+        setEditUsername(usr.name ?? "");
+        setEditIsAdmin(Boolean(usr.is_admin));
+        setInitialUsername(usr.name ?? "");
+        setInitialIsAdmin(Boolean(usr.is_admin));
+
+        // reset password section on new load
+        setIsPasswordSectionVisible(false);
+        setEditPastPassword("");
+        setEditFuturePassword("");
+        setEditConfirmFuturePassword("");
+      } catch (err: any) {
+        if (cancelled) return;
+        showToast(err?.message || "Erro ao carregar usuário", "error", "X");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editDrawerOpen, foundUserId]);
+
   const handleToggleSafeDelete = async ( ) => {
     try {
       if (!foundUserId) {
@@ -295,42 +328,69 @@ export default function Page() {
       .finally(() => setCreating(false));
   };
 
-  const handleConfirmUpdateUser = (e: React.FormEvent) => {
+  const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const editUsernameError = validateUsername(editUsername);
 
+    // Validar senhas apenas se a seção estiver visível
+    let passwordPastError = "";
+    let passwordFutureError = "";
+    let confirmFuturePasswordError = "";
+
     if (isPasswordSectionVisible) {
-      // Valida senhas apenas se a seção de senha estiver visível
-      const passwordPastError = validateSignInPassword(editPastPassword);
-      const passwordFutureError = validatePassword(editFuturePassword);
-      const confirmFuturePasswordError = validateConfirmPassword(
+      passwordPastError = validateSignInPassword(editPastPassword);
+      passwordFutureError = validatePassword(editFuturePassword);
+      confirmFuturePasswordError = validateConfirmPassword(
         editFuturePassword,
         editConfirmFuturePassword
       );
-
-      setErrors({
-        editUsername: editUsernameError,
-        editPastPassword: passwordPastError,
-        editFuturePassword: passwordFutureError,
-        editConfirmFuturePassword: confirmFuturePasswordError,
-      });
-    } else {
-      setErrors({ editUsername: editUsernameError });
     }
 
-    const hasError = [editUsernameError].filter(Boolean).length > 0;
+    setErrors({
+      editUsername: editUsernameError,
+      editPastPassword: passwordPastError,
+      editFuturePassword: passwordFutureError,
+      editConfirmFuturePassword: confirmFuturePasswordError,
+    });
 
-    if (hasError) return;
+    const hasValidationError =
+      !!editUsernameError ||
+      (isPasswordSectionVisible &&
+        (!!passwordPastError || !!passwordFutureError || !!confirmFuturePasswordError));
 
-    setEditDrawerOpen?.(false);
-    showToast(
-      `Usuário ${editUsername} editado com sucesso!`,
-      "success",
-      "Pencil"
-    );
-    setFoundUserId(null);
-    setTimeout(() => setIsPasswordSectionVisible(false), 100);
+    if (hasValidationError) return;
+
+    const targetUserId = userEdit?.id ?? foundUserId;
+    if (!targetUserId) {
+      showToast("Nenhum usuário selecionado", "error", "X");
+      return;
+    }
+
+    const payload: any = {
+      name: editUsername,
+      admin: Boolean(editIsAdmin),
+    };
+    if (isPasswordSectionVisible) {
+      payload.currentPassword = editPastPassword;
+      payload.newPassword = editFuturePassword;
+    }
+
+    try {
+      const data = (await api.put(`/user/${targetUserId}`, payload)).data as any;
+
+      if (!data?.success) {
+        const serverMessage = data?.error || data?.message || "Erro ao atualizar usuário";
+        showToast(serverMessage, "error", "X");
+        return;
+      }
+
+      showToast(`Usuário ${editUsername} editado com sucesso!`, "success", "Pencil");
+      queryClient.invalidateQueries({ queryKey: ["users", myUserEnterpriseId] });
+      handleCloseEditDrawer();
+    } catch (err: any) {
+      showToast(err?.message || "Erro ao atualizar usuário", "error", "X");
+    }
   };
 
   const isDirty =
@@ -500,7 +560,7 @@ export default function Page() {
                 : "Editar usuário"}
             </Body1>
 
-            <form className="formContainer" onSubmit={handleConfirmUpdateUser}>
+            <form className="formContainer" onSubmit={handleUpdateUser}>
               <TextField
                 label="Usuário"
                 onChange={(e) => setEditUsername(e.target.value)}
