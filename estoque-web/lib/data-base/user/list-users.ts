@@ -2,9 +2,7 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 import { User } from "../../models/user_model";
 
-export async function listUsersDB(
-  enterprise_id: number
-): Promise<User[]> {
+export async function listUsersDB(enterprise_id: number): Promise<User[]> {
   const { data: usersData, error: usersError } = await supabase
     .from("users")
     .select("*")
@@ -26,7 +24,8 @@ export async function listUsersDB(
         );
         const name =
           authData.user?.user_metadata?.name ||
-          authData.user?.user_metadata?.full_name;
+          authData.user?.user_metadata?.full_name ||
+          "";
         const email = authData.user?.email;
         return new User(
           userData.id,

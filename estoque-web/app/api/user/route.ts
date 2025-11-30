@@ -20,12 +20,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!name) {
+      return NextResponse.json(
+        { error: "Nome (name) é obrigatório" },
+        { status: 400 }
+      );
+    }
+
     const newUser = await createUser({
       email: String(email).trim(),
       password: String(password),
       is_admin: Boolean(is_admin),
       is_owner: Boolean(is_owner),
-      name: typeof name === "string" ? name : undefined,
+      name: String(name).trim(),
       myUserEnterpriseId: myUserEnterpriseId ?? undefined,
     });
 

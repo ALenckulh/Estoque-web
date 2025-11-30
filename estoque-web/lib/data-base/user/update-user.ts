@@ -5,14 +5,14 @@ import { User } from "@/lib/models/user_model";
 interface UpdateParameters {
   name?: string;
   is_admin?: boolean;
-  password?: string;
+  passwordChange?: { current: string; next: string };
 }
 
 export async function updateUserDB(
   id: string,
   updates: UpdateParameters
 ): Promise<User> {
-  const { name, is_admin, password } = updates;
+  const { name, is_admin, passwordChange } = updates;
 
   // 1. Atualiza is_admin na tabela public.users (se fornecido)
   if (is_admin !== undefined) {
@@ -27,14 +27,37 @@ export async function updateUserDB(
   }
 
   // 2. Atualiza name e/ou password no Auth (se fornecidos)
-  if (name !== undefined || password !== undefined) {
+  if (name !== undefined || passwordChange !== undefined) {
+    // First, prepare name update via user_metadata
     const authUpdates: { user_metadata?: { name: string }; password?: string } = {};
-    
     if (name !== undefined) {
       authUpdates.user_metadata = { name };
     }
-    if (password !== undefined) {
-      authUpdates.password = password;
+
+    // If password change is requested, verify current password before updating
+    if (passwordChange) {
+      // Fetch user's email to perform credential check
+      const { data: adminGetUser, error: getUserError } =
+        await supabaseAdmin.auth.admin.getUserById(id);
+      if (getUserError || !adminGetUser?.user?.email) {
+        throw new Error(
+          `Erro ao obter e-mail do usuário: ${getUserError?.message || "email não encontrado"}`
+        );
+      }
+
+      const email = adminGetUser.user.email as string;
+
+      // Try signing in with current password to validate credentials
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: passwordChange.current,
+      });
+      if (signInError) {
+        throw new Error("Senha atual inválida. Tente novamente.");
+      }
+
+      // Credentials validated; schedule password update
+      authUpdates.password = passwordChange.next;
     }
 
     const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(

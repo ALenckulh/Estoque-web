@@ -4,7 +4,7 @@ import { updateUserDB } from "@/lib/data-base/user/update-user";
 interface UpdateParameters {
   name?: string;
   is_admin?: boolean;
-  password?: string;
+  passwordChange?: { current: string; next: string };
 }
 
 export async function updateUser(

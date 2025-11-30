@@ -9,12 +9,13 @@ interface UserProviderProps {
 }
 
 export function UserProvider({ children }: UserProviderProps) {
-  const [findUserId, setFindUserId] = useState<string | null>(null);
+  const [foundUserId, setFoundUserId] = useState<string | null>(null);
   const [isUserClicked, setIsUserClicked] = useState<boolean>(false);
+  const [foundUserDisable, setFoundUserDisabled] = useState<boolean>(false);
+  const [editDrawerOpen, setEditDrawerOpen] = useState<boolean>(false);
   const [myUserId, setMyUserId] = useState<string | null>(null);
   const [myUserEnterpriseId, setMyUserEnterpriseId] = useState<string | null>(null);
-  const [OpenModalInactive, setOpenModalInactive] = useState<boolean>(false);
-  const [OpenModalActive, setOpenModalActive] = useState<boolean>(false);
+  const [OpenDialog, setOpenDialog] = useState<boolean>(false);
 
   // Wrapper setter that also persists to localStorage
   const updateMyUserEnterpriseId = (id: string | null) => {
@@ -62,8 +63,39 @@ export function UserProvider({ children }: UserProviderProps) {
     }
   }, []);
 
+  // Tenta novamente carregar enterprise_id quando obtivermos myUserId mas ainda não temos enterprise
+  useEffect(() => {
+    if (myUserId && !myUserEnterpriseId) {
+      (async () => {
+        try {
+          const value = await loadAndStoreUserEnterprise();
+          if (value) {
+            updateMyUserEnterpriseId(value);
+          }
+        } catch {}
+      })();
+    }
+  }, [myUserId, myUserEnterpriseId]);
+
   return (
-    <userContext.Provider value={{ findUserId, setFindUserId, isUserClicked, setIsUserClicked, myUserId, setMyUserId, myUserEnterpriseId, OpenModalInactive, setOpenModalInactive, OpenModalActive, setOpenModalActive, setMyUserEnterpriseId: updateMyUserEnterpriseId }}>
+    <userContext.Provider
+      value={{
+        foundUserId,
+        setFoundUserId,
+        foundUserDisable,
+        setFoundUserDisabled,
+        editDrawerOpen,
+        setEditDrawerOpen,
+        isUserClicked,
+        setIsUserClicked,
+        myUserId,
+        setMyUserId,
+        myUserEnterpriseId,
+        OpenDialog,
+        setOpenDialog,
+        setMyUserEnterpriseId: updateMyUserEnterpriseId,
+      }}
+    >
       {children}
     </userContext.Provider>
   );

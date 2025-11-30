@@ -8,7 +8,8 @@ import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { Body1, Body4, Detail1, Subtitle2 } from "@/components/ui/Typography";
 import { useToast } from "@/hooks/toastHook";
 import { useUser } from "@/hooks/userHook";
-import { usersList } from "@/utils/dataBaseExample";
+import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/utils/axios";
 import {
   Box,
   Button,
@@ -19,25 +20,22 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Divider,
   Drawer,
   FormControlLabel,
   TextField,
   Tooltip,
   CircularProgress,
 } from "@mui/material";
+import { findMyUserId } from "@/lib/services/user/find-my-user-id";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import TableListUsers, {
   type DataUser,
 } from "@/components/Users/Tables/TableListUsers";
-import { MuiOtpInput } from "mui-one-time-password-input";
 import {
-  matchIsNumeric,
   validateConfirmPassword,
   validateEmail,
-  validateOtp,
   validatePassword,
   validateSignInPassword,
   validateUsername,
@@ -83,12 +81,10 @@ const ADMIN_CHECKBOX_CONTAINER_STYLE = {
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("");
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
-  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
   const [isPasswordSectionVisible, setIsPasswordSectionVisible] =
     useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [userEdit, setUserEdit] = useState<DataUser | null>(null);
-  const [changeSection, setChangeSection] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newConfirmPassword, setNewConfirmPassword] = useState("");
@@ -111,43 +107,58 @@ export default function Page() {
     editPastPassword: "",
     editFuturePassword: "",
     editConfirmFuturePassword: "",
-    otp: "",
   });
   const [successMessage, setSuccessMessage] = useState("");
   const [creating, setCreating] = useState(false);
 
   const { toasts, showToast } = useToast();
+  const queryClient = useQueryClient();
   const {
-    findUserId,
-    setFindUserId,
+    foundUserId,
+    setFoundUserId,
     myUserId,
     myUserEnterpriseId,
-    setOpenModalActive,
-    setOpenModalInactive,
-    OpenModalActive,
-    OpenModalInactive,
+    setOpenDialog,
+    OpenDialog,
+    foundUserDisable,
+    editDrawerOpen,
+    setEditDrawerOpen,
+    setMyUserId,
   } = useUser();
 
-  const [otp, setOtp] = useState("");
-
   useEffect(() => {
-    if (findUserId) {
-      const foundUser = usersList.find((user) => user.id === findUserId);
-      if (foundUser) {
-        setUserEdit(foundUser);
+    if (!foundUserId) return;
+
+    setUserEdit((prev) => {
+      if (!prev) return null;
+
+      return {
+        ...prev,
+        id: foundUserId,
+      };
+    });
+  }, [foundUserId]);
+
+  // Populate myUserId on mount using findMyUserId
+  useEffect(() => {
+    (async () => {
+      try {
+        const id = await findMyUserId();
+        setMyUserId?.(id);
+      } catch (e) {
+        // ignore when no user is logged
       }
-      setIsEditDrawerOpen(true);
-    }
-  }, [findUserId]);
+    })();
+  }, [setMyUserId]);
 
   // Quando carregar o usuário para edição, sincroniza estados e baseline inicial
   useEffect(() => {
     if (userEdit) {
-      setEditUsername(userEdit.user);
+      setEditUsername(userEdit.name);
       setEditIsAdmin(Boolean(userEdit.is_admin));
-      setInitialUsername(userEdit.user);
+      setInitialUsername(userEdit.name);
       setInitialIsAdmin(Boolean(userEdit.is_admin));
-      // Resetar campos de senha e seção
+      //                                                                                                    a  a  a  a  a  a  a  a aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaqaqaqaqaqaqaqaqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmqmqmqmqmqmqmq1mmmmmmmmmm,mmm,m,m,m,m,m,m,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,R,e,s,e,t,a,r, campos de senha e seção
       setIsPasswordSectionVisible(false);
       setEditPastPassword("");
       setEditFuturePassword("");
@@ -155,17 +166,68 @@ export default function Page() {
     }
   }, [userEdit]);
 
-  const handleChangeOtp = (newValue: string) => {
-    setErrors((prevErrors: Record<string, string>) => ({
-      ...prevErrors,
-      otp: "",
-    }));
-    setOtp(newValue);
+  // Prefill edit form via axios when drawer opens and an id is selected
+  useEffect(() => {
+    if (!editDrawerOpen || !foundUserId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get(`/user/${foundUserId}`);
+        const usr = res?.data?.user ?? res?.data; // support either { user } or raw user
+        if (!usr) return;
+
+        if (cancelled) return;
+        setEditUsername(usr.name ?? "");
+        setEditIsAdmin(Boolean(usr.is_admin));
+        setInitialUsername(usr.name ?? "");
+        setInitialIsAdmin(Boolean(usr.is_admin));
+
+        // reset password section on new load
+        setIsPasswordSectionVisible(false);
+        setEditPastPassword("");
+        setEditFuturePassword("");
+        setEditConfirmFuturePassword("");
+      } catch (err: any) {
+        if (cancelled) return;
+        showToast(err?.message || "Erro ao carregar usuário", "error", "X");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editDrawerOpen, foundUserId]);
+
+  const handleToggleSafeDelete = async ( ) => {
+    try {
+      if (!foundUserId) {
+        showToast("Nenhum usuário selecionado", "error", "X");
+        setOpenDialog(false);
+        return;
+      }
+
+      const res = (await api.delete(`/user/${foundUserId}`)).data;
+
+
+      if (res?.success) {
+        queryClient.invalidateQueries({ queryKey: ["users", myUserEnterpriseId] });
+        const successMsg =
+          res.message ?? (foundUserDisable ? "Usuário ativado com sucesso" : "Usuário desativado com sucesso");
+        showToast(successMsg, "success", foundUserDisable ? "Check" : "Trash");
+      } else {
+        showToast(res?.message || "Erro ao atualizar usuário", "error", "X");
+      }
+    } catch (err: any) {
+      showToast(err?.message || "Erro ao atualizar usuário", "error", "X");
+    } finally {
+      setOpenDialog(false);
+    }
   };
 
   const handleCloseEditDrawer = () => {
-    setIsEditDrawerOpen(false);
-    setFindUserId(null);
+    setEditDrawerOpen?.(false);
+    setFoundUserId(null);
     setTimeout(() => setIsPasswordSectionVisible(false), 100);
     setErrors({});
     setEditUsername("");
@@ -208,7 +270,7 @@ export default function Page() {
     // enterprise id from provider). On success, persist pending verification
     // and try to send OTP, then advance to OTP section.
     const payload = {
-      user: newUsername,
+      name: newUsername,
       email: newEmail,
       password: newPassword,
       is_owner: false,
@@ -232,7 +294,8 @@ export default function Page() {
         }
 
         if (json && (json.error || json.errors)) {
-          const serverMessage = json.error || json.message || JSON.stringify(json.errors);
+          const serverMessage =
+            json.error || json.message || JSON.stringify(json.errors);
           setErrors((prev) => ({ ...prev, newEmail: serverMessage }));
           return;
         }
@@ -253,6 +316,11 @@ export default function Page() {
         setErrors({});
         const msg = `Verifique o e-mail "${emailToShow}" para confirmar sua conta.`;
         setSuccessMessage(msg);
+
+        // Invalidar query para recarregar a tabela
+        queryClient.invalidateQueries({
+          queryKey: ["users", myUserEnterpriseId],
+        });
       })
       .catch(() => {
         setErrors((prev) => ({ ...prev, newEmail: "Erro ao criar usuário" }));
@@ -260,42 +328,69 @@ export default function Page() {
       .finally(() => setCreating(false));
   };
 
-  const handleConfirmUpdateUser = (e: React.FormEvent) => {
+  const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const editUsernameError = validateUsername(editUsername);
 
+    // Validar senhas apenas se a seção estiver visível
+    let passwordPastError = "";
+    let passwordFutureError = "";
+    let confirmFuturePasswordError = "";
+
     if (isPasswordSectionVisible) {
-      // Valida senhas apenas se a seção de senha estiver visível
-      const passwordPastError = validateSignInPassword(editPastPassword);
-      const passwordFutureError = validatePassword(editFuturePassword);
-      const confirmFuturePasswordError = validateConfirmPassword(
+      passwordPastError = validateSignInPassword(editPastPassword);
+      passwordFutureError = validatePassword(editFuturePassword);
+      confirmFuturePasswordError = validateConfirmPassword(
         editFuturePassword,
         editConfirmFuturePassword
       );
-
-      setErrors({
-        editUsername: editUsernameError,
-        editPastPassword: passwordPastError,
-        editFuturePassword: passwordFutureError,
-        editConfirmFuturePassword: confirmFuturePasswordError,
-      });
-    } else {
-      setErrors({ editUsername: editUsernameError });
     }
 
-    const hasError = [editUsernameError].filter(Boolean).length > 0;
+    setErrors({
+      editUsername: editUsernameError,
+      editPastPassword: passwordPastError,
+      editFuturePassword: passwordFutureError,
+      editConfirmFuturePassword: confirmFuturePasswordError,
+    });
 
-    if (hasError) return;
+    const hasValidationError =
+      !!editUsernameError ||
+      (isPasswordSectionVisible &&
+        (!!passwordPastError || !!passwordFutureError || !!confirmFuturePasswordError));
 
-    setIsEditDrawerOpen(false);
-    showToast(
-      `Usuário ${editUsername} editado com sucesso!`,
-      "success",
-      "Pencil"
-    );
-    setFindUserId(null);
-    setTimeout(() => setIsPasswordSectionVisible(false), 100);
+    if (hasValidationError) return;
+
+    const targetUserId = userEdit?.id ?? foundUserId;
+    if (!targetUserId) {
+      showToast("Nenhum usuário selecionado", "error", "X");
+      return;
+    }
+
+    const payload: any = {
+      name: editUsername,
+      admin: Boolean(editIsAdmin),
+    };
+    if (isPasswordSectionVisible) {
+      payload.currentPassword = editPastPassword;
+      payload.newPassword = editFuturePassword;
+    }
+
+    try {
+      const data = (await api.put(`/user/${targetUserId}`, payload)).data as any;
+
+      if (!data?.success) {
+        const serverMessage = data?.error || data?.message || "Erro ao atualizar usuário";
+        showToast(serverMessage, "error", "X");
+        return;
+      }
+
+      showToast(`Usuário ${editUsername} editado com sucesso!`, "success", "Pencil");
+      queryClient.invalidateQueries({ queryKey: ["users", myUserEnterpriseId] });
+      handleCloseEditDrawer();
+    } catch (err: any) {
+      showToast(err?.message || "Erro ao atualizar usuário", "error", "X");
+    }
   };
 
   const isDirty =
@@ -341,59 +436,36 @@ export default function Page() {
         <ToastContainer toasts={toasts} />
 
         <Dialog
-          open={OpenModalInactive}
-          onClose={() => setOpenModalInactive(false)}
+          open={Boolean(OpenDialog)}
+          onClose={() => setOpenDialog(false)}
         >
-          <DialogTitle>Tem certeza que deseja desativar o usuário?</DialogTitle>
+          <DialogTitle>
+            {foundUserDisable
+              ? "Tem certeza que deseja ativar o usuário?"
+              : "Tem certeza que deseja desativar o usuário?"}
+          </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Após desativar o usuário não haverá como acessar o sistema, sendo
-              necessário reativá-lo
+                {foundUserDisable
+                  ? "Após ativar este usuário poderá voltar a acessar o sistema"
+                  : "Após desativar o usuário não haverá como acessar o sistema, sendo necessário reativá-lo"}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button
               color="secondary"
               variant="contained"
-              onClick={() => setOpenModalInactive(false)}
+              onClick={() => setOpenDialog(false)}
             >
               Fechar
             </Button>
             <Button
-              onClick={() => setOpenModalInactive(false)}
-              startIcon={<Icon name="Trash" />}
-              variant="contained"
-              color="error"
+                startIcon={<Icon name={foundUserDisable ? "Check" : "Trash"} />}
+                variant="contained"
+                color={foundUserDisable ? "primary" : "error"}
+                onClick={() => handleToggleSafeDelete()}
             >
-              Desativar usuário
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={OpenModalActive}
-          onClose={() => setOpenModalActive(false)}
-        >
-          <DialogTitle>Tem certeza que deseja ativar o usuário?</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Após ativar este usuário poderá voltar a acessar o sistema
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              color="secondary"
-              variant="contained"
-              onClick={() => setOpenModalActive(false)}
-            >
-              Fechar
-            </Button>
-            <Button
-              onClick={() => setOpenModalActive(false)}
-              startIcon={<Icon name="Check" />}
-              variant="contained"
-              color="primary"
-            >
-              Ativar usuário
+                {foundUserDisable ? "Ativar usuário" : "Desativar usuário"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -406,7 +478,6 @@ export default function Page() {
             setErrors({});
             setSuccessMessage("");
             setIsCreateDrawerOpen(false);
-            setTimeout(() => setChangeSection(false), 100);
           }}
         >
           <Container style={DRAWER_CONTAINER_STYLE}>
@@ -458,7 +529,11 @@ export default function Page() {
                 variant="contained"
                 type="submit"
                 sx={{ marginTop: "40px" }}
-                startIcon={creating ? <CircularProgress size={20} color="inherit" /> : undefined}
+                startIcon={
+                  creating ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : undefined
+                }
                 disabled={creating}
               >
                 {creating ? "Criando..." : "Confirmar"}
@@ -475,7 +550,7 @@ export default function Page() {
         {/* Drawer para editar usuário */}
         <Drawer
           anchor="right"
-          open={isEditDrawerOpen}
+          open={Boolean(editDrawerOpen)}
           onClose={handleCloseEditDrawer}
         >
           <Container style={DRAWER_CONTAINER_STYLE}>
@@ -485,7 +560,7 @@ export default function Page() {
                 : "Editar usuário"}
             </Body1>
 
-            <form className="formContainer" onSubmit={handleConfirmUpdateUser}>
+            <form className="formContainer" onSubmit={handleUpdateUser}>
               <TextField
                 label="Usuário"
                 onChange={(e) => setEditUsername(e.target.value)}

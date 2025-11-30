@@ -102,7 +102,10 @@ export default function Page() {
       const raw = (err?.message || "").toLowerCase();
 
       // Email not confirmed -> resend verification and show message
-      if (raw.includes("email not confirmed") || raw.includes("email confirmation")) {
+      if (
+        raw.includes("email not confirmed") ||
+        raw.includes("email confirmation")
+      ) {
         await resendVerificationEmail(email);
         setVerificationMessage(
           "Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada."
@@ -120,13 +123,28 @@ export default function Page() {
           raw.includes("invalid login")
         ) {
           friendly = "E-mail ou senha incorretos.";
-        } else if (raw.includes("user not found") || raw.includes("no user found") || raw.includes("user_not_found")) {
+        } else if (
+          raw.includes("user not found") ||
+          raw.includes("no user found") ||
+          raw.includes("user_not_found")
+        ) {
           friendly = "Conta não encontrada.";
-        } else if (raw.includes("too many requests") || raw.includes("rate limit") || raw.includes("too many")) {
+        } else if (
+          raw.includes("too many requests") ||
+          raw.includes("rate limit") ||
+          raw.includes("too many")
+        ) {
           friendly = "Muitas tentativas. Tente novamente mais tarde.";
-        } else if (raw.includes("invalid input") || raw.includes("invalid email") || raw.includes("email inválido")) {
+        } else if (
+          raw.includes("invalid input") ||
+          raw.includes("invalid email") ||
+          raw.includes("email inválido")
+        ) {
           friendly = "E-mail inválido.";
-        } else if (raw.includes("internal error") || raw.includes("internal server error")) {
+        } else if (
+          raw.includes("internal error") ||
+          raw.includes("internal server error")
+        ) {
           friendly = "Erro interno. Tente novamente mais tarde.";
         }
 
@@ -385,7 +403,10 @@ export default function Page() {
                   <CircularProgress
                     size={20}
                     thickness={5}
-                    sx={{ color: "inherit" }}
+                    sx={{
+                      color: "inherit",
+                      ...(googleLoading || loading ? { opacity: 0.5 } : {}),
+                    }}
                   />
                 ) : (
                   <img

@@ -32,15 +32,33 @@ export async function PUT(
     if (!id) throw new Error("ID é obrigatório");
 
     const body = await request.json();
-    const { name, email, password, admin, enterprise_id } = body;
+    const {
+      name,
+      admin, // boolean -> is_admin
+      // optional email and enterprise_id are ignored here (no update handled)
+      currentPassword,
+      newPassword,
+    } = body as {
+      name?: string;
+      admin?: boolean;
+      currentPassword?: string;
+      newPassword?: string;
+    };
 
-    if (!name && !email && !password && admin === undefined) {
+    const noName = !name;
+    const noAdmin = admin === undefined;
+    const noPasswordChange = !currentPassword && !newPassword;
+
+    if (noName && noAdmin && noPasswordChange) {
       throw new Error("Nenhum campo para atualizar.");
     }
     const updatedUser = await updateUser(id, {
       name,
-      password,
       is_admin: admin,
+      passwordChange:
+        currentPassword && newPassword
+          ? { current: currentPassword, next: newPassword }
+          : undefined,
     });
 
     return NextResponse.json({ success: true, user: updatedUser });

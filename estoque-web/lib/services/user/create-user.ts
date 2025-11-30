@@ -15,7 +15,7 @@ export interface CreateUserParams {
   password: string;
   is_admin: boolean;
   is_owner: boolean;
-  name?: string;
+  name: string;
   myUserEnterpriseId?: string | null;
 }
 
@@ -171,6 +171,5 @@ export async function createUser({
     }
   }
 
-  console.log(`Usuário ${newUser.id} criado (owner=${is_owner}).`);
   return newUser;
 }
