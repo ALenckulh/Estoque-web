@@ -2,27 +2,52 @@ import { fetchItemById } from "@/lib/data-base/item/fetch-item-by-id";
 import { updateItemQuantity } from "@/lib/data-base/item/update-item-quantity";
 import { fetchMovementsByGroupId } from "@/lib/data-base/movement/fetch-movements-by-group";
 import { updateSafeDeleteByGroup } from "@/lib/data-base/movement/update-safe-delete-by-group";
+import { supabase } from "@/utils/supabase/supabaseClient";
 
 interface ToggleMovementSafeDeleteParams {
-  group_id: number;
+  group_id?: number;
+  movement_id?: number;
   enterprise_id: number;
 }
 
 export async function toggleMovementSafeDelete({
   group_id,
+  movement_id,
   enterprise_id,
 }: ToggleMovementSafeDeleteParams) {
   const updatedItems: Array<{ id: number; oldQuantity: number }> = [];
   let newSafeDeleteValue: boolean | null = null;
 
   try {
-    // 1. Buscar todas as movimentações do grupo
-    const movements = await fetchMovementsByGroupId(group_id, enterprise_id);
+    // 1. Obter movimentações alvo (grupo inteiro ou uma linha)
+    let movements: Array<{
+      id: number;
+      group_id: number;
+      quantity: number;
+      item_id: number;
+      safe_delete: boolean;
+      enterprise_id: number;
+    }> = [];
 
-    if (!movements || movements.length === 0) {
-      throw new Error(
-        `Nenhuma movimentação encontrada para o grupo ${group_id}`
-      );
+    if (typeof movement_id === "number" && movement_id > 0) {
+      const { data, error } = await supabase
+        .from("movement_history")
+        .select("id, group_id, quantity, item_id, safe_delete, enterprise_id")
+        .eq("id", movement_id)
+        .eq("enterprise_id", enterprise_id)
+        .limit(1);
+      if (error) throw new Error(`Falha ao buscar movimentação: ${error.message}`);
+      if (!data || data.length === 0) {
+        throw new Error(`Movimentação ${movement_id} não encontrada`);
+      }
+      movements = [data[0] as any];
+    } else if (typeof group_id === "number" && group_id > 0) {
+      movements = await fetchMovementsByGroupId(group_id, enterprise_id);
+      if (!movements || movements.length === 0) {
+        throw new Error(`Nenhuma movimentação encontrada para o grupo ${group_id}`);
+      }
+    } else {
+      throw new Error("Informe 'movement_id' para linha única ou 'group_id' para grupo inteiro.");
     }
 
     // 2. Determinar o novo valor de safe_delete (toggle do primeiro registro)
@@ -73,14 +98,24 @@ export async function toggleMovementSafeDelete({
       console.log(`[UPDATE] Item ${item.id} atualizado com sucesso`);
     }
 
-    // 4. Atualizar o safe_delete de todas as movimentações do grupo
-    await updateSafeDeleteByGroup(group_id, newSafeDeleteValue);
+    // 4. Atualizar o safe_delete conforme escopo
+    if (typeof movement_id === "number" && movement_id > 0) {
+      const { error } = await supabase
+        .from("movement_history")
+        .update({ safe_delete: newSafeDeleteValue })
+        .eq("id", movement_id)
+        .eq("enterprise_id", enterprise_id);
+      if (error) throw new Error(`Falha ao atualizar movimentação: ${error.message}`);
+    } else {
+      await updateSafeDeleteByGroup(group_id!, newSafeDeleteValue);
+    }
 
     return {
       message: newSafeDeleteValue
         ? "Movimentação marcada como deletada. Quantidades dos itens revertidas."
         : "Movimentação reativada. Quantidades dos itens reaplicadas.",
-      group_id,
+      group_id: movements[0].group_id,
+      movement_id: typeof movement_id === "number" ? movement_id : undefined,
       safe_delete: newSafeDeleteValue,
       items_affected: movements.length,
     };

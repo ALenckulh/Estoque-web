@@ -7,7 +7,8 @@ interface Parameters {
   enterprise_id: number;
   description?: string;
   quantity_alert?: number;
-  unit?: string;
+  unit_id?: number;
+  unit?: string; // legado: se vier string, será convertido para unit_id
   segment_id?: number;
   manufacturer?: string;
   position?: string;
@@ -20,20 +21,30 @@ export async function createItem({
   enterprise_id,
   description,
   quantity_alert,
+  unit_id,
   unit,
   segment_id,
   manufacturer,
   position,
-  group_id
+  group_id,
 }: Parameters) {
   try {
+    // mapear unit (string) para unit_id (number) quando necessário
+    const resolvedUnitId =
+      typeof unit_id === "number"
+        ? unit_id
+        : unit != null && unit !== ""
+          ? Number(unit)
+          : undefined;
+
     const item = new Item(
       name,
       quantity,
       enterprise_id,
       description,
       quantity_alert,
-      unit,
+      // O modelo Item usa `unit` (string); manter compat enquanto não migramos o modelo
+      resolvedUnitId != null ? String(resolvedUnitId) : undefined,
       segment_id,
       manufacturer,
       position,

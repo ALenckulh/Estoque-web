@@ -165,26 +165,28 @@ export default function TableListUsers() {
               : "Inativar usuário";
 
           return (
-            <IconButton
-              icon={safe_delete ? "SquareCheck" : "Trash"}
-              buttonProps={{
-                variant: "text",
-                color: safe_delete ? "success" : "error",
-                disabled: isSelf,
-              }}
-              tooltip={tooltipText}
-              onClick={
-                isSelf
-                  ? undefined
-                  : (e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation();
-                      setIsButtonClicked(true);
-                      setFoundUserId?.(id);
-                      setFoundUserDisabled?.(Boolean(safe_delete));
-                      setOpenDialog(true);
-                    }
-              }
-            />
+            <div style={{ marginTop: "4px" }}>
+              <IconButton
+                icon={safe_delete ? "SquareCheck" : "Trash"}
+                buttonProps={{
+                  variant: "text",
+                  color: safe_delete ? "success" : "error",
+                  disabled: isSelf,
+                }}
+                tooltip={tooltipText}
+                onClick={
+                  isSelf
+                    ? undefined
+                    : (e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.stopPropagation();
+                        setIsButtonClicked(true);
+                        setFoundUserId?.(id);
+                        setFoundUserDisabled?.(Boolean(safe_delete));
+                        setOpenDialog(true);
+                      }
+                }
+              />
+            </div>
           );
         },
       },

@@ -1,4 +1,6 @@
 import { fetchMovementsByEnterprise } from "@/lib/data-base/movement/fetch-movements-by-enterprise";
+import { supabase } from "@/utils/supabase/supabaseClient";
+import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 
 interface ListMovementsParams {
   enterpriseId?: string | null;
@@ -21,8 +23,47 @@ export async function listMovements({
 
   const data = await fetchMovementsByEnterprise(entId);
 
-  return data.map((m) => ({
+  // Build a map of user_id -> email
+  const userIds = Array.from(
+    new Set((data || []).map((m: any) => String(m.user_id)).filter(Boolean))
+  );
+
+  let userEmailMap: Record<string, string> = {};
+  if (userIds.length > 0) {
+    // Prefer getting email from Supabase Auth via service role
+    // Fallback to public.users if needed
+    const emailEntries: Array<[string, string]> = [];
+
+    for (const uid of userIds) {
+      try {
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.getUserById(uid);
+        if (!authError && authData?.user?.email) {
+          emailEntries.push([uid, String(authData.user.email)]);
+          continue;
+        }
+      } catch {}
+      // Fallback: try public.users table
+      try {
+        const { data: userRow, error: userErr } = await supabase
+          .from("users")
+          .select("id, email")
+          .eq("id", uid)
+          .single();
+        if (!userErr && userRow) {
+          emailEntries.push([String(userRow.id), String(userRow.email ?? "")]);
+        }
+      } catch {}
+    }
+
+    userEmailMap = Object.fromEntries(emailEntries);
+  }
+
+  // Return movements without formatting the date here; keep original ISO/string
+  // and attach user_email for display
+  return (data || []).map((m: any) => ({
     ...m,
-    data_movimentacao: new Date(m.date).toLocaleDateString("pt-BR"),
+    user_email: userEmailMap[String(m.user_id)] ?? String(m.user_id ?? ""),
+    // Keep original date; let the UI renderer format it appropriately
+    date: m.date,
   }));
 }
