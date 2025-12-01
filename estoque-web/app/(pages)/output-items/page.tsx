@@ -5,6 +5,8 @@ import { Icon } from "@/components/ui/Icon";
 import { Subtitle2, Subtitle1 } from "@/components/ui/Typography";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/hooks/userHook";
 import {
   Autocomplete,
   Box,
@@ -13,14 +15,19 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDisplayOptions } from "@/hooks/useDisplayOptions";
+import { useMovementItems } from "@/hooks/useMovementItems";
+import { useMovementSubmit } from "@/hooks/useMovementSubmit";
 import { useRouter } from "next/navigation";
 import {
   validateNF,
   validateClienteSelected,
   validateProductRowsNegative,
 } from "@/utils/validations";
+import { api } from "@/utils/axios";
 import { IconButton } from "@/components/ui/IconButton";
+import { findMyUserId } from "@/lib/services/user/find-my-user-id";
 
 type Option = {
   label: string;
@@ -46,89 +53,69 @@ export default function Page() {
     Array<{ produto?: string; quantidade?: string }>
   >([]);
   const [nf, setNf] = useState("");
+  const [lote, setLote] = useState("");
+  const { myUserEnterpriseId, myUserId, setMyUserId } = useUser();
+  
+  // isSubmitting vem do hook useMovementSubmit
   const [movementDate, setMovementDate] = useState(() => todayLocalISO());
 
-  const [productItems, setProductItems] = useState([
-    { produto: null, quantidade: null },
-  ]);
+    useEffect(() => {
+    (async () => {
+      try {
+        const id = await findMyUserId();
+        setMyUserId?.(id);
+      } catch (e) {
+      }
+    })();
+  }, [setMyUserId]);
+
+  // Hook para itens (saida)
+  const {
+    productItems,
+    setProductItems,
+    addItem: handleAddItem,
+    removeItem: handleRemoveItem,
+    updateItem: handleUpdateItem,
+    extractNumericId,
+    parseQuantity: parseQuantitySaida,
+  } = useMovementItems("saida");
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const produtoOptions: Option[] = [
-    { label: "Produto A", value: "A" },
-    { label: "Produto B", value: "B" },
-    { label: "Produto C", value: "C" },
-  ];
+  const { produtoOptions, entitiesOptions, loadingDisplays } = useDisplayOptions(
+    myUserEnterpriseId,
+    showToast
+  );
 
-  const entitiesOptions: Option[] = [
-    { label: "Entidade (1)", value: "Entidade (1)" },
-    { label: "Entidade (2)", value: "Entidade (2)" },
-    { label: "Entidade (3)", value: "Entidade (3)" },
-    { label: "Entidade (4)", value: "Entidade (4)" },
-    { label: "Entidade (5)", value: "Entidade (5)" },
-    { label: "Entidade (6)", value: "Entidade (6)" },
-    { label: "Entidade (7)", value: "Entidade (7)" },
-    { label: "Entidade (8)", value: "Entidade (8)" },
-  ];
+  
 
-  const handleAddItem = () => {
-    setProductItems([...productItems, { produto: null, quantidade: null }]);
-  };
-
-  const handleRemoveItem = (index: number) => {
-    if (productItems.length > 1) {
-      const newItems = productItems.filter((_, i) => i !== index);
-      setProductItems(newItems);
-    }
-  };
-
-  const handleUpdateItem = (index: number, field: string, value: any) => {
-    const newItems = [...productItems];
-    newItems[index] = { ...newItems[index], [field]: value };
-    setProductItems(newItems);
-  };
-
-  function parseQuantityString(q: string | null): number {
-    if (!q) return 0;
-    const normalized = q.replace(".", "").replace(",", ".");
-    const n = Number(normalized);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function handleConfirm() {
-    // reset errors
-    setNfError("");
-    setEntityError("");
-    setProductErrors([]);
-
-    // validate NF only if provided (NF is optional)
-    const nfErr = nf ? validateNF(nf) : null;
-    if (nfErr) {
-      setNfError(nfErr);
-    }
-
-    const entErr = validateClienteSelected(selectedEntityOption);
-    if (entErr) {
-      setEntityError(entErr);
-    }
-
-    const rowsResult = validateProductRowsNegative(productItems as any);
-    if (!rowsResult.valid) {
-      setProductErrors(rowsResult.errors || []);
-    }
-
-    if (nfErr || entErr || !rowsResult.valid) return;
-
-    showToast("Movimentação registrada com sucesso.", "success");
-    // limpar campos após submissão bem sucedida
-    setNf("");
-    setSelectedEntityOption(null);
-    setProductItems([{ produto: null, quantidade: null }]);
-    setMovementDate(todayLocalISO());
-    setNfError("");
-    setEntityError("");
-    setProductErrors([]);
-    // proceed with submission
-  }
+  const { isSubmitting, handleConfirm } = useMovementSubmit({
+    type: "saida",
+    enterpriseId: myUserEnterpriseId,
+    userId: myUserId,
+    selectedEntityOption,
+    nf,
+    lote,
+    movementDate,
+    productItems,
+    parseQuantity: parseQuantitySaida,
+    extractNumericId,
+    showToast,
+    queryClient,
+    validateNF,
+    validateEntitySelected: validateClienteSelected,
+    validateRows: validateProductRowsNegative,
+    setNfError,
+    setEntityError,
+    setProductErrors,
+    onReset: () => {
+      setNf("");
+      setLote("");
+      setSelectedEntityOption(null);
+      setProductItems([{ produto: null, quantidade: null }]);
+      setMovementDate(todayLocalISO());
+    },
+  });
 
   return (
     <div>
@@ -174,7 +161,14 @@ export default function Page() {
                 }}
                 type="tel"
               />
-              <TextField multiline rows={1} label="Lote" sx={{ flex: 1 }} />
+              <TextField
+                multiline
+                rows={1}
+                label="Lote"
+                sx={{ flex: 1 }}
+                value={lote}
+                onChange={(e) => setLote(e.target.value)}
+              />
               <TextField
                 label={
                   <>
@@ -374,8 +368,9 @@ export default function Page() {
               variant="contained"
               color="success"
               sx={{ alignSelf: "flex-start", mt: 1 }}
+              disabled={loadingDisplays}
             >
-              Adicionar item
+              {loadingDisplays ? "Carregando..." : "Adicionar item"}
             </Button>
           </Card>
 
@@ -383,8 +378,12 @@ export default function Page() {
             <Button variant="outlined" color="secondary" onClick={() => router.push('/items')}>
               Cancelar
             </Button>
-            <Button variant="contained" onClick={() => handleConfirm()}>
-              Confirmar
+            <Button
+              variant="contained"
+              onClick={() => handleConfirm()}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Enviando..." : "Confirmar"}
             </Button>
           </Box>
 

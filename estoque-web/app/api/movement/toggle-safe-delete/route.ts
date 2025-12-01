@@ -5,16 +5,31 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { group_id, enterprise_id } = body;
+    let { group_id, movement_id, enterprise_id } = body;
 
-    if (typeof group_id !== "number" || typeof enterprise_id !== "number") {
+    // Coerce possible string inputs to numbers
+    if (typeof enterprise_id === "string") enterprise_id = Number(enterprise_id);
+    if (typeof group_id === "string") group_id = Number(group_id);
+    if (typeof movement_id === "string") movement_id = Number(movement_id);
+
+    if (typeof enterprise_id !== "number") {
       return NextResponse.json(
-        { success: false, message: "Campos 'group_id' e 'enterprise_id' devem ser números." },
+        { success: false, message: "Campo 'enterprise_id' deve ser número." },
         { status: 400 }
       );
     }
 
-    const result = await toggleMovementSafeDelete({ group_id, enterprise_id });
+    const hasGroup = typeof group_id === "number" && group_id > 0;
+    const hasMovement = typeof movement_id === "number" && movement_id > 0;
+
+    if (!hasGroup && !hasMovement) {
+      return NextResponse.json(
+        { success: false, message: "Informe 'movement_id' (linha) ou 'group_id' (grupo)." },
+        { status: 400 }
+      );
+    }
+
+    const result = await toggleMovementSafeDelete({ group_id, movement_id, enterprise_id });
 
     return NextResponse.json({ success: true, result });
   } catch (err: any) {

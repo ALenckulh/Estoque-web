@@ -9,13 +9,15 @@ export async function fetchMovementsByEnterprise(enterpriseId: number) {
     .from("movement_history")
     .select(
       `
+      id,
       group_id,
       nota_fiscal,
       date,
       user_id,
       enterprise_id,
       item_id,
-      quantity
+      quantity,
+      safe_delete
     `
     )
     .eq("enterprise_id", enterpriseId)

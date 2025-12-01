@@ -1,59 +1,48 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
-import { RowDataItem } from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
-import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
+import { Body4, Subtitle2 } from "@/components/ui/Typography";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
-import { itemList } from "@/utils/dataBaseExample";
-import {
-  Box,
-  Button,
-  Card,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Drawer,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import TableMovimentHistory from "@/components/MovimentHistory/Tables/TableMovimentHistory";
+import { Box, Button, Popover, Autocomplete, TextField, Menu } from "@mui/material";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import MenuItem from "@/components/ui/MenuItem";
 
 export default function Page() {
+  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("historico");
-  const [item, setItem] = useState<RowDataItem | null>(null);
-  const params = useParams();
-  const id = params.id;
-  const [openDrawer, setOpenDrawer] = useState(false);
-  const [notFound, setNotFound] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [openModalInactive, setOpenModalInactive] = useState(false);
-  const [openModalActive, setOpenModalActive] = useState(false);
-  const { toasts, showToast } = useToast();
+  const { toasts } = useToast();
 
-  const itemDetails = [
-    { label: "Quantidade", value: item?.quantity?.toString() },
-    { label: "Quantidade de alerta", value: item?.alertQuantity },
-    { label: "Unidade de medida", value: item?.unit },
-    { label: "Posição", value: item?.position },
-    { label: "Grupo", value: item?.group },
-    { label: "Segmento", value: item?.segment },
-    { label: "Fabricante", value: item?.manufacturer },
+  // Filtros: apenas Estado (ativo/inativo) e Tipo (entrada/saída)
+  type Option = { label: string; value: string };
+  const [filterStatus, setFilterStatus] = useState<Option | null>(null);
+  const [filterType, setFilterType] = useState<Option | null>(null);
+  const isFilterEmpty = !filterStatus && !filterType;
+  const hasActiveFilters = !isFilterEmpty;
+
+  const statusOptions: Option[] = [
+    { label: "Ativo", value: "ativo" },
+    { label: "Inativo", value: "inativo" },
+  ];
+  const typeOptions: Option[] = [
+    { label: "Entrada", value: "entrada" },
+    { label: "Saída", value: "saida" },
   ];
 
-  const topRowItems = itemDetails.slice(0, 4);
-  const bottomRowItems = itemDetails.slice(4, 7);
+  const handleClearFilters = () => {
+    setFilterStatus(null);
+    setFilterType(null);
+  };
+
+  const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const handleOpenMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(e.currentTarget);
+  };
+  const handleCloseMenu = () => setAnchorEl(null);
 
   return (
     <div>
@@ -63,22 +52,133 @@ export default function Page() {
         selectedTab={selectedTab}
         onTabChange={setSelectedTab}
       />
-      <div className="container">
-          <>
-    
-            <Box className="historyContainer">
-              <Box className="historyHeader">
-                <Icon name="History" size={14} color="var(--neutral-60)" />
-                <Detail4>Histórico de Movimentação</Detail4>
-              </Box>
-              <TableMovimentHistory />
+      <div className="container" style={{ position: "relative" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            mb: "20px",
+          }}
+        >
+          <Body4 sx={{ color: "var(--neutral-60)" }}>Histórico de Movimentação</Body4>
+          <Box sx={{ display: "flex", gap: "16px", alignItems: "center" }}>
+            <Box sx={{ position: "relative" }}>
+              <Button
+                variant="outlined"
+                startIcon={<Icon name="ListFilter" />}
+                onClick={(e) => setAnchorPopover(e.currentTarget)}
+                sx={{
+                  minWidth: 40,
+                  width: 40,
+                  height: 40,
+                  p: "8px",
+                  "& .MuiButton-startIcon": { m: 0 },
+                }}
+                aria-label={hasActiveFilters ? "Filtros ativos" : "Abrir filtros"}
+              />
+              {hasActiveFilters && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 7,
+                    right: 7,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: "primary.main",
+                    boxShadow: "0 0 0 2px #fff",
+                  }}
+                />
+              )}
+              <Popover
+                open={Boolean(anchorPopover)}
+                anchorEl={anchorPopover}
+                onClose={() => setAnchorPopover(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+                slotProps={{ paper: { sx: { width: 320, p: 3 } } }}
+              >
+                <Subtitle2 sx={{ mb: "32px", color: "var(--neutral-80)" }}>
+                  Filtrar Movimentações
+                </Subtitle2>
+                <form className="formContainer" style={{ width: "100%", gap: "20px" }}>
+                  <Autocomplete
+                    options={statusOptions}
+                    getOptionLabel={(o) => o.label}
+                    value={filterStatus}
+                    onChange={(_, v) => setFilterStatus(v)}
+                    isOptionEqualToValue={(o, v) => o.value === v?.value}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Estado" placeholder="Selecione..." />
+                    )}
+                  />
+                  <Autocomplete
+                    options={typeOptions}
+                    getOptionLabel={(o) => o.label}
+                    value={filterType}
+                    onChange={(_, v) => setFilterType(v)}
+                    isOptionEqualToValue={(o, v) => o.value === v?.value}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Tipo" placeholder="Selecione..." />
+                    )}
+                  />
+                  <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={<Icon name="FilterX" />}
+                      disabled={isFilterEmpty}
+                      onClick={() => handleClearFilters()}
+                      fullWidth
+                    >
+                      Limpar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      startIcon={<Icon name="Check" />}
+                      onClick={() => setAnchorPopover(null)}
+                      disabled={isFilterEmpty}
+                      fullWidth
+                    >
+                      Aplicar
+                    </Button>
+                  </Box>
+                </form>
+              </Popover>
             </Box>
-            <Box sx={{ height: "12px" }}>
-              <p></p>
+            <Box sx={{ position: "relative" }}>
+              <Button
+                variant="contained"
+                startIcon={<Icon name="Truck" />}
+                onClick={handleOpenMenu}
+              >
+                Movimentar itens
+              </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                slotProps={{
+                  paper: { sx: { width: anchorEl ? anchorEl.clientWidth : "auto" } },
+                }}
+              >
+                <MenuItem onClick={() => { router.push("/input-items"); handleCloseMenu(); }} icon="Plus">
+                  Entrada
+                </MenuItem>
+                <MenuItem onClick={() => { router.push("/output-items"); handleCloseMenu(); }} icon="Minus">
+                  Saída
+                </MenuItem>
+              </Menu>
             </Box>
-    
-            <ToastContainer toasts={toasts} />
-          </>
+          </Box>
+        </Box>
+        <TableMovimentHistory />
+        <Box sx={{ height: "12px" }} />
+        <ToastContainer toasts={toasts} />
       </div>
     </div>
   );

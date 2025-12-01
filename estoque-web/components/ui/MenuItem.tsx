@@ -23,6 +23,8 @@ const MenuItem: React.FC<MenuItemProps> = ({
       value={value}
       onClick={onClick}
       sx={{
+        display: "flex",
+        alignItems: "center",
         color: error ? "var(--danger-10)" : "inherit",
         "&:hover": {
           backgroundColor: error
@@ -31,7 +33,12 @@ const MenuItem: React.FC<MenuItemProps> = ({
         },
       }}
     >
-      {icon && <Icon name={icon} style={{ marginRight: 8, opacity: 0.6 }} />}
+      {icon && (
+        <Icon
+          name={icon}
+          style={{ marginRight: 8, opacity: 0.6}}
+        />
+      )}
       {children}
     </MuiMenuItem>
   );
