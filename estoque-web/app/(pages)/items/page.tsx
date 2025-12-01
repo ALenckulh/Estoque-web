@@ -166,7 +166,7 @@ export default function Page() {
             mb: "20px",
           }}
         >
-          <Body4 sx={{ color: "var(--neutral-60)" }}>Produtos listados</Body4>
+          <Body4 sx={{ color: "var(--neutral-60)" }}>Itens listados</Body4>
           <Box sx={{ display: "flex", gap: "16px", alignItems: "center" }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -362,7 +362,7 @@ export default function Page() {
                 startIcon={<Icon name="Truck" />}
                 onClick={handleOpenMenu}
               >
-                Movimentar produtos
+                Movimentar itens
               </Button>
               <Menu
                 anchorEl={anchorEl}

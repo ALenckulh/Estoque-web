@@ -104,7 +104,6 @@ export default function TableHistoryEntity() {
             return messages.join("");
           }),
         // Enable click-to-copy/selection behavior similar to itemId
-        
       },
       {
         headerName: "Nota Fiscal",
@@ -195,7 +194,7 @@ export default function TableHistoryEntity() {
         },
       },
       {
-        headerName: "Actions",
+        headerName: "Ações",
         width: 100,
         pinned: "right",
         sortable: false,
