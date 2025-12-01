@@ -15,7 +15,8 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { findMyUserId } from "@/lib/services/user/find-my-user-id";
 import { useRouter } from "next/navigation";
 import {
   validateNF,
@@ -23,11 +24,11 @@ import {
   validateProductRows,
 } from "@/utils/validations";
 import { IconButton } from "@/components/ui/IconButton";
+import { useDisplayOptions } from "@/hooks/useDisplayOptions";
+import { useMovementItems } from "@/hooks/useMovementItems";
+import { useMovementSubmit } from "@/hooks/useMovementSubmit";
 
-type Option = {
-  label: string;
-  value: string | number;
-};
+type Option = { label: string; value: number };
 
 export default function Page() {
   // retorna data local no formato YYYY-MM-DD (evita deslocamento por UTC)
@@ -48,93 +49,64 @@ export default function Page() {
     Array<{ produto?: string; quantidade?: string }>
   >([]);
   const [nf, setNf] = useState("");
+  const [lote, setLote] = useState("");
+  // isSubmitting vem do hook useMovementSubmit
   const [movementDate, setMovementDate] = useState(() => todayLocalISO());
 
-  const [productItems, setProductItems] = useState([
-    { produto: null, quantidade: null },
-  ]);
+  const {
+    productItems,
+    setProductItems,
+    addItem,
+    removeItem,
+    updateItem,
+    extractNumericId,
+    parseQuantity,
+  } = useMovementItems("entrada");
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { myUserEnterpriseId } = useUser();
+  const { myUserEnterpriseId, myUserId, setMyUserId } = useUser();
+  const { produtoOptions, entitiesOptions, loadingDisplays } = useDisplayOptions(
+    myUserEnterpriseId,
+    showToast
+  );
 
-  const produtoOptions: Option[] = [
-    { label: "Produto A", value: "A" },
-    { label: "Produto B", value: "B" },
-    { label: "Produto C", value: "C" },
-  ];
+  useEffect(() => {
+    (async () => {
+      try {
+        const id = await findMyUserId();
+        setMyUserId?.(id);
+      } catch (e) {
+      }
+    })();
+  }, [setMyUserId]);
 
-  const entitiesOptions: Option[] = [
-    { label: "Entidade (1)", value: "Entidade (1)" },
-    { label: "Entidade (2)", value: "Entidade (2)" },
-    { label: "Entidade (3)", value: "Entidade (3)" },
-    { label: "Entidade (4)", value: "Entidade (4)" },
-    { label: "Entidade (5)", value: "Entidade (5)" },
-    { label: "Entidade (6)", value: "Entidade (6)" },
-    { label: "Entidade (7)", value: "Entidade (7)" },
-    { label: "Entidade (8)", value: "Entidade (8)" },
-  ];
-
-  const handleAddItem = () => {
-    setProductItems([...productItems, { produto: null, quantidade: null }]);
-  };
-
-  const handleRemoveItem = (index: number) => {
-    if (productItems.length > 1) {
-      const newItems = productItems.filter((_, i) => i !== index);
-      setProductItems(newItems);
-    }
-  };
-
-  const handleUpdateItem = (index: number, field: string, value: any) => {
-    const newItems = [...productItems];
-    newItems[index] = { ...newItems[index], [field]: value };
-    setProductItems(newItems);
-  };
-
-  function parseQuantityString(q: string | null): number {
-    if (!q) return 0;
-    const normalized = q.replace(".", "").replace(",", ".");
-    const n = Number(normalized);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function handleConfirm() {
-    // reset errors
-    setNfError("");
-    setEntityError("");
-    setProductErrors([]);
-
-    // validate NF only if provided (NF is optional)
-    const nfErr = nf ? validateNF(nf) : null;
-    if (nfErr) {
-      setNfError(nfErr);
-    }
-
-    const entErr = validateFornecedorSelected(selectedEntityOption);
-    if (entErr) {
-      setEntityError(entErr);
-    }
-
-    const rowsResult = validateProductRows(productItems as any);
-    if (!rowsResult.valid) {
-      setProductErrors(rowsResult.errors || []);
-    }
-
-    if (nfErr || entErr || !rowsResult.valid) return;
-
-    showToast("Movimentação registrada com sucesso.", "success");
-    // invalidar lista de movimentações para recarregar
-    queryClient.invalidateQueries({ queryKey: ["movements", myUserEnterpriseId] });
-    // limpar campos após submissão bem sucedida
-    setNf("");
-    setSelectedEntityOption(null);
-    setProductItems([{ produto: null, quantidade: null }]);
-    setMovementDate(todayLocalISO());
-    setNfError("");
-    setEntityError("");
-    setProductErrors([]);
-    // proceed with submission
-  }
+  const { isSubmitting, handleConfirm } = useMovementSubmit({
+    type: "entrada",
+    enterpriseId: myUserEnterpriseId,
+    userId: myUserId,
+    selectedEntityOption,
+    nf,
+    lote,
+    movementDate,
+    productItems,
+    parseQuantity,
+    extractNumericId,
+    showToast,
+    queryClient,
+    validateNF,
+    validateEntitySelected: validateFornecedorSelected,
+    validateRows: validateProductRows,
+    setNfError,
+    setEntityError,
+    setProductErrors,
+    onReset: () => {
+      setNf("");
+      setLote("");
+      setSelectedEntityOption(null);
+      setProductItems([{ produto: null, quantidade: null }]);
+      setMovementDate(todayLocalISO());
+    },
+  });
 
   return (
     <div>
@@ -180,7 +152,14 @@ export default function Page() {
                 }}
                 type="tel"
               />
-              <TextField multiline rows={1} label="Lote" sx={{ flex: 1 }} />
+              <TextField
+                multiline
+                rows={1}
+                label="Lote"
+                sx={{ flex: 1 }}
+                value={lote}
+                onChange={(e) => setLote(e.target.value)}
+              />
               <TextField
                 label={
                   <>
@@ -267,9 +246,7 @@ export default function Page() {
                   options={produtoOptions}
                   getOptionLabel={(option) => option.label}
                   value={item.produto}
-                  onChange={(_, newValue) =>
-                    handleUpdateItem(index, "produto", newValue)
-                  }
+                  onChange={(_, newValue) => updateItem(index, "produto", newValue)}
                   isOptionEqualToValue={(option, val) =>
                     option.value === val?.value
                   }
@@ -337,7 +314,7 @@ export default function Page() {
                           parts.length > 1
                             ? parts[0] + "," + parts.slice(1).join("")
                             : cleaned;
-                        handleUpdateItem(index, "quantidade", value);
+                        updateItem(index, "quantidade", value);
                       }}
                       type="tel"
                       sx={{ flex: 1, backgroundColor: "var(--neutral-0)" }}
@@ -352,7 +329,7 @@ export default function Page() {
                 {productItems.length > 1 && (
                   <IconButton
                     icon={"X"}
-                    onClick={() => handleRemoveItem(index)}
+                    onClick={() => removeItem(index)}
                     tooltip="Remover Item"
                     buttonProps={{
                       variant: "text",
@@ -365,7 +342,7 @@ export default function Page() {
 
             <Button
               startIcon={<Icon name="Plus" />}
-              onClick={handleAddItem}
+              onClick={addItem}
               variant="contained"
               color="success"
               sx={{ alignSelf: "flex-start", mt: 1 }}
@@ -378,8 +355,12 @@ export default function Page() {
             <Button variant="outlined" color="secondary" onClick={() => router.push('/items')}>
               Cancelar
             </Button>
-            <Button variant="contained" onClick={() => handleConfirm()}>
-              Confirmar
+            <Button
+              variant="contained"
+              onClick={() => handleConfirm()}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Enviando..." : "Confirmar"}
             </Button>
           </Box>
 

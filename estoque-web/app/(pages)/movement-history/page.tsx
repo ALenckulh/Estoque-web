@@ -154,7 +154,7 @@ export default function Page() {
                 startIcon={<Icon name="Truck" />}
                 onClick={handleOpenMenu}
               >
-                Criar Movimentação
+                Movimentar itens
               </Button>
               <Menu
                 anchorEl={anchorEl}

@@ -48,8 +48,6 @@ export default function TableListUsers() {
     setEditDrawerOpen,
   } = useUser();
 
-  console.log("myUserId:", myUserId);
-
   const { data: rowData = [], refetch } = useQuery({
     queryKey: ["users", myUserEnterpriseId],
     queryFn: async () => {
