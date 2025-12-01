@@ -12,7 +12,7 @@ interface UseDisplayOptionsResult {
 
 export function useDisplayOptions(
   enterpriseId: number | string | null | undefined,
-  showToast?: (msg: string, type: string, icon?: string) => void
+  showToast?: (msg: string, type?: "success" | "error", icon?: any) => void
 ): UseDisplayOptionsResult {
   const [produtoOptions, setProdutoOptions] = useState<DisplayOption[]>([]);
   const [entitiesOptions, setEntitiesOptions] = useState<DisplayOption[]>([]);

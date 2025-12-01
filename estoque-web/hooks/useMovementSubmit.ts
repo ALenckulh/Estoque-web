@@ -13,7 +13,7 @@ interface MovementSubmitParams {
   productItems: Array<{ produto: any; quantidade: string | null }>;
   parseQuantity: (raw: string | null) => number | null;
   extractNumericId: (raw: any) => number | null;
-  showToast: (msg: string, type: string, icon?: string) => void;
+  showToast: (msg: string, type?: "success" | "error", icon?: any) => void;
   queryClient: QueryClient;
   validateNF?: (nf: string) => string | null;
   validateEntitySelected: (opt: any) => string | null;

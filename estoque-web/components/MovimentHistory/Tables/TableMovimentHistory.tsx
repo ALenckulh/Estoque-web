@@ -82,7 +82,7 @@ export default function TableHistoryEntity() {
 
   const renderWithDash = (renderer: (p: ICellRendererParams) => any) => {
     return (params: ICellRendererParams) => {
-      const val = params.value ?? params.data?.[params.colDef.field as keyof RowDataItem];
+      const val = params.value;
       if (val === undefined || val === null || val === "") return <span>-</span>;
       return renderer(params);
     };
