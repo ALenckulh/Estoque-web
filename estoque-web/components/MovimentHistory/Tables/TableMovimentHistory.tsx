@@ -80,6 +80,14 @@ export default function TableHistoryEntity() {
 
   console.log("rowData:", rowData);
 
+  const renderWithDash = (renderer: (p: ICellRendererParams) => any) => {
+    return (params: ICellRendererParams) => {
+      const val = params.value ?? params.data?.[params.colDef.field as keyof RowDataItem];
+      if (val === undefined || val === null || val === "") return <span>-</span>;
+      return renderer(params);
+    };
+  };
+
   const columnDefs = useMemo<ColDef<RowDataItem>[]>(
     () => [
       {
@@ -115,7 +123,7 @@ export default function TableHistoryEntity() {
         cellClassRules: {
           "cell-disabled": (params) => !!params.data?.disabled,
         },
-        cellRenderer: renderCopyTooltipCell,
+        cellRenderer: renderWithDash(renderCopyTooltipCell),
         
       },
       {
@@ -137,7 +145,7 @@ export default function TableHistoryEntity() {
         filter: "agTextColumnFilter",
         flex: 1,
         minWidth: 140,
-        cellRenderer: renderCopyTooltipCell,
+        cellRenderer: renderWithDash(renderCopyTooltipCell),
         
         cellClassRules: {
           "cell-disabled": (params) => !!params.data?.disabled,
@@ -150,7 +158,7 @@ export default function TableHistoryEntity() {
         sortable: true,
         filter: "agNumberColumnFilter",
         flex: 1,
-        cellRenderer: renderCopyTooltipCell,
+        cellRenderer: renderWithDash(renderCopyTooltipCell),
         
         cellClassRules: {
           "cell-disabled": (params) => !!params.data?.disabled,
@@ -163,7 +171,7 @@ export default function TableHistoryEntity() {
         sortable: true,
         filter: "agTextColumnFilter",
         flex: 1,
-        cellRenderer: renderCopyTooltipCell,
+        cellRenderer: renderWithDash(renderCopyTooltipCell),
         cellClassRules: {
           "cell-disabled": (params) => !!params.data?.disabled,
         },
