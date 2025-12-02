@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       created_at: created_at || undefined,
       unit_id: unit_id ? Number(unit_id) : undefined,
       safe_delete: safe_delete !== null ? (safe_delete === "true" ? true : safe_delete === "false" ? false : undefined) : undefined,
-      quantity: quantity ? Number(quantity) : undefined,
+      quantity: quantity || undefined,
     };
 
     const items = await listItems(enterprise_id, filters);
