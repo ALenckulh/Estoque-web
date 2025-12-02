@@ -14,7 +14,7 @@ export async function listUnitsDB(enterprise_id: number): Promise<UnitRow[]> {
     .from("unit")
     .select("id, name")
     .eq("enterprise_id", enterprise_id)
-    .eq("safe_delete", true)
+    .eq("safe_delete", false)
     .order("name", { ascending: true });
 
   if (error) {

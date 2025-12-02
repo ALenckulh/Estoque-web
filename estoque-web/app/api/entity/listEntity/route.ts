@@ -26,8 +26,22 @@ export async function GET(request: Request) {
       );
     }
 
+    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
+    const rawHeaderFilter = request.headers.get("x-filter-disableds");
+    const rawQueryFilter = searchParams.get("safe_delete");
+    let filterDisabled: boolean | undefined;
+    if (rawHeaderFilter !== null) {
+      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    } else if (rawQueryFilter !== null) {
+      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+    } else {
+      filterDisabled = undefined;
+    }
+
     const entities = await listEntities(enterprise_id);
-    return NextResponse.json({ success: true, entities });
+    // Apenas aplicar filtro se o parâmetro foi fornecido
+    const filtered = filterDisabled === undefined ? entities : (entities || []).filter((e: any) => Boolean(e.safe_delete) === filterDisabled);
+    return NextResponse.json({ success: true, entities: filtered });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message },

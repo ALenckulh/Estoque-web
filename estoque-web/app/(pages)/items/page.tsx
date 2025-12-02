@@ -22,7 +22,10 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { api } from "@/utils/axios";
+import { useUser } from "@/hooks/userHook";
+import { useToast } from "@/hooks/toastHook";
 import { validateProductName } from "@/utils/validations";
 
 type Option = {
@@ -32,6 +35,8 @@ type Option = {
 
 export default function Page() {
   const router = useRouter();
+  const { myUserEnterpriseId } = useUser();
+  const { showToast } = useToast();
   const [selectedTab, setSelectedTab] = useState("itens");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
@@ -43,14 +48,30 @@ export default function Page() {
   const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
   const [productName, setProductName] = useState("");
   const [productErrors, setProductErrors] = useState<{ name?: string }>({});
+  const [quantityAlert, setQuantityAlert] = useState<number>(5);
+  const [position, setPosition] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   // Filtro - estados controlados
   const [filterGroup, setFilterGroup] = useState<Option | null>(null);
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterUnit, setFilterUnit] = useState<Option | null>(null);
   const [filterStatus, setFilterStatus] = useState<Option | null>(null);
-  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(
-    null
-  );
+  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(null);
+
+  // Carrega filtros do localStorage ao montar
+  useEffect(() => {
+    const saved = localStorage.getItem("itemFilters");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.group) setFilterGroup(parsed.group);
+        if (parsed.date) setFilterDate(parsed.date);
+        if (parsed.unit) setFilterUnit(parsed.unit);
+        if (parsed.status) setFilterStatus(parsed.status);
+        if (parsed.quantity) setFilterQuantityLevel(parsed.quantity);
+      } catch {}
+    }
+  }, []);
   const isFilterEmpty =
     !filterGroup &&
     !filterDate &&
@@ -72,70 +93,68 @@ export default function Page() {
     setFilterUnit(null);
     setFilterStatus(null);
     setFilterQuantityLevel(null);
+    localStorage.removeItem("itemFilters");
+    setAnchorPopover(null);
   };
-  const handleCreateProduct = (e: React.FormEvent) => {
+
+  // Salva filtros no localStorage
+  const handleApplyFilters = () => {
+    const filtersToSave = {
+      group: filterGroup,
+      date: filterDate,
+      unit: filterUnit,
+      status: filterStatus,
+      quantity: filterQuantityLevel,
+    };
+    localStorage.setItem("itemFilters", JSON.stringify(filtersToSave));
+    setAnchorPopover(null);
+    // A tabela já recarrega pois o estado dos filtros muda
+  };
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     const nameError = validateProductName(productName);
     setProductErrors({ name: nameError });
     if (nameError) return;
-    setOpenDrawer(false);
-    router.push(`/items/${5}`);
+
+    if (!myUserEnterpriseId) {
+      showToast("Empresa não identificada.", "error", "X");
+      return;
+    }
+
+    try {
+      const payload = {
+        name: productName,
+        description: description || undefined,
+        quantity_alert: quantityAlert,
+        unit_id: selectedMeasureUnity?.value ?? undefined,
+        segment_id: selectedSegment?.value ?? undefined,
+        manufacturer: manufacturer || undefined,
+        position: position || undefined,
+        group_id: selectedGroup?.value ?? undefined,
+        enterprise_id: Number(myUserEnterpriseId),
+      };
+      const resp = await api.post("/item", payload);
+      const created = resp?.data;
+      const newId = Number(created?.id);
+      console.log("Item criado:", newId);
+      if (newId ) {
+        showToast("Item criado com sucesso.", "success", "Check");
+        setOpenDrawer(false);
+        router.push(`/items/${newId}`);
+      } else {
+        showToast("Falha ao criar item.", "error", "X");
+      }
+    } catch (err: any) {
+      const msg = err?.message || err?.response?.data?.error || "Erro ao criar item.";
+      showToast(msg, "error", "X");
+    }
   };
 
-  const measurementUnits: Option[] = [
-    { label: "Unidade", value: "unidade" },
-    { label: "Caixa", value: "caixa" },
-    { label: "Pacote", value: "pacote" },
-    { label: "Peça", value: "peca" },
-    { label: "Metro", value: "metro" },
-    { label: "Centímetro", value: "centimetro" },
-    { label: "Milímetro", value: "milimetro" },
-    { label: "Litro", value: "litro" },
-    { label: "Mililitro", value: "mililitro" },
-    { label: "Quilograma", value: "kg" },
-    { label: "Grama", value: "g" },
-    { label: "Par", value: "par" },
-    { label: "Conjunto", value: "conjunto" },
-  ];
+  const [measurementUnits, setMeasurementUnits] = useState<Option[]>([]);
 
-  const manufacturerOptions: Option[] = [
-    { label: "Samsung", value: "samsung" },
-    { label: "LG", value: "lg" },
-    { label: "Dell", value: "dell" },
-    { label: "Apple", value: "apple" },
-    { label: "Bosch", value: "bosch" },
-    { label: "Natura", value: "natura" },
-    { label: "Ambev", value: "ambev" },
-    { label: "3M", value: "3m" },
-    { label: "Sony", value: "sony" },
-    { label: "Embraer", value: "embraer" },
-  ];
+  const [segmentOptions, setSegmentOptions] = useState<Option[]>([]);
 
-  const segmentOptions: Option[] = [
-    { label: "Eletrônicos", value: "eletronicos" },
-    { label: "Informática", value: "informatica" },
-    { label: "Automotivo", value: "automotivo" },
-    { label: "Alimentos e Bebidas", value: "alimentos_bebidas" },
-    { label: "Higiene Pessoal", value: "higiene_pessoal" },
-    { label: "Limpeza", value: "limpeza" },
-    { label: "Moda", value: "moda" },
-    { label: "Escritório", value: "escritorio" },
-    { label: "Farmacêutico", value: "farmaceutico" },
-    { label: "Construção", value: "construcao" },
-  ];
-
-  const groupOptions: Option[] = [
-    { label: "Smartphones", value: "smartphones" },
-    { label: "Notebooks", value: "notebooks" },
-    { label: "Monitores", value: "monitores" },
-    { label: "Peças Automotivas", value: "pecas_automotivas" },
-    { label: "Bebidas", value: "bebidas" },
-    { label: "Snacks", value: "snacks" },
-    { label: "Detergentes", value: "detergentes" },
-    { label: "Shampoos", value: "shampoos" },
-    { label: "Parafusos", value: "parafusos" },
-    { label: "Calçados", value: "calcados" },
-  ];
+  const [groupOptions, setGroupOptions] = useState<Option[]>([]);
 
   const statusOptions: Option[] = [
     { label: "Ativo", value: "ativo" },
@@ -144,9 +163,65 @@ export default function Page() {
 
   const quantityLevelOptions: Option[] = [
     { label: "Negativo", value: "negativo" },
-    { label: "Baixa", value: "baixa" },
+    { label: "Baixo", value: "baixo" },
     { label: "Normal", value: "normal" },
   ];
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadOptions = async () => {
+      if (!myUserEnterpriseId) return;
+      try {
+        const [segResp, grpResp, unitResp] = await Promise.all([
+          api.get("/segment/listSegment", {
+            headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+            params: { enterprise_id: myUserEnterpriseId },
+          }),
+          api.get("/group/listGroup", {
+            headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+            params: { enterprise_id: myUserEnterpriseId },
+          }),
+          api.get("/unit/listUnit", {
+            headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+            params: { enterprise_id: myUserEnterpriseId },
+          }),
+        ]);
+        console.log(segResp, grpResp, unitResp);
+        const segments = segResp?.data?.segments || [];
+        const groups = grpResp?.data?.groups || [];
+        const units = unitResp?.data?.units || [];
+        const segOpts: Option[] = segments.map((s: any) => ({
+          label: s.name ?? `Segmento (${s.id})`,
+          value: Number(s.id),
+        }));
+        const grpOpts: Option[] = groups.map((g: any) => ({
+          label: g.name ?? `Grupo (${g.id})`,
+          value: Number(g.id),
+        }));
+        const unitOpts: Option[] = units.map((u: any) => ({
+          label: u.name ?? `Unidade (${u.id})`,
+          value: Number(u.id),
+        }));
+        if (!cancelled) {
+          setSegmentOptions(segOpts);
+          setGroupOptions(grpOpts);
+          setMeasurementUnits(unitOpts);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          showToast(
+            err?.message || "Erro ao carregar opções de segmento/grupo/unidade",
+            "error",
+            "X"
+          );
+        }
+      }
+    };
+    loadOptions();
+    return () => {
+      cancelled = true;
+    };
+  }, [myUserEnterpriseId]);
 
   return (
     <div>
@@ -242,7 +317,7 @@ export default function Page() {
                 slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
               >
                 <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>
-                  Filtrar Produtos
+                  Filtrar Itens
                 </Subtitle2>
                 <form
                   className="formContainer"
@@ -329,9 +404,7 @@ export default function Page() {
                       color="error"
                       startIcon={<Icon name="FilterX" />}
                       disabled={isFilterEmpty}
-                      onClick={() => {
-                        handleClearFilters();
-                      }}
+                      onClick={handleClearFilters}
                       fullWidth
                     >
                       Limpar
@@ -339,7 +412,7 @@ export default function Page() {
                     <Button
                       variant="contained"
                       startIcon={<Icon name="Check" />}
-                      onClick={() => setAnchorPopover(null)}
+                      onClick={handleApplyFilters}
                       disabled={isFilterEmpty}
                       fullWidth
                     >
@@ -394,7 +467,27 @@ export default function Page() {
             </Box>
           </Box>
         </Box>
-        <TableListItem />
+        <TableListItem
+          filters={{
+            group_id: filterGroup?.value ? Number(filterGroup.value) : undefined,
+            created_at: filterDate || undefined,
+            unit_id: filterUnit?.value ? Number(filterUnit.value) : undefined,
+            safe_delete:
+              filterStatus?.value === "ativo"
+                ? false
+                : filterStatus?.value === "inativo"
+                ? true
+                : undefined,
+            quantity:
+              filterQuantityLevel?.value === "negativo"
+                ? "negativo"
+                : filterQuantityLevel?.value === "baixo"
+                ? "baixo"
+                : filterQuantityLevel?.value === "normal"
+                ? "normal"
+                : undefined,
+          }}
+        />
         <Box sx={{ height: "12px" }}>
           <p></p>
         </Box>
@@ -406,7 +499,7 @@ export default function Page() {
           <Container
             style={{ display: "flex", flexDirection: "column", gap: "40px" }}
           >
-            <Body1 sx={{ color: "var(--neutral-80)" }}>Cadastrar Produto</Body1>
+            <Body1 sx={{ color: "var(--neutral-80)" }}>Cadastrar Item</Body1>
             <form
               onSubmit={handleCreateProduct}
               className="formContainer"
@@ -415,11 +508,11 @@ export default function Page() {
               <Box
                 sx={{ display: "flex", gap: "20px", flexDirection: "column" }}
               >
-                <Detail1>Produto</Detail1>
+                <Detail1>Item</Detail1>
                 <TextField
                   label={
                     <span>
-                      Nome do produto{" "}
+                      Nome do item{" "}
                       <span style={{ color: "var(--danger-0)" }}>*</span>
                     </span>
                   }
@@ -430,7 +523,9 @@ export default function Page() {
                   helperText={productErrors.name}
                 />
                 <TextField
-                  defaultValue={5}
+                  type="number"
+                  value={quantityAlert}
+                  onChange={(e) => setQuantityAlert(Number(e.target.value) || 0)}
                   label={
                     <span>
                       Quantidade de alerta{" "}
@@ -439,7 +534,12 @@ export default function Page() {
                   }
                   fullWidth
                 />
-                <TextField label="Posição" fullWidth />
+                <TextField
+                  label="Posição"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  fullWidth
+                />
                 <Autocomplete
                   options={measurementUnits}
                   getOptionLabel={(option) => option.label}
@@ -508,7 +608,9 @@ export default function Page() {
                   multiline
                   rows={4}
                   label="Descrição"
-                  placeholder="Digite a descrição do produto aqui..."
+                  placeholder="Digite a descrição do item aqui..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </Box>
               <Button variant="contained" type="submit" sx={{ mt: "8px" }}>

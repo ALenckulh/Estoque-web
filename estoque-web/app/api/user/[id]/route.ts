@@ -11,8 +11,27 @@ export async function GET(
   try {
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
+    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
+    const rawHeaderFilter = request.headers.get("x-filter-disableds");
+    const url = new URL(request.url);
+    const rawQueryFilter = url.searchParams.get("safe_delete");
+    let filterDisabled: boolean | undefined;
+    if (rawHeaderFilter !== null) {
+      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    } else if (rawQueryFilter !== null) {
+      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+    } else {
+      filterDisabled = undefined;
+    }
 
-  const user = await getUserById(id);
+    const user = await getUserById(id);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "Usuário não encontrado" }, { status: 404 });
+    }
+    if (typeof filterDisabled === "boolean" && Boolean(user.safe_delete) !== filterDisabled) {
+      return NextResponse.json({ success: false, message: "Usuário não encontrado" }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true, user });
   } catch (err: any) {
     return NextResponse.json(
@@ -79,7 +98,7 @@ export async function DELETE(
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
 
-  const deletedUser = await deleteUser(id);
+    const deletedUser = await deleteUser(id);
     return NextResponse.json({ success: true, user: deletedUser });
   } catch (err: any) {
     return NextResponse.json(

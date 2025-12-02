@@ -14,7 +14,7 @@ export async function listSegmentsDB(enterprise_id: number): Promise<SegmentRow[
     .from("segment")
     .select("id, name")
     .eq("enterprise_id", enterprise_id)
-    .eq("safe_delete", true)
+    .eq("safe_delete", false)
     .order("name", { ascending: true });
 
   if (error) {
