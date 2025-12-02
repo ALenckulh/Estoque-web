@@ -25,8 +25,21 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
+    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
+    const rawHeaderFilter = request.headers.get("x-filter-disableds");
+    const rawQueryFilter = searchParams.get("safe_delete");
+    let filterDisabled: boolean | undefined;
+    if (rawHeaderFilter !== null) {
+      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    } else if (rawQueryFilter !== null) {
+      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+    } else {
+      filterDisabled = undefined;
+    }
+
     const users = await listUsers(enterprise_id);
-    return NextResponse.json({ success: true, users });
+    const filtered = filterDisabled === undefined ? users : (users || []).filter((u: any) => Boolean(u.safe_delete) === filterDisabled);
+    return NextResponse.json({ success: true, users: filtered });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message },

@@ -175,7 +175,7 @@ export default function TableListItems({ filters }: TableListItemsProps) {
         if (qty == null) return renderText("-");
         
         // Se quantidade < 0, usar vermelho
-        if (qty <= 0) {
+        if (qty < 0) {
           return (
             <span style={{ color: "var(--danger-10)" }}>
               {renderTooltip(String(qty))}
