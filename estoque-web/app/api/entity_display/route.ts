@@ -23,8 +23,23 @@ export async function GET(request: Request) {
       );
     }
 
+    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
+    const rawHeaderFilter = request.headers.get("x-filter-disableds");
+    const rawQueryFilter = new URL(request.url).searchParams.get("safe_delete");
+    let filterDisabled: boolean | undefined;
+    if (rawHeaderFilter !== null) {
+      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    } else if (rawQueryFilter !== null) {
+      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+    } else {
+      filterDisabled = undefined;
+    }
+
     const entities = await readEntityDisplay(enterprise_id);
-    return NextResponse.json({ success: true, entities });
+    // Note: readEntityDisplayDB currently forces safe_delete = false on DB level.
+    // Only apply in-memory filter when parameter was provided.
+    const filtered = filterDisabled === undefined ? entities : (entities || []).filter((e: any) => Boolean(e.safe_delete) === filterDisabled);
+    return NextResponse.json({ success: true, entities: filtered });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message },

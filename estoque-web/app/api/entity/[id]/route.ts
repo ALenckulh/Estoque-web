@@ -13,7 +13,28 @@ export async function GET(
     const { id } = await params;
     if (!id) throw new Error("ID é obrigatório");
 
+    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
+    const rawHeaderFilter = _request.headers.get("x-filter-disableds");
+    const url = new URL(_request.url);
+    const rawQueryFilter = url.searchParams.get("safe_delete");
+    let filterDisabled: boolean | undefined;
+    if (rawHeaderFilter !== null) {
+      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    } else if (rawQueryFilter !== null) {
+      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+    } else {
+      filterDisabled = undefined;
+    }
+
     const entity = await readEntity(id);
+    if (!entity) {
+      return NextResponse.json({ success: false, message: "Entidade não encontrada" }, { status: 404 });
+    }
+    // Se o filtro foi fornecido e não bater com o registro, retorna 404
+    if (typeof filterDisabled === "boolean" && Boolean(entity.safe_delete) !== filterDisabled) {
+      return NextResponse.json({ success: false, message: "Entidade não encontrada" }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true, entity });
   } catch (err: any) {
     return NextResponse.json(

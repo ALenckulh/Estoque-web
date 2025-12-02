@@ -8,9 +8,22 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const enterpriseId = url.searchParams.get("enterprise_id");
 
-    const movements = await listMovements({ enterpriseId });
+    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
+    const rawHeaderFilter = req.headers.get("x-filter-disableds");
+    const rawQueryFilter = url.searchParams.get("safe_delete");
+    let filterDisabled: boolean | undefined;
+    if (rawHeaderFilter !== null) {
+      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    } else if (rawQueryFilter !== null) {
+      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+    } else {
+      filterDisabled = undefined;
+    }
 
-    return NextResponse.json({ success: true, movements });
+    const movements = await listMovements({ enterpriseId });
+    const filtered = filterDisabled === undefined ? movements : (movements || []).filter((m: any) => Boolean(m.safe_delete) === filterDisabled);
+
+    return NextResponse.json({ success: true, movements: filtered });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message || "Erro ao listar movimentações." },
