@@ -168,10 +168,32 @@ export default function TableListItems({ filters }: TableListItemsProps) {
       lockPosition: "left",
       filter: "agNumberColumnFilter",
       width: 140,
-      cellRenderer: (params: { value: number | undefined }) =>
-        renderText(
-          params.value == null ? "-" : String(params.value)
-        ),
+      cellRenderer: (params: ICellRendererParams<RowDataItem>) => {
+        const qty = params.value;
+        const alert = params.data?.alertQuantity ?? 0;
+        
+        if (qty == null) return renderText("-");
+        
+        // Se quantidade < 0, usar vermelho
+        if (qty < 0) {
+          return (
+            <span style={{ color: "var(--danger-10)" }}>
+              {renderTooltip(String(qty))}
+            </span>
+          );
+        }
+        
+        // Se quantidade > 0 e menor que alerta, usar laranja
+        if (qty > 0 && qty < alert) {
+          return (
+            <span style={{ color: "var(--alert-10)" }}>
+              {renderTooltip(String(qty))}
+            </span>
+          );
+        }
+        
+        return renderText(String(qty));
+      },
     },
   ]);
 
