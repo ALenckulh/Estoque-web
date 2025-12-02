@@ -12,7 +12,8 @@ import {
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
 import { Box } from "@mui/material";
-import { itemList } from "@/utils/dataBaseExample";
+import { api } from "@/utils/axios";
+import { useUser } from "@/hooks/userHook";
 import {
   renderDisabledCellWithIcons,
   renderTooltip,
@@ -38,8 +39,47 @@ export interface RowDataItem {
 
 export default function TableListItems() {
   const router = useRouter();
+  const renderText = (value: any) => {
+    const v = value == null || value === "" ? "-" : value;
+    return renderTooltip(String(v));
+  };
   const [loading, setLoading] = useState(false);
-  const [rowData] = useState<RowDataItem[]>(itemList);
+  const [rowData, setRowData] = useState<RowDataItem[]>([]);
+  const { myUserEnterpriseId } = useUser();
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (!myUserEnterpriseId) return;
+      try {
+        const resp = await api.get("/item/listItem", {
+          headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+        });
+        const items = resp?.data?.items || [];
+        const mapped: RowDataItem[] = items.map((it: any) => ({
+          id: Number(it.id ?? 0),
+          name: String(it.name ?? ""),
+          position: String(it.position ?? ""),
+          manufacturer: String(it.manufacturer ?? ""),
+          segment: String(it.segment_name ?? ""),
+          group: String(it.group_name ?? ""),
+          quantity: Number(it.quantity ?? 0),
+          alertQuantity: Number(it.quantity_alert ?? 0),
+          unit: String(it.unit_name ?? it.unit ?? ""),
+          disabled: Boolean(it.safe_delete),
+          description: String(it.description ?? ""),
+          createdAt: String(it.created_at ?? ""),
+        }));
+        if (!cancelled) setRowData(mapped);
+      } catch (err) {
+        if (!cancelled) setRowData([]);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [myUserEnterpriseId]);
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {
@@ -67,7 +107,7 @@ export default function TableListItems() {
       filter: "agTextColumnFilter",
       flex: 1,
       cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+        renderText(params.value),
     },
     {
       headerName: "Posição",
@@ -77,7 +117,7 @@ export default function TableListItems() {
       flex: 1,
       minWidth: 180,
       cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+        renderText(params.value),
     },
     {
       headerName: "Fabricante",
@@ -87,26 +127,32 @@ export default function TableListItems() {
       filter: "agTextColumnFilter",
       flex: 1,
       cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+        renderText(params.value),
     },
     {
       headerName: "Segmento",
       field: "segment",
       sortable: true,
+      flex: 1,
       filter: "agTextColumnFilter",
-      width: 120,
+      minWidth: 180,
       cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+        renderText(params.value),
     },
 
     {
       headerName: "Quantidade",
       field: "quantity",
       sortable: true,
-      filter: "agTextColumnFilter",
-      width: 120,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+      pinned: "right",
+      suppressMovable: true,
+      lockPosition: "left",
+      filter: "agNumberColumnFilter",
+      width: 140,
+      cellRenderer: (params: { value: number | undefined }) =>
+        renderText(
+          params.value == null ? "-" : String(params.value)
+        ),
     },
   ]);
 

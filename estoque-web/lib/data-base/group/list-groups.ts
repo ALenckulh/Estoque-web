@@ -16,7 +16,7 @@ export async function listGroupsDB(enterprise_id: number): Promise<GroupRow[]> {
     .from("group_table")
     .select("id, name")
     .eq("enterprise_id", enterprise_id)
-    .eq("safe_delete", true)
+    .eq("safe_delete", false)
     .order("name", { ascending: true });
 
   if (error) {
