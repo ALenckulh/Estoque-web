@@ -56,9 +56,22 @@ export default function Page() {
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterUnit, setFilterUnit] = useState<Option | null>(null);
   const [filterStatus, setFilterStatus] = useState<Option | null>(null);
-  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(
-    null
-  );
+  const [filterQuantityLevel, setFilterQuantityLevel] = useState<Option | null>(null);
+
+  // Carrega filtros do localStorage ao montar
+  useEffect(() => {
+    const saved = localStorage.getItem("itemFilters");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.group) setFilterGroup(parsed.group);
+        if (parsed.date) setFilterDate(parsed.date);
+        if (parsed.unit) setFilterUnit(parsed.unit);
+        if (parsed.status) setFilterStatus(parsed.status);
+        if (parsed.quantity) setFilterQuantityLevel(parsed.quantity);
+      } catch {}
+    }
+  }, []);
   const isFilterEmpty =
     !filterGroup &&
     !filterDate &&
@@ -80,6 +93,22 @@ export default function Page() {
     setFilterUnit(null);
     setFilterStatus(null);
     setFilterQuantityLevel(null);
+    localStorage.removeItem("itemFilters");
+    setAnchorPopover(null);
+  };
+
+  // Salva filtros no localStorage
+  const handleApplyFilters = () => {
+    const filtersToSave = {
+      group: filterGroup,
+      date: filterDate,
+      unit: filterUnit,
+      status: filterStatus,
+      quantity: filterQuantityLevel,
+    };
+    localStorage.setItem("itemFilters", JSON.stringify(filtersToSave));
+    setAnchorPopover(null);
+    // A tabela já recarrega pois o estado dos filtros muda
   };
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -375,9 +404,7 @@ export default function Page() {
                       color="error"
                       startIcon={<Icon name="FilterX" />}
                       disabled={isFilterEmpty}
-                      onClick={() => {
-                        handleClearFilters();
-                      }}
+                      onClick={handleClearFilters}
                       fullWidth
                     >
                       Limpar
@@ -385,7 +412,7 @@ export default function Page() {
                     <Button
                       variant="contained"
                       startIcon={<Icon name="Check" />}
-                      onClick={() => setAnchorPopover(null)}
+                      onClick={handleApplyFilters}
                       disabled={isFilterEmpty}
                       fullWidth
                     >
@@ -440,7 +467,27 @@ export default function Page() {
             </Box>
           </Box>
         </Box>
-        <TableListItem />
+        <TableListItem
+          filters={{
+            group_id: filterGroup?.value ? Number(filterGroup.value) : undefined,
+            created_at: filterDate || undefined,
+            unit_id: filterUnit?.value ? Number(filterUnit.value) : undefined,
+            safe_delete:
+              filterStatus?.value === "ativo"
+                ? false
+                : filterStatus?.value === "inativo"
+                ? true
+                : undefined,
+            quantity:
+              filterQuantityLevel?.value === "negativo"
+                ? "negativo"
+                : filterQuantityLevel?.value === "baixo"
+                ? "baixo"
+                : filterQuantityLevel?.value === "normal"
+                ? "normal"
+                : undefined,
+          }}
+        />
         <Box sx={{ height: "12px" }}>
           <p></p>
         </Box>

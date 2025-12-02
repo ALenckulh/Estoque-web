@@ -37,7 +37,17 @@ export interface RowDataItem {
   createdAt: string;
 }
 
-export default function TableListItems() {
+interface TableListItemsProps {
+  filters?: {
+    group_id?: number;
+    created_at?: string;
+    unit_id?: number;
+    safe_delete?: boolean;
+    quantity?: "negativo" | "baixo" | "normal";
+  };
+}
+
+export default function TableListItems({ filters }: TableListItemsProps) {
   const router = useRouter();
   const renderText = (value: any) => {
     const v = value == null || value === "" ? "-" : value;
@@ -52,8 +62,17 @@ export default function TableListItems() {
     const load = async () => {
       if (!myUserEnterpriseId) return;
       try {
+        // Monta os parâmetros de filtro
+        const params: any = {};
+        if (filters?.group_id) params.group_id = filters.group_id;
+        if (filters?.created_at) params.created_at = filters.created_at;
+        if (filters?.unit_id) params.unit_id = filters.unit_id;
+        if (typeof filters?.safe_delete === "boolean") params.safe_delete = filters.safe_delete;
+        if (typeof filters?.quantity === "string") params.quantity = filters.quantity;
+
         const resp = await api.get("/item/listItem", {
           headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+          params,
         });
         const items = resp?.data?.items || [];
         const mapped: RowDataItem[] = items.map((it: any) => ({
@@ -79,7 +98,7 @@ export default function TableListItems() {
     return () => {
       cancelled = true;
     };
-  }, [myUserEnterpriseId]);
+  }, [myUserEnterpriseId, JSON.stringify(filters)]);
 
   const [columnDefs] = useState<ColDef<RowDataItem>[]>([
     {

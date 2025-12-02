@@ -4,12 +4,9 @@ import { NextResponse } from "next/server";
 // GET -> listar todos itens
 export async function GET(request: Request) {
   try {
-    // 1. Tenta obter enterprise_id do header (ex: x-enterprise-id)
     const headerEnterpriseId = request.headers.get("x-enterprise-id");
-    // 2. Ou da query string (?enterprise_id=123)
     const { searchParams } = new URL(request.url);
     const queryEnterpriseId = searchParams.get("enterprise_id");
-
     const rawEnterpriseId = headerEnterpriseId || queryEnterpriseId;
     if (!rawEnterpriseId) {
       return NextResponse.json(
@@ -17,7 +14,6 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
-
     const enterprise_id = Number(rawEnterpriseId);
     if (Number.isNaN(enterprise_id) || enterprise_id <= 0) {
       return NextResponse.json(
@@ -25,7 +21,23 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
-    const items = await listItems(enterprise_id);
+
+    // Filtros
+    const group_id = searchParams.get("group_id");
+    const created_at = searchParams.get("created_at");
+    const unit_id = searchParams.get("unit_id");
+    const safe_delete = searchParams.get("safe_delete");
+    const quantity = searchParams.get("quantity");
+
+    const filters: any = {
+      group_id: group_id ? Number(group_id) : undefined,
+      created_at: created_at || undefined,
+      unit_id: unit_id ? Number(unit_id) : undefined,
+      safe_delete: safe_delete !== null ? (safe_delete === "true" ? true : safe_delete === "false" ? false : undefined) : undefined,
+      quantity: quantity ? Number(quantity) : undefined,
+    };
+
+    const items = await listItems(enterprise_id, filters);
     return NextResponse.json({ success: true, items });
   } catch (err: any) {
     return NextResponse.json(
