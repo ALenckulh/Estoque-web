@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listItemMovements } from "@/lib/services/movement/list-item-movements";
-import { getItemById } from "@/lib/services/item/read-item";
 
+// GET -> listar movimentações de um item
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);

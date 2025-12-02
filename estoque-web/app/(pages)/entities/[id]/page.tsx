@@ -6,7 +6,6 @@ import { RowDataEntity } from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
 import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
-import { entityList } from "@/utils/dataBaseExample";
 import {
   Box,
   Button,
@@ -27,17 +26,38 @@ import { NotFound } from "@/components/Feedback/NotFound";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
 import { useToast } from "@/hooks/toastHook";
 import { validateEntityName } from "@/utils/validations";
+import { api } from "@/utils/axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/hooks/userHook";
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("entidade");
-  const [entity, setEntity] = useState<RowDataEntity | null>(null);
   const params = useParams();
-  const id = params.id;
+  const id = params.id as string;
+  const queryClient = useQueryClient();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [notFound, setNotFound] = useState(false);
   const [openModalInactive, setOpenModalInactive] = useState(false);
   const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
+  const { myUserEnterpriseId } = useUser();
+
+  // Buscar entidade via API
+  const {
+    data: entity,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["entity", id],
+    queryFn: async () => {
+      const resp = await api.get(`/entity/${id}`, {
+        headers: {
+          "x-enterprise-id": myUserEnterpriseId ?? "",
+        },
+      });
+      return resp?.data?.entity;
+    },
+    enabled: !!id && !!myUserEnterpriseId,
+  });
   const [editEntityName, setEditEntityName] = useState("");
   const [editErrors, setEditErrors] = useState<{ name?: string }>({});
   const [editEmail, setEditEmail] = useState("");
@@ -51,13 +71,85 @@ export default function Page() {
   const [initialAddress, setInitialAddress] = useState("");
   const [initialDescription, setInitialDescription] = useState("");
 
-  const handleSubmitEditEntity = (e: React.FormEvent) => {
+  const handleToggleSafeDelete = async () => {
+    try {
+      if (!id) {
+        showToast("Nenhuma entidade selecionada", "error", "X");
+        setOpenModalInactive(false);
+        setOpenModalActive(false);
+        return;
+      }
+
+      const res = await api.patch(`/entity/${id}`);
+
+      const responseData = res?.data ?? res?.data;
+      if (responseData?.success) {
+        queryClient.invalidateQueries({ queryKey: ["entity", id] });
+        queryClient.invalidateQueries({ queryKey: ["entities"] });
+        const successMsg = entity?.safe_delete
+          ? "Entidade ativada com sucesso"
+          : "Entidade desativada com sucesso";
+        showToast(
+          successMsg,
+          "success",
+          entity?.safe_delete ? "Check" : "Trash"
+        );
+      } else {
+        showToast(
+          responseData?.message || "Erro ao atualizar entidade",
+          "error",
+          "X"
+        );
+      }
+    } catch (err: any) {
+      showToast(err?.message || "Erro ao atualizar entidade", "error", "X");
+    } finally {
+      setOpenModalInactive(false);
+      setOpenModalActive(false);
+    }
+  };
+
+  const handleSubmitEditEntity = async (e: React.FormEvent) => {
     e.preventDefault();
     const nameError = validateEntityName(editEntityName);
     setEditErrors({ name: nameError });
     if (nameError) return;
-    setOpenDrawer(false);
-    showToast(`Editado com sucesso`, "success", "Pencil");
+
+    if (!id) {
+      showToast("Nenhuma entidade selecionada", "error", "X");
+      return;
+    }
+
+    try {
+      const payload: any = {
+        name: editEntityName,
+        email: editEmail || undefined,
+        phone: editTelephone || undefined,
+        address: editAddress || undefined,
+        description: editDescription || undefined,
+      };
+
+      const res = await api.put(`/entity/${id}`, payload);
+
+      if (res?.data?.success) {
+        showToast(
+          `Entidade ${editEntityName} editada com sucesso!`,
+          "success",
+          "Pencil"
+        );
+        queryClient.invalidateQueries({ queryKey: ["entity", id] });
+        queryClient.invalidateQueries({ queryKey: ["entities"] });
+        setOpenDrawer(false);
+      } else {
+        showToast(
+          res?.data?.message || "Erro ao atualizar entidade",
+          "error",
+          "X"
+        );
+      }
+    } catch (err: any) {
+      showToast(err?.message || "Erro ao atualizar entidade", "error", "X");
+    }
   };
 
   const handleCloseDrawer = () => {
@@ -71,42 +163,34 @@ export default function Page() {
   };
 
   const contactList = [
-    { label: "Telefone", value: entity?.telephone },
+    { label: "Telefone", value: entity?.phone },
     { label: "E-mail", value: entity?.email },
     { label: "Endereço", value: entity?.address },
   ];
 
   useEffect(() => {
-    if (id) {
-      const found = entityList.find((entity) => {
-        return String(entity.id) === String(id);
-      });
-      if (found) {
-        setEntity(found);
-        // sincroniza campos controlados
-        const name = found.name || "";
-        const email = found.email || "";
-        const telephone = found.telephone || "";
-        const address = found.address || "";
-        const description = found.description || "";
+    if (entity) {
+      // sincroniza campos controlados
+      const name = entity.name || "";
+      const email = entity.email || "";
+      const telephone = entity.phone || "";
+      const address = entity.address || "";
+      const description = entity.description || "";
 
-        setEditEntityName(name);
-        setEditEmail(email);
-        setEditTelephone(telephone);
-        setEditAddress(address);
-        setEditDescription(description);
+      setEditEntityName(name);
+      setEditEmail(email);
+      setEditTelephone(telephone);
+      setEditAddress(address);
+      setEditDescription(description);
 
-        // define baseline inicial
-        setInitialName(name);
-        setInitialEmail(email);
-        setInitialTelephone(telephone);
-        setInitialAddress(address);
-        setInitialDescription(description);
-      } else {
-        setNotFound(true);
-      }
+      // define baseline inicial
+      setInitialName(name);
+      setInitialEmail(email);
+      setInitialTelephone(telephone);
+      setInitialAddress(address);
+      setInitialDescription(description);
     }
-  }, [id]);
+  }, [entity]);
 
   const isDirty =
     editEntityName !== initialName ||
@@ -124,7 +208,7 @@ export default function Page() {
         onTabChange={setSelectedTab}
       />
       <div className="container">
-        {notFound ? (
+        {isError ? (
           <NotFound
             description={`Nenhuma entidade encontrada com o ID (${id})`}
           />
@@ -158,80 +242,69 @@ export default function Page() {
                     >
                       Editar
                     </Button>
-                    {entity ? (entity.disabled ? (
-                      <IconButton
-                        onClick={() => setOpenModalActive(true)}
-                        tooltip="Ativar"
-                        buttonProps={{ color: "success", variant: "outlined" }}
-                        icon="SquareCheck"
-                      />
-                    ) : (
-                      <IconButton
-                        onClick={() => setOpenModalInactive(true)}
-                        tooltip="Desativar"
-                        buttonProps={{ color: "error", variant: "outlined" }}
-                        icon="Trash"
-                      />
-                    )) : null}
+                    {entity ? (
+                      entity.safe_delete ? (
+                        <IconButton
+                          onClick={() => setOpenModalActive(true)}
+                          tooltip="Ativar"
+                          buttonProps={{
+                            color: "success",
+                            variant: "outlined",
+                          }}
+                          icon="SquareCheck"
+                        />
+                      ) : (
+                        <IconButton
+                          onClick={() => setOpenModalInactive(true)}
+                          tooltip="Desativar"
+                          buttonProps={{ color: "error", variant: "outlined" }}
+                          icon="Trash"
+                        />
+                      )
+                    ) : null}
                     <Dialog
-                      open={openModalInactive}
-                      onClose={() => setOpenModalInactive(false)}
+                      open={openModalInactive || openModalActive}
+                      onClose={() => {
+                        setOpenModalInactive(false);
+                        setOpenModalActive(false);
+                      }}
                     >
                       <DialogTitle>
-                        Tem certeza que deseja desativar a entidade?
+                        {entity?.safe_delete
+                          ? "Tem certeza que deseja ativar a entidade?"
+                          : "Tem certeza que deseja desativar a entidade?"}
                       </DialogTitle>
                       <DialogContent>
                         <DialogContentText>
-                          Após desativar não haverá como selecionar a entidade
-                          para novas movimentações, sendo necessário reativá-la
+                          {entity?.safe_delete
+                            ? "Após ativar será possível selecionar a entidade para novas movimentações"
+                            : "Após desativar não haverá como selecionar a entidade para novas movimentações, sendo necessário reativá-la"}
                         </DialogContentText>
                       </DialogContent>
                       <DialogActions>
                         <Button
                           color="secondary"
                           variant="contained"
-                          onClick={() => setOpenModalInactive(false)}
+                          onClick={() => {
+                            setOpenModalInactive(false);
+                            setOpenModalActive(false);
+                          }}
                         >
                           Fechar
                         </Button>
                         <Button
-                          onClick={() => setOpenModalInactive(false)}
-                          startIcon={<Icon name="Trash" />}
+                          startIcon={
+                            <Icon
+                              name={entity?.safe_delete ? "Check" : "Trash"}
+                            />
+                          }
                           variant="contained"
-                          color="error"
+                          color={entity?.safe_delete ? "primary" : "error"}
+                          onClick={handleToggleSafeDelete}
                         >
-                          Desativar entidade
-                        </Button>
-                      </DialogActions>
-                    </Dialog>
-                    <Dialog
-                      open={openModalActive}
-                      onClose={() => setOpenModalActive(false)}
-                    >
-                      <DialogTitle>
-                        Tem certeza que deseja ativar a entidade?
-                      </DialogTitle>
-                      <DialogContent>
-                        <DialogContentText>
-                          Após ativar será possível selecionar a entidade para
-                          novas movimentações
-                        </DialogContentText>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button
-                          color="secondary"
-                          variant="contained"
-                          onClick={() => setOpenModalActive(false)}
-                        >
-                          Fechar
-                        </Button>
-                        <Button
-                          onClick={() => setOpenModalActive(false)}
-                          startIcon={<Icon name="Check" />}
-                          variant="contained"
-                          color="primary"
-                        >
-                          Ativar entidade
+                          {entity?.safe_delete
+                            ? "Ativar entidade"
+                            : "Desativar entidade"}
                         </Button>
                       </DialogActions>
                     </Dialog>
@@ -244,13 +317,19 @@ export default function Page() {
                     name="Circle"
                     size={10}
                     color={
-                      entity.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                      entity.safe_delete
+                        ? "var(--neutral-50)"
+                        : "var(--success-10)"
                     }
                     fill={
-                      entity.disabled ? "var(--neutral-50)" : "var(--success-10)"
+                      entity.safe_delete
+                        ? "var(--neutral-50)"
+                        : "var(--success-10)"
                     }
                   />
-                  <Subtitle2>{entity.disabled ? "Inativo" : "Ativo"}</Subtitle2>
+                  <Subtitle2>
+                    {entity.safe_delete ? "Inativo" : "Ativo"}
+                  </Subtitle2>
                 </Box>
               )}
               <Container className="contactInfo">
@@ -313,7 +392,10 @@ export default function Page() {
                 }}
               >
                 <Body1>Editar Entidade</Body1>
-                <form className="formContainer" onSubmit={handleSubmitEditEntity}>
+                <form
+                  className="formContainer"
+                  onSubmit={handleSubmitEditEntity}
+                >
                   <TextField
                     label="Nome da entidade"
                     value={editEntityName}

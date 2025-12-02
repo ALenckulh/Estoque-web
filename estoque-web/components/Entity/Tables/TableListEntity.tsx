@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -12,13 +12,14 @@ import {
 import { myTheme } from "@/app/theme/agGridTheme";
 import { useRouter } from "next/navigation";
 import { Box } from "@mui/material";
-import { entityList } from "@/utils/dataBaseExample";
 import {
   renderDateCell,
   renderDisabledCellWithIcons,
   renderTooltip,
 } from "@/components/Tables/CelRenderes";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
+import { api } from "@/utils/axios";
+import { useUser } from "@/hooks/userHook";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -36,7 +37,37 @@ export interface RowDataEntity {
 export default function TableListEntity() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [rowData] = useState<RowDataEntity[]>(entityList);
+  const [rowData, setRowData] = useState<RowDataEntity[]>([]);
+  const { myUserEnterpriseId } = useUser();
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (!myUserEnterpriseId) return;
+      try {
+        const resp = await api.get("/entity/listEntity", {
+          headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+        });
+        const entities = resp?.data?.entities || [];
+        const mapped: RowDataEntity[] = entities.map((entity: any) => ({
+          id: Number(entity.id ?? 0),
+          name: String(entity.name ?? ""),
+          telephone: String(entity.phone ?? ""),
+          email: String(entity.email ?? ""),
+          address: String(entity.address ?? ""),
+          disabled: Boolean(entity.safe_delete),
+          createdAt: String(entity.created_at ?? ""),
+        }));
+        if (!cancelled) setRowData(mapped);
+      } catch (err) {
+        if (!cancelled) setRowData([]);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [myUserEnterpriseId]);
 
   const [columnDefs] = useState<ColDef<RowDataEntity>[]>([
     {
