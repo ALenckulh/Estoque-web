@@ -153,9 +153,8 @@ export default function TableListUsers({ filters }: TableListUsersProps) {
                 : "Default",
       },
       {
-        headerName: "Actions",
-        sortable: true,
-        width: 80,
+        headerName: "Ações",
+        width: 70,
         cellRenderer: (params: {
           data: { safe_delete: boolean; id: string };
         }) => {

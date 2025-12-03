@@ -219,7 +219,7 @@ export default function TableHistoryEntity({
       },
       {
         headerName: "Ações",
-        width: 100,
+        width: 70,
         pinned: "right",
         sortable: false,
         
