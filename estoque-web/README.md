@@ -1,104 +1,196 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Estoque Web
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Sistema completo de gerenciamento de estoque desenvolvido com Next.js e Supabase.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## 🚀 Tecnologias Utilizadas
 
-## Features
+### Frontend
+- **[Next.js](https://nextjs.org)** - Framework React com App Router
+- **[React 18](https://react.dev)** - Biblioteca para interfaces de usuário
+- **[TypeScript](https://www.typescriptlang.org)** - Tipagem estática para JavaScript
+- **[Material-UI (MUI)](https://mui.com)** - Biblioteca de componentes React
+- **[AG Grid Community](https://www.ag-grid.com)** - Tabelas avançadas e performáticas
+- **[TanStack Query](https://tanstack.com/query)** - Gerenciamento de estado assíncrono e cache
+- **[Tailwind CSS](https://tailwindcss.com)** - Framework CSS utilitário
+- **[Framer Motion](https://www.framer.com/motion)** - Biblioteca de animações
+- **[Lucide React](https://lucide.dev)** - Ícones SVG modernos
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+### Backend & Infraestrutura
+- **[Supabase](https://supabase.com)** - Backend as a Service (PostgreSQL, Auth, Storage)
+- **[Supabase SSR](https://supabase.com/docs/guides/auth/server-side)** - Autenticação com cookies
+- **[Axios](https://axios-http.com)** - Cliente HTTP para requisições API
 
-## Demo
+### Ferramentas de Desenvolvimento
+- **[Prettier](https://prettier.io)** - Formatação de código
+- **PostCSS & Autoprefixer** - Processamento CSS
+- **pnpm** - Gerenciador de pacotes
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## 📋 Funcionalidades
 
-## Deploy to Vercel
+### Sistema de Autenticação
+- **Sign In** - Login de usuários
+- **Sign Up** - Cadastro de novos usuários
+- **Forgot Password** - Recuperação de senha
+- **Reset Password** - Redefinição de senha
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### Gestão de Itens
+- **Listagem de Itens** (`/items`)
+  - Filtros por grupo, data de criação, unidade, estado (ativo/inativo) e quantidade (negativo/baixo/normal)
+  - Indicadores de alertas (itens negativos e em baixa)
+  - Visualização com tooltip para itens desativados
+  - Opacidade reduzida para linhas desativadas
+- **Detalhes do Item** (`/items/[id]`)
+  - Visualização completa de informações
+  - Edição de dados do item
+  - Histórico de movimentações com filtros
+  - Ativação/desativação de itens
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+### Gestão de Entidades
+- **Listagem de Entidades** (`/entities`)
+  - Filtro por estado (ativo/inativo)
+  - Grid com opacidade para entidades desativadas
+- **Detalhes da Entidade** (`/entities/[id]`)
+  - Informações de contato completas
+  - Edição de dados da entidade
+  - Histórico de movimentações com filtros por estado e tipo
+  - Ativação/desativação de entidades
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### Movimentações
+- **Entrada de Itens** (`/input-items`)
+  - Registro de entrada de estoque
+- **Saída de Itens** (`/output-items`)
+  - Registro de saída de estoque
+- **Histórico de Movimentações** (`/movement-history`)
+  - Filtros por estado (ativo/inativo) e tipo (entrada/saída)
+  - Visualização de grupo ID, nota fiscal, data, responsável, entidade e item
+  - Ações para ativar/desativar movimentações (individual ou por grupo)
+  - Indicadores visuais para itens desativados
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+### Gestão de Usuários
+- **Meus Usuários** (`/my-users`)
+  - Listagem de usuários da empresa
+  - Filtro por estado (ativo/inativo)
+  - Gerenciamento de permissões (Admin/Default)
+  - Indicador visual para o usuário atual
+  - Ativação/desativação de usuários
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+### Outras Páginas
+- **Design System** (`/design-system`) - Biblioteca de componentes UI
+- **Documentação** (`/docs`) - Documentação da API com Swagger
+- **Ajuda** (`/help`) - Central de ajuda
 
-## Clone and run locally
+## 🎨 Arquitetura do Projeto
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+### Estrutura de Pastas
+```
+app/
+├── (pages)/              # Páginas da aplicação
+│   ├── (auth)/          # Páginas de autenticação
+│   ├── items/           # Gestão de itens
+│   ├── entities/        # Gestão de entidades
+│   ├── movement-history/# Histórico de movimentações
+│   └── my-users/        # Gestão de usuários
+├── api/                 # API Routes (Next.js)
+│   ├── entity/          # Endpoints de entidades
+│   ├── item/            # Endpoints de itens
+│   ├── movement/        # Endpoints de movimentações
+│   └── user/            # Endpoints de usuários
+└── theme/               # Configurações de tema (MUI, AG Grid)
 
-2. Create a Next.js app using the Supabase Starter template npx command
+components/              # Componentes React reutilizáveis
+├── Entity/             # Componentes de entidades
+├── Items/              # Componentes de itens
+├── MovimentHistory/    # Componentes de histórico
+├── Users/              # Componentes de usuários
+├── Tables/             # Componentes de tabelas (AG Grid)
+└── ui/                 # Componentes de UI genéricos
 
+lib/
+├── data-base/          # Camada de acesso ao banco (Supabase)
+├── services/           # Camada de serviços (lógica de negócio)
+└── models/             # Modelos de dados TypeScript
+
+utils/                  # Utilitários e helpers
+```
+
+### Padrão de Arquitetura em Camadas
+
+O projeto segue uma arquitetura em 3 camadas:
+
+1. **Route Layer** (`app/api/`) - Parse de parâmetros e validação de entrada
+2. **Service Layer** (`lib/services/`) - Lógica de negócio e transformação de dados
+3. **Database Layer** (`lib/data-base/`) - Queries SQL e acesso ao Supabase
+
+**Exemplo de fluxo:**
+- Route: Parseia filtros da query string
+- Service: Valida e passa filtros para o DB
+- Database: Aplica filtros via SQL (`.eq()`, `.gt()`, `.lt()`)
+
+## 🚀 Começando
+
+### Pré-requisitos
+
+- Node.js 18+
+- pnpm (recomendado) ou npm/yarn
+- Conta no Supabase
+
+### Instalação
+
+1. Clone o repositório
    ```bash
-   npx create-next-app --example with-supabase with-supabase-app
+   git clone https://github.com/ALenckulh/Estoque-web.git
+   cd Estoque-web/estoque-web
    ```
 
+2. Instale as dependências
    ```bash
-   yarn create next-app --example with-supabase with-supabase-app
+   pnpm install
    ```
 
+3. Configure as variáveis de ambiente
    ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
+   cp .env.example .env.local
+   ```
+   
+   Atualize `.env.local` com suas credenciais do Supabase:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=[SUA_URL_DO_SUPABASE]
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=[SUA_CHAVE_ANON]
    ```
 
-3. Use `cd` to change into the app's directory
-
+4. Execute o servidor de desenvolvimento
    ```bash
-   cd with-supabase-app
+   pnpm dev
    ```
 
-4. Rename `.env.example` to `.env.local` and update the following:
+5. Abra [http://localhost:3000](http://localhost:3000) no navegador
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+## 🗄️ Banco de Dados
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+O projeto utiliza PostgreSQL através do Supabase com as seguintes tabelas principais:
 
-5. You can now run the Next.js local development server:
+- `enterprise` - Empresas
+- `users` - Usuários
+- `entity` - Entidades (fornecedores/clientes)
+- `item` - Itens do estoque
+- `movement_history` - Histórico de movimentações
+- `group`, `segment`, `unit` - Dados auxiliares
 
-   ```bash
-   npm run dev
-   ```
+### Soft Delete
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+Todas as entidades principais utilizam o campo `safe_delete` (boolean) para soft delete, permitindo:
+- Manter histórico completo
+- Recuperar registros desativados
+- Filtrar por estado (ativo/inativo)
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## 🤝 Contribuindo
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-## Feedback and issues
+## 📄 Licença
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.

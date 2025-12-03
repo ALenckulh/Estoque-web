@@ -134,21 +134,21 @@ export default function TableListUsers({ filters }: TableListUsersProps) {
         flex: 1,
         minWidth: 180,
         cellClassRules: { "cell-disabled": (p) => !!p.data?.safe_delete },
+        valueGetter: (params) => params.data?.is_admin ? "Admin" : "Default",
         cellRenderer: (params: {
-          data: { safe_delete: boolean; id: string };
-          value: string;
+          data: { safe_delete: boolean; id: string; is_admin: boolean };
         }) =>
           params.data?.safe_delete
             ? renderTooltip(
-                params.value ? "Admin" : "Default",
+                params.data.is_admin ? "Admin" : "Default",
                 "Usuário está desativado"
               )
             : params.data.id === myUserId
               ? renderTooltip(
-                  params.value ? "Admin" : "Default",
+                  params.data.is_admin ? "Admin" : "Default",
                   "Este é o seu usuário atual"
                 )
-              : params.value
+              : params.data.is_admin
                 ? "Admin"
                 : "Default",
       },
