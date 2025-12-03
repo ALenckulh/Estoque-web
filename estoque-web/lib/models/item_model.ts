@@ -4,7 +4,7 @@ export class Item {
   description?: string;
   quantity: number;
   quantity_alert?: number;
-  unit?: string;
+  unit_id?: number;
   segment_id?: number;
   segment_name?: string; // Nome do segmento
   manufacturer?: string;
@@ -22,7 +22,7 @@ export class Item {
     enterprise_id: number,
     description?: string,
     quantity_alert?: number,
-    unit?: string,
+    unit_id?: number,
     segment_id?: number,
     manufacturer?: string,
     position?: string,
@@ -39,7 +39,7 @@ export class Item {
     this.enterprise_id = enterprise_id;
     this.description = description;
     this.quantity_alert = quantity_alert;
-    this.unit = unit;
+    this.unit_id = unit_id;
     this.segment_id = segment_id;
     this.segment_name = segment_name;
     this.manufacturer = manufacturer;

@@ -255,11 +255,11 @@ const theme = createTheme({
       defaultProps: {
         slotProps: {
           paper: { sx: { overflowY: "auto" } },
-          listbox: { sx: { overflowY: "hidden" } },
+          listbox: { sx: { overflowY: "auto" } },
         },
       },
       styleOverrides: {
-        paper: { maxHeight: 200, marginTop: 4 },
+        paper: { marginTop: 4 },
         option: { fontSize: "1rem", padding: "4px 15px" },
         noOptions: { fontSize: "1rem" },
       },
