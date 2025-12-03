@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
 
     const historico_movimentacao = (movements || []).map((m: any) => ({
       id_mov: m.id,
+      item_id: m.item_id,
       id_grupo: m.group_id,
       nota_fiscal: m.nota_fiscal,
       data_movimentacao: m.date, // ou movement_date, dependendo da coluna

@@ -10,6 +10,7 @@ export async function listEntityMovementsDB(participate_id: number, enterprise_i
       .from("movement_history")
       .select(`
         id,
+        item_id, 
         group_id,
         nota_fiscal,
         user_id,
