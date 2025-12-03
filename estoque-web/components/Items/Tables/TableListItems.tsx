@@ -125,8 +125,11 @@ export default function TableListItems({ filters }: TableListItemsProps) {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderText(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataItem }) => {
+        const tooltip = params.data?.disabled ? "Item está desativado" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Posição",
@@ -135,8 +138,11 @@ export default function TableListItems({ filters }: TableListItemsProps) {
       filter: "agTextColumnFilter",
       flex: 1,
       minWidth: 180,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderText(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataItem }) => {
+        const tooltip = params.data?.disabled ? "Item está desativado" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Fabricante",
@@ -145,8 +151,11 @@ export default function TableListItems({ filters }: TableListItemsProps) {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderText(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataItem }) => {
+        const tooltip = params.data?.disabled ? "Item está desativado" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Segmento",
@@ -155,8 +164,11 @@ export default function TableListItems({ filters }: TableListItemsProps) {
       flex: 1,
       filter: "agTextColumnFilter",
       minWidth: 180,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderText(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataItem }) => {
+        const tooltip = params.data?.disabled ? "Item está desativado" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
 
     {
@@ -168,17 +180,19 @@ export default function TableListItems({ filters }: TableListItemsProps) {
       lockPosition: "left",
       filter: "agNumberColumnFilter",
       width: 140,
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
       cellRenderer: (params: ICellRendererParams<RowDataItem>) => {
         const qty = params.value;
         const alert = params.data?.alertQuantity ?? 0;
+        const tooltip = params.data?.disabled ? "Item está desativado" : "";
         
-        if (qty == null) return renderText("-");
+        if (qty == null) return renderTooltip("-", tooltip);
         
         // Se quantidade < 0, usar vermelho
         if (qty < 0) {
           return (
             <span style={{ color: "var(--danger-10)" }}>
-              {renderTooltip(String(qty))}
+              {renderTooltip(String(qty), tooltip)}
             </span>
           );
         }
@@ -187,12 +201,12 @@ export default function TableListItems({ filters }: TableListItemsProps) {
         if (qty >= 0 && qty <= alert) {
           return (
             <span style={{ color: "var(--alert-30)" }}>
-              {renderTooltip(String(qty))}
+              {renderTooltip(String(qty), tooltip)}
             </span>
           );
         }
         
-        return renderText(String(qty));
+        return renderTooltip(String(qty), tooltip);
       },
     },
   ]);

@@ -14,6 +14,7 @@ import {
   renderCopyTooltipCell,
   renderDateCell,
   renderDisabledCellWithIcons,
+  renderTooltip,
 } from "@/components/Tables/CelRenderes";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 
@@ -61,6 +62,13 @@ export default function TableHistoryEntity() {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
+      cellClassRules: {
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
+      cellRenderer: (params: ICellRendererParams<RowData>) => {
+        const tooltip = params.data?.disabled ? "Movimentação está desativada" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Item ID",
@@ -69,6 +77,13 @@ export default function TableHistoryEntity() {
       sortable: true,
       filter: "agNumberColumnFilter",
       flex: 1,
+      cellClassRules: {
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
+      cellRenderer: (params: ICellRendererParams<RowData>) => {
+        const tooltip = params.data?.disabled ? "Movimentação está desativada" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Nome do Item",
@@ -78,6 +93,9 @@ export default function TableHistoryEntity() {
       filter: "agTextColumnFilter",
       flex: 1,
       cellRenderer: renderCopyTooltipCell,
+      cellClassRules: {
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
     },
     {
       headerName: "Responsável",
@@ -87,6 +105,9 @@ export default function TableHistoryEntity() {
       flex: 1,
       minWidth: 140,
       cellRenderer: renderCopyTooltipCell,
+      cellClassRules: {
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
     },
     {
       headerName: "Data",
@@ -95,7 +116,18 @@ export default function TableHistoryEntity() {
       filter: "agDateColumnFilter",
       flex: 1,
       minWidth: 160,
-      cellRenderer: renderDateCell,
+      cellClassRules: {
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
+      cellRenderer: (params: ICellRendererParams<RowData>) => {
+        const { value, data } = params;
+        const tooltip = data?.disabled ? "Movimentação está desativada" : "";
+        
+        if (!value) return renderTooltip("-", tooltip);
+        
+        const formattedDate = new Date(value).toLocaleDateString("pt-BR");
+        return renderTooltip(formattedDate, tooltip);
+      },
     },
     {
       headerName: "Quantidade",
@@ -104,6 +136,13 @@ export default function TableHistoryEntity() {
       filter: "agNumberColumnFilter",
       flex: 1,
       minWidth: 120,
+      cellClassRules: {
+        "cell-disabled": (params) => !!params.data?.disabled,
+      },
+      cellRenderer: (params: ICellRendererParams<RowData>) => {
+        const tooltip = params.data?.disabled ? "Movimentação está desativada" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
   ]);
 
