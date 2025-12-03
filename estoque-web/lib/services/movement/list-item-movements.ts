@@ -5,7 +5,14 @@ import { fetchMovementsByItem } from "@/lib/data-base/movement/fetch-movements-b
  * Lista histórico de movimentações de um item.
  * Lança Error com mensagem amigável em caso de parâmetros inválidos.
  */
-export async function listItemMovements(itemId: number, enterpriseId: number) {
+export async function listItemMovements(
+  itemId: number,
+  enterpriseId: number,
+  filters?: {
+    safe_delete?: boolean;
+    type?: "entrada" | "saida";
+  }
+) {
   if (!itemId || !enterpriseId) {
     throw new Error("Parâmetros 'itemId' e 'enterpriseId' são obrigatórios.");
   }
@@ -13,7 +20,7 @@ export async function listItemMovements(itemId: number, enterpriseId: number) {
     throw new Error("Parâmetros inválidos: 'itemId' e 'enterpriseId' devem ser números.");
   }
 
-  const data = await fetchMovementsByItem(itemId, enterpriseId);
+  const data = await fetchMovementsByItem(itemId, enterpriseId, filters);
 
   if (!Array.isArray(data)) {
     throw new Error("Erro ao consultar movimentações do item.");

@@ -103,8 +103,11 @@ export default function TableListEntity({ filters }: TableListEntityProps) {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataEntity }) => {
+        const tooltip = params.data?.disabled ? "Entidade está desativada" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "E-mail",
@@ -113,8 +116,11 @@ export default function TableListEntity({ filters }: TableListEntityProps) {
       filter: "agTextColumnFilter",
       flex: 1,
       minWidth: 180,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataEntity }) => {
+        const tooltip = params.data?.disabled ? "Entidade está desativada" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Endereço",
@@ -123,8 +129,11 @@ export default function TableListEntity({ filters }: TableListEntityProps) {
       sortable: true,
       filter: "agTextColumnFilter",
       flex: 1,
-      cellRenderer: (params: { value: string | undefined }) =>
-        renderTooltip(params.value),
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: { value: string | undefined; data?: RowDataEntity }) => {
+        const tooltip = params.data?.disabled ? "Entidade está desativada" : "";
+        return renderTooltip(String(params.value ?? "-"), tooltip);
+      },
     },
     {
       headerName: "Criado",
@@ -132,7 +141,14 @@ export default function TableListEntity({ filters }: TableListEntityProps) {
       sortable: true,
       filter: "agDateColumnFilter",
       width: 120,
-      cellRenderer: renderDateCell,
+      cellClassRules: { "cell-disabled": (params) => !!params.data?.disabled },
+      cellRenderer: (params: ICellRendererParams<RowDataEntity>) => {
+        const tooltip = params.data?.disabled ? "Entidade está desativada" : "";
+        const dateValue = params.value;
+        if (!dateValue) return renderTooltip("-", tooltip);
+        const formattedDate = new Date(dateValue).toLocaleDateString("pt-BR");
+        return renderTooltip(formattedDate, tooltip);
+      },
     },
   ]);
 

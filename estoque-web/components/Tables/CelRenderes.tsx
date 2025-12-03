@@ -20,13 +20,17 @@ interface HasDisabled {
 }
 
 // 🔹 Tooltip para células
-export const renderTooltip = (value?: string | null, tooltip?: string) => (
-  <Tooltip title={tooltip || ""} {...defaultTooltipProps}>
-    <span className="ellipsis" style={{ display: "block", cursor: "default" }}>
-      {value}
-    </span>
-  </Tooltip>
-);
+export const renderTooltip = (value?: string | null, tooltip?: string) => {
+  const displayValue = !value || value === "" || value === "null" || value === "undefined" ? "-" : value;
+  
+  return (
+    <Tooltip title={tooltip || ""} {...defaultTooltipProps}>
+      <span className="ellipsis" style={{ display: "block", cursor: "default" }}>
+        {displayValue}
+      </span>
+    </Tooltip>
+  );
+};
 
 // 🔹 Tooltip para células com botão
 export const renderActionButton = (children?: React.ReactNode, tooltip?: string) => (

@@ -5,7 +5,7 @@ import TableHistoryEntity from "@/components/Entity/Tables/TableHistoryEntity";
 import { RowDataEntity } from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
+import { Body1, Detail1, Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typography";
 import {
   Box,
   Button,
@@ -18,6 +18,8 @@ import {
   DialogTitle,
   Drawer,
   TextField,
+  Popover,
+  Autocomplete,
 } from "@mui/material";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -30,6 +32,11 @@ import { api } from "@/utils/axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/userHook";
 
+type Option = {
+  label: string;
+  value: string;
+};
+
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState("entidade");
   const params = useParams();
@@ -40,6 +47,26 @@ export default function Page() {
   const [openModalActive, setOpenModalActive] = useState(false);
   const { toasts, showToast } = useToast();
   const { myUserEnterpriseId } = useUser();
+
+  // Filter states
+  const [filterStatus, setFilterStatus] = useState<Option | null>(null);
+  const [filterType, setFilterType] = useState<Option | null>(null);
+  const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
+  const hasActiveFilters = !!filterStatus || !!filterType;
+
+  const statusOptions: Option[] = [
+    { label: "Ativo", value: "ativo" },
+    { label: "Inativo", value: "inativo" },
+  ];
+  const typeOptions: Option[] = [
+    { label: "Entrada", value: "entrada" },
+    { label: "Saída", value: "saida" },
+  ];
+
+  const handleClearFilters = () => {
+    setFilterStatus(null);
+    setFilterType(null);
+  };
 
   // Buscar entidade via API
   const {
@@ -228,9 +255,9 @@ export default function Page() {
                       Criado em
                     </Detail1>
                     <Subtitle2>
-                      {entity?.createdAt
-                        ? new Date(entity.createdAt).toLocaleDateString("pt-BR")
-                        : ""}
+                      {entity?.created_at
+                        ? new Date(entity.created_at).toLocaleDateString("pt-BR")
+                        : "-"}
                     </Subtitle2>
                   </Box>
                   <Container className="actionButtons">
@@ -343,7 +370,7 @@ export default function Page() {
                     >
                       <Subtitle2
                         sx={{
-                          color: value ? "inherit" : "var(--neutral-60)",
+                          color: value ? "inherit" : "var(--neutral-50)",
                         }}
                         className="ellipsis"
                       >
@@ -360,21 +387,105 @@ export default function Page() {
                   sx={{
                     color: entity?.description
                       ? "inherit"
-                      : "var(--neutral-60)",
+                      : "var(--neutral-50)",
                   }}
                 >
                   {entity?.description
                     ? entity?.description
-                    : "Não possui descrição"}
+                    : "Não possui descrição..."}
                 </Subtitle2>
               </Box>
             </Card>
             <Box className="historyContainer">
               <Box className="historyHeader">
-                <Icon name="History" size={14} color="var(--neutral-60)" />
-                <Detail4>Histórico de Movimentação</Detail4>
+                <Icon name="History" size={16} color="var(--neutral-60)" />
+                <Detail1 sx={{color:"var(--neutral-70)"}}>Histórico de Movimentação</Detail1>
+                <Box sx={{ position: "relative" }}>
+                  <IconButton
+                    icon="ListFilter"
+                    tooltip={hasActiveFilters ? "Filtros ativos" : "Filtro"}
+                    buttonProps={{ size: "small" }}
+                    onClick={(e) => setAnchorPopover(e.currentTarget)}
+                  />
+                  {hasActiveFilters && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        bgcolor: "primary.main",
+                        boxShadow: "0 0 0 2px #fff",
+                      }}
+                    />
+                  )}
+                  <Popover
+                    open={Boolean(anchorPopover)}
+                    anchorEl={anchorPopover}
+                    onClose={() => setAnchorPopover(null)}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                    transformOrigin={{ vertical: "top", horizontal: "center" }}
+                    slotProps={{ paper: { sx: { width: 320, p: 3 } } }}
+                  >
+                    <Subtitle2 sx={{ mb: "32px", color: "var(--neutral-80)" }}>
+                      Filtrar Movimentações
+                    </Subtitle2>
+                    <form className="formContainer" style={{ width: "100%", gap: "20px" }}>
+                      <Autocomplete
+                        options={statusOptions}
+                        getOptionLabel={(o) => o.label}
+                        value={filterStatus}
+                        onChange={(_, v) => setFilterStatus(v)}
+                        isOptionEqualToValue={(o, v) => o.value === v?.value}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Estado" placeholder="Selecione..." />
+                        )}
+                      />
+                      <Autocomplete
+                        options={typeOptions}
+                        getOptionLabel={(o) => o.label}
+                        value={filterType}
+                        onChange={(_, v) => setFilterType(v)}
+                        isOptionEqualToValue={(o, v) => o.value === v?.value}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Tipo" placeholder="Selecione..." />
+                        )}
+                      />
+                      <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          startIcon={<Icon name="FilterX" />}
+                          disabled={!hasActiveFilters}
+                          onClick={handleClearFilters}
+                          fullWidth
+                        >
+                          Limpar
+                        </Button>
+                      </Box>
+                    </form>
+                  </Popover>
+                </Box>
               </Box>
-              <TableHistoryEntity />
+              <TableHistoryEntity
+                entityId={id}
+                filters={{
+                  safe_delete:
+                    filterStatus?.value === "ativo"
+                      ? false
+                      : filterStatus?.value === "inativo"
+                        ? true
+                        : undefined,
+                  type:
+                    filterType?.value === "entrada"
+                      ? "entrada"
+                      : filterType?.value === "saida"
+                        ? "saida"
+                        : undefined,
+                }}
+              />
             </Box>
             <Box sx={{ height: "12px" }}>
               <p></p>
