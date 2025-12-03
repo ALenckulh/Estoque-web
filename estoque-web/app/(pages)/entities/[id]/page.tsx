@@ -255,8 +255,8 @@ export default function Page() {
                       Criado em
                     </Detail1>
                     <Subtitle2>
-                      {entity?.createdAt
-                        ? new Date(entity.createdAt).toLocaleDateString("pt-BR")
+                      {entity?.created_at
+                        ? new Date(entity.created_at).toLocaleDateString("pt-BR")
                         : "-"}
                     </Subtitle2>
                   </Box>
