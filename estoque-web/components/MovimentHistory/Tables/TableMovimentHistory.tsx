@@ -203,9 +203,13 @@ export default function TableHistoryEntity({
 
           const style = n < 0 ? { color: "var(--danger-0)" } : undefined;
 
+          if (n < 0) {
+            return <span style={style}>{n}</span>;
+          }
+
           return (
-            <div style={{ paddingLeft: "10px" }}>
-              <span style={style}>{n}</span>
+            <div style={{ paddingLeft: "8px" }}>
+              <span>{n}</span>
             </div>
           );
         },
