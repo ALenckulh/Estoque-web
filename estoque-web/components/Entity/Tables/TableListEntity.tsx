@@ -34,7 +34,13 @@ export interface RowDataEntity {
   description?: string;
 }
 
-export default function TableListEntity() {
+interface TableListEntityProps {
+  filters?: {
+    safe_delete?: boolean;
+  };
+}
+
+export default function TableListEntity({ filters }: TableListEntityProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [rowData, setRowData] = useState<RowDataEntity[]>([]);
@@ -45,8 +51,11 @@ export default function TableListEntity() {
     const load = async () => {
       if (!myUserEnterpriseId) return;
       try {
+        const params: any = {};
+        if (typeof filters?.safe_delete === "boolean") params.safe_delete = filters.safe_delete;
         const resp = await api.get("/entity/listEntity", {
           headers: { "x-enterprise-id": String(myUserEnterpriseId) },
+          params,
         });
         const entities = resp?.data?.entities || [];
         const mapped: RowDataEntity[] = entities.map((entity: any) => ({
@@ -67,7 +76,7 @@ export default function TableListEntity() {
     return () => {
       cancelled = true;
     };
-  }, [myUserEnterpriseId]);
+  }, [myUserEnterpriseId, JSON.stringify(filters)]);
 
   const [columnDefs] = useState<ColDef<RowDataEntity>[]>([
     {

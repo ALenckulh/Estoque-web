@@ -41,7 +41,11 @@ interface RowDataItem {
   disabled?: boolean;
 }
 
-export default function TableHistoryEntity() {
+export default function TableHistoryEntity({
+  filters,
+}: {
+  filters?: { safe_delete?: boolean; type?: "entrada" | "saida" };
+}) {
   const { myUserEnterpriseId } = useUser();
   const queryClient = useQueryClient();
   const { toasts, showToast } = useToast();
@@ -56,12 +60,20 @@ export default function TableHistoryEntity() {
   const [toggleScope, setToggleScope] = useState<"line" | "group" | null>(null);
 
   const { data: rowData = [] } = useQuery({
-    queryKey: ["movements", myUserEnterpriseId],
+    queryKey: ["movements", myUserEnterpriseId, filters?.safe_delete, filters?.type],
     enabled: !!myUserEnterpriseId,
     queryFn: async () => {
       if (!myUserEnterpriseId) return [] as RowDataItem[];
       const resp = await api.get("/movement", {
-        params: { enterprise_id: myUserEnterpriseId },
+        params: {
+          enterprise_id: myUserEnterpriseId,
+          // send safe_delete only when defined
+          ...(filters?.safe_delete !== undefined
+            ? { safe_delete: String(filters.safe_delete) }
+            : {}),
+          // send type only when defined
+          ...(filters?.type ? { type: filters.type } : {}),
+        },
       });
       const list = (resp?.data?.movements ?? []) as any[];
       return list.map((m) => ({
