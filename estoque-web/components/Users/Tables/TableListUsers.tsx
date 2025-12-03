@@ -34,7 +34,13 @@ export interface DataUser {
   safe_delete: boolean;
 }
 
-export default function TableListUsers() {
+interface TableListUsersProps {
+  filters?: {
+    safe_delete?: boolean;
+  };
+}
+
+export default function TableListUsers({ filters }: TableListUsersProps) {
   const [loading, setLoading] = useState(false);
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const gridRef = useRef<AgGridReact<DataUser>>(null);
@@ -49,12 +55,12 @@ export default function TableListUsers() {
   } = useUser();
 
   const { data: rowData = [], refetch } = useQuery({
-    queryKey: ["users", myUserEnterpriseId],
+    queryKey: ["users", myUserEnterpriseId, JSON.stringify(filters)],
     queryFn: async () => {
       if (!myUserEnterpriseId) return [];
-      const response = await api.get("/user/listUser", {
-        params: { enterprise_id: myUserEnterpriseId },
-      });
+      const params: any = { enterprise_id: myUserEnterpriseId };
+      if (typeof filters?.safe_delete === "boolean") params.safe_delete = filters.safe_delete;
+      const response = await api.get("/user/listUser", { params });
       return response.data.users as DataUser[];
     },
     enabled: !!myUserEnterpriseId,

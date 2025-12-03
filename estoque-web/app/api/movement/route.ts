@@ -8,22 +8,39 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const enterpriseId = url.searchParams.get("enterprise_id");
 
-    // Parse filter header/query: prioritize header `x-filter-disableds`, then query `safe_delete`
-    const rawHeaderFilter = req.headers.get("x-filter-disableds");
-    const rawQueryFilter = url.searchParams.get("safe_delete");
+    // Parse filter header/query for disabled flag (safe_delete)
+    // Accept header `x-filter-disabled` (preferred) or legacy `x-filter-disableds`;
+    // Accept query `safe_delete` or `disabled`.
+    const rawHeaderPrimary = req.headers.get("x-filter-disabled");
+    const rawHeaderLegacy = req.headers.get("x-filter-disableds");
+    const rawQueryFilter = url.searchParams.get("safe_delete") ?? url.searchParams.get("disabled");
     let filterDisabled: boolean | undefined;
-    if (rawHeaderFilter !== null) {
-      filterDisabled = rawHeaderFilter.toLowerCase() === "true";
+    const raw = rawHeaderPrimary ?? rawHeaderLegacy;
+    if (raw !== null) {
+      const v = raw.trim().toLowerCase();
+      filterDisabled = v === "true" || v === "1";
     } else if (rawQueryFilter !== null) {
-      filterDisabled = rawQueryFilter.toLowerCase() === "true";
+      const v = rawQueryFilter.trim().toLowerCase();
+      filterDisabled = v === "true" || v === "1";
     } else {
       filterDisabled = undefined;
     }
 
-    const movements = await listMovements({ enterpriseId });
-    const filtered = filterDisabled === undefined ? movements : (movements || []).filter((m: any) => Boolean(m.safe_delete) === filterDisabled);
+    // Parse type filter: entrada (quantity > 0) or saida (quantity < 0)
+    const typeFilter = url.searchParams.get("type")?.trim().toLowerCase();
+    const filterType: "entrada" | "saida" | undefined =
+      typeFilter === "entrada" || typeFilter === "saida" ? typeFilter : undefined;
 
-    return NextResponse.json({ success: true, movements: filtered });
+    // Pass filters to service; DB handles filtering
+    const movements = await listMovements({
+      enterpriseId,
+      filters: {
+        safe_delete: filterDisabled,
+        type: filterType,
+      },
+    });
+
+    return NextResponse.json({ success: true, movements });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message || "Erro ao listar movimentações." },

@@ -37,9 +37,12 @@ export async function GET(request: Request) {
       filterDisabled = undefined;
     }
 
-    const users = await listUsers(enterprise_id);
-    const filtered = filterDisabled === undefined ? users : (users || []).filter((u: any) => Boolean(u.safe_delete) === filterDisabled);
-    return NextResponse.json({ success: true, users: filtered });
+    // Pass filters to service; DB handles filtering
+    const users = await listUsers(enterprise_id, {
+      safe_delete: filterDisabled,
+    });
+
+    return NextResponse.json({ success: true, users });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message },

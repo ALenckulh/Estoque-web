@@ -2,11 +2,23 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 import { User } from "../../models/user_model";
 
-export async function listUsersDB(enterprise_id: number): Promise<User[]> {
-  const { data: usersData, error: usersError } = await supabase
+export async function listUsersDB(
+  enterprise_id: number,
+  filters?: {
+    safe_delete?: boolean;
+  }
+): Promise<User[]> {
+  let query = supabase
     .from("users")
     .select("*")
     .eq("enterprise_id", enterprise_id);
+
+  // Apply filters at DB level
+  if (filters && typeof filters.safe_delete === "boolean") {
+    query = query.eq("safe_delete", filters.safe_delete);
+  }
+
+  const { data: usersData, error: usersError } = await query;
 
   if (usersError) {
     throw new Error(`Erro ao buscar usuários: ${usersError.message}`);

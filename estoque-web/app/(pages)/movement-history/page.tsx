@@ -50,7 +50,7 @@ export default function Page() {
         showTabs={true}
         showAvatar={true}
         selectedTab={selectedTab}
-        onTabChange={setSelectedTab}
+        onTabChange={setSelectedTab} 
       />
       <div className="container" style={{ position: "relative" }}>
         <Box
@@ -59,7 +59,6 @@ export default function Page() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            mb: "20px",
           }}
         >
           <Body4 sx={{ color: "var(--neutral-60)" }}>Histórico de Movimentação</Body4>
@@ -130,19 +129,10 @@ export default function Page() {
                       color="error"
                       startIcon={<Icon name="FilterX" />}
                       disabled={isFilterEmpty}
-                      onClick={() => handleClearFilters()}
+                      onClick={handleClearFilters}
                       fullWidth
                     >
                       Limpar
-                    </Button>
-                    <Button
-                      variant="contained"
-                      startIcon={<Icon name="Check" />}
-                      onClick={() => setAnchorPopover(null)}
-                      disabled={isFilterEmpty}
-                      fullWidth
-                    >
-                      Aplicar
                     </Button>
                   </Box>
                 </form>
@@ -176,7 +166,25 @@ export default function Page() {
             </Box>
           </Box>
         </Box>
-        <TableMovimentHistory />
+        <TableMovimentHistory
+          filters={{
+            // Map UI status to safe_delete boolean
+            // Ativo -> safe_delete=false; Inativo -> safe_delete=true
+            safe_delete:
+              filterStatus?.value === "ativo"
+                ? false
+                : filterStatus?.value === "inativo"
+                  ? true
+                  : undefined,
+            // Map UI type to entrada/saida
+            type:
+              filterType?.value === "entrada"
+                ? "entrada"
+                : filterType?.value === "saida"
+                  ? "saida"
+                  : undefined,
+          }}
+        />
         <Box sx={{ height: "12px" }} />
         <ToastContainer toasts={toasts} />
       </div>
