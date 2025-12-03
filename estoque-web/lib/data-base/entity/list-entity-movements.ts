@@ -17,7 +17,8 @@ export async function listEntityMovementsDB(
       .from("movement_history")
       .select(`
         id,
-        item_id, 
+        item_id,
+        item:item_id(name),
         group_id,
         nota_fiscal,
         user_id,

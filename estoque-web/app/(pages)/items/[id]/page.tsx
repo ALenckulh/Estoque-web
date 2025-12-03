@@ -480,18 +480,18 @@ export default function Page() {
                         title={
                           value !== undefined && value !== null
                             ? String(value)
-                            : "Não informado"
+                            : "Ausente"
                         }
                         placement={"bottom-start"}
                         arrow={false}
                       >
                         <Subtitle2
                           sx={{
-                            color: value ? "inherit" : "var(--neutral-60)",
+                            color: value ? "inherit" : "var(--neutral-50)",
                           }}
                           className="ellipsis"
                         >
-                          {value || "Não informado"}
+                          {value || "Ausente"}
                         </Subtitle2>
                       </CopyTooltip>
                     </Box>
@@ -506,18 +506,18 @@ export default function Page() {
                         title={
                           value !== undefined && value !== null
                             ? String(value)
-                            : "Não informado"
+                            : "Ausente"
                         }
                         placement={"bottom-start"}
                         arrow={false}
                       >
                         <Subtitle2
                           sx={{
-                            color: value ? "inherit" : "var(--neutral-60)",
+                            color: value ? "inherit" : "var(--neutral-50)",
                           }}
                           className="ellipsis"
                         >
-                          {value || "Não informado"}
+                          {value || "Ausente"}
                         </Subtitle2>
                       </CopyTooltip>
                     </Box>
@@ -530,7 +530,7 @@ export default function Page() {
                     sx={{
                       color: item?.description
                         ? "inherit"
-                        : "var(--neutral-60)",
+                        : "var(--neutral-50)",
                     }}
                   >
                     {item?.description

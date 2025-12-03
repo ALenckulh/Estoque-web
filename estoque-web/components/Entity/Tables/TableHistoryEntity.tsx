@@ -9,7 +9,6 @@ import {
   ICellRendererParams,
 } from "ag-grid-community";
 import { myTheme } from "@/app/theme/agGridTheme";
-import { historyList } from "@/utils/dataBaseExample";
 import {
   renderCopyTooltipCell,
   renderDateCell,
@@ -17,6 +16,7 @@ import {
   renderTooltip,
 } from "@/components/Tables/CelRenderes";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
+import { api } from "@/utils/axios";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -32,8 +32,48 @@ interface RowData {
   disabled?: boolean;
 }
 
-export default function TableHistoryEntity() {
-  const [rowData] = useState<RowData[]>(historyList);
+interface TableHistoryEntityProps {
+  entityId: string;
+  filters?: {
+    safe_delete?: boolean;
+    type?: "entrada" | "saida";
+  };
+}
+
+export default function TableHistoryEntity({ entityId, filters }: TableHistoryEntityProps) {
+  const [rowData, setRowData] = useState<RowData[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (!entityId) return;
+      try {
+        const params: any = { id: entityId };
+        if (typeof filters?.safe_delete === "boolean") params.safe_delete = filters.safe_delete;
+        if (filters?.type) params.type = filters.type;
+
+        const resp = await api.get("/movement/list-entity-movements", { params });
+        const movements = resp?.data?.historico_movimentacao || [];
+        const mapped: RowData[] = movements.map((m: any) => ({
+          groupId: Number(m.id_grupo ?? 0),
+          fiscalNote: String(m.nota_fiscal ?? ""),
+          itemId: Number(m.item_id ?? 0),
+          itemName: String(m.item_name ?? ""),
+          user: String(m.usuario_responsavel ?? ""),
+          date: String(m.data_movimentacao ?? ""),
+          quantity: Number(m.quantidade_movimentada ?? 0),
+          disabled: Boolean(m.safe_delete),
+        }));
+        if (!cancelled) setRowData(mapped);
+      } catch (err) {
+        if (!cancelled) setRowData([]);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [entityId, JSON.stringify(filters)]);
 
   const [columnDefs] = useState<ColDef<RowData>[]>([
     {
