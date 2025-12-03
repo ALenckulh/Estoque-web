@@ -5,7 +5,7 @@ import TableHistoryEntity from "@/components/Entity/Tables/TableHistoryEntity";
 import { RowDataEntity } from "@/components/Entity/Tables/TableListEntity";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
+import { Body1, Detail1, Detail4, Subtitle1, Subtitle2 } from "@/components/ui/Typography";
 import {
   Box,
   Button,
@@ -371,8 +371,9 @@ export default function Page() {
             </Card>
             <Box className="historyContainer">
               <Box className="historyHeader">
-                <Icon name="History" size={14} color="var(--neutral-60)" />
-                <Detail4>Histórico de Movimentação</Detail4>
+                <Icon name="History" size={16} color="var(--neutral-60)" />
+                <Detail1 sx={{color:"var(--neutral-70)"}}>Histórico de Movimentação</Detail1>
+                <IconButton icon="ListFilter" tooltip="Filtro" buttonProps={{size: "small"}}></IconButton>
               </Box>
               <TableHistoryEntity />
             </Box>

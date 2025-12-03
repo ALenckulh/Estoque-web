@@ -20,22 +20,22 @@ export async function GET(req: NextRequest) {
       filterDisabled = undefined;
     }
 
-    const movements = await listItemMovements(Number(itemIdParam), Number(enterpriseIdParam));
+    // Parse type filter
+    const typeFilter = url.searchParams.get("type");
+    const typeValue = typeFilter === "entrada" || typeFilter === "saida" ? typeFilter : undefined;
 
-    const filtered = filterDisabled === undefined ? movements : (movements || []).filter((m: any) => Boolean(m.safe_delete) === filterDisabled);
+    // Build filters object
+    const filters: { safe_delete?: boolean; type?: "entrada" | "saida" } = {};
+    if (filterDisabled !== undefined) filters.safe_delete = filterDisabled;
+    if (typeValue) filters.type = typeValue;
 
-    return NextResponse.json({
-      success: true,
-      movements: filtered.map((m: any) => ({
-        id: m.id,
-        group_id: m.group_id,
-        nota_fiscal: m.nota_fiscal,
-        date: m.date,
-        user_id: m.user_id,
-        quantity: m.quantity,
-        safe_delete: m.safe_delete,
-      })),
-    });
+    const movements = await listItemMovements(
+      Number(itemIdParam),
+      Number(enterpriseIdParam),
+      Object.keys(filters).length > 0 ? filters : undefined
+    );
+
+    return NextResponse.json({ success: true, movements });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message || "Erro ao listar movimentações do item." },

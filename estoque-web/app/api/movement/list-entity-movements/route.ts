@@ -23,7 +23,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, message: "Participate ID ou Enterprise ID inválido." }, { status: 400 });
     }
 
-    const movements = await listEntityMovements(participateId, enterpriseId);
+    // Parse filters
+    const rawQueryFilter = url.searchParams.get("safe_delete");
+    const filterDisabled = rawQueryFilter === "true" ? true : rawQueryFilter === "false" ? false : undefined;
+    
+    const typeFilter = url.searchParams.get("type");
+    const filterType = typeFilter === "entrada" || typeFilter === "saida" ? typeFilter : undefined;
+
+    // Build filters object
+    const filters: { safe_delete?: boolean; type?: "entrada" | "saida" } = {};
+    if (filterDisabled !== undefined) filters.safe_delete = filterDisabled;
+    if (filterType) filters.type = filterType;
+
+    const movements = await listEntityMovements(
+      participateId,
+      enterpriseId,
+      Object.keys(filters).length > 0 ? filters : undefined
+    );
 
     const historico_movimentacao = (movements || []).map((m: any) => ({
       id_mov: m.id,

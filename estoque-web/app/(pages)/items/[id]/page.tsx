@@ -24,7 +24,13 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import CopyTooltip from "@/components/ui/CopyTooltip";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
+import {
+  Body1,
+  Detail1,
+  Detail4,
+  Subtitle1,
+  Subtitle2,
+} from "@/components/ui/Typography";
 import { NotFound } from "@/components/Feedback/NotFound";
 import { useToast } from "@/hooks/toastHook";
 import { validateProductName } from "@/utils/validations";
@@ -46,7 +52,8 @@ export default function Page() {
   const { toasts, showToast } = useToast();
   const [productName, setProductName] = useState<string>("");
   const [productErrors, setProductErrors] = useState<{ name?: string }>({});
-  const [selectedMeasureUnity, setSelectedMeasureUnity] = useState<Option | null>(null);
+  const [selectedMeasureUnity, setSelectedMeasureUnity] =
+    useState<Option | null>(null);
   const [manufacturer, setManufacturer] = useState<string>("");
   const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
@@ -55,15 +62,19 @@ export default function Page() {
   const [description, setDescription] = useState<string>("");
 
   const [initialProductName, setInitialProductName] = useState<string>("");
-  const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(null);
+  const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(
+    null
+  );
   const [initialManufacturer, setInitialManufacturer] = useState<string>("");
   const [initialSegment, setInitialSegment] = useState<Option | null>(null);
   const [initialGroup, setInitialGroup] = useState<Option | null>(null);
-  const [initialAlertQuantity, setInitialAlertQuantity] = useState<number | "">("");
+  const [initialAlertQuantity, setInitialAlertQuantity] = useState<number | "">(
+    ""
+  );
   const [initialPosition, setInitialPosition] = useState<string>("");
   const [initialDescription, setInitialDescription] = useState<string>("");
 
-  const isDirty = 
+  const isDirty =
     productName !== initialProductName ||
     selectedMeasureUnity?.value !== initialMeasureUnity?.value ||
     manufacturer !== initialManufacturer ||
@@ -180,7 +191,9 @@ export default function Page() {
     if (item) {
       // Unidade de medida
       if (item.unit) {
-        const unitOption = measurementUnits.find((opt: Option): boolean => opt.value === item.unit);
+        const unitOption = measurementUnits.find(
+          (opt: Option): boolean => opt.value === item.unit
+        );
         setSelectedMeasureUnity(unitOption || null);
         setInitialMeasureUnity(unitOption || null);
       }
@@ -191,23 +204,43 @@ export default function Page() {
       }
       // Segmento - adiciona opção se não existir
       if (item.segment) {
-        let segOption = segmentOptions.find((opt: Option): boolean => opt.value === item.segment);
+        let segOption = segmentOptions.find(
+          (opt: Option): boolean => opt.value === item.segment
+        );
         if (!segOption) {
           segOption = { label: String(item.segment), value: item.segment };
-          setSegmentOptions(prev => prev.some((opt: Option): boolean => opt.value === segOption!.value) ? prev : [...prev, segOption!]);
+          setSegmentOptions((prev) =>
+            prev.some((opt: Option): boolean => opt.value === segOption!.value)
+              ? prev
+              : [...prev, segOption!]
+          );
         }
-        setSelectedSegment(segOption || { label: String(item.segment), value: item.segment });
-        setInitialSegment(segOption || { label: String(item.segment), value: item.segment });
+        setSelectedSegment(
+          segOption || { label: String(item.segment), value: item.segment }
+        );
+        setInitialSegment(
+          segOption || { label: String(item.segment), value: item.segment }
+        );
       }
       // Grupo - adiciona opção se não existir
       if (item.group) {
-        let grpOption = groupOptions.find((opt: Option): boolean => opt.value === item.group);
+        let grpOption = groupOptions.find(
+          (opt: Option): boolean => opt.value === item.group
+        );
         if (!grpOption) {
           grpOption = { label: String(item.group), value: item.group };
-          setGroupOptions(prev => prev.some((opt: Option): boolean => opt.value === grpOption!.value) ? prev : [...prev, grpOption!]);
+          setGroupOptions((prev) =>
+            prev.some((opt: Option): boolean => opt.value === grpOption!.value)
+              ? prev
+              : [...prev, grpOption!]
+          );
         }
-        setSelectedGroup(grpOption || { label: String(item.group), value: item.group });
-        setInitialGroup(grpOption || { label: String(item.group), value: item.group });
+        setSelectedGroup(
+          grpOption || { label: String(item.group), value: item.group }
+        );
+        setInitialGroup(
+          grpOption || { label: String(item.group), value: item.group }
+        );
       }
     }
   }, [item]);
@@ -228,56 +261,68 @@ export default function Page() {
       setProductName(item.name);
     }
     setProductErrors({});
-    
+
     // Reseta os Autocompletes para os valores originais
     if (item) {
       // Unidade de medida
       if (item.unit) {
-        const unitOption = measurementUnits.find(opt => opt.value === item.unit);
+        const unitOption = measurementUnits.find(
+          (opt) => opt.value === item.unit
+        );
         setSelectedMeasureUnity(unitOption || null);
       } else {
         setSelectedMeasureUnity(null);
       }
-      
+
       // Fabricante - agora é TextField simples
       if (item.manufacturer) {
         setManufacturer(String(item.manufacturer));
       } else {
         setManufacturer("");
       }
-      
+
       // Segmento
       if (item.segment) {
-        let segOption = segmentOptions.find(opt => opt.value === item.segment);
+        let segOption = segmentOptions.find(
+          (opt) => opt.value === item.segment
+        );
         if (!segOption) {
           const newOpt = { label: String(item.segment), value: item.segment };
-          setSegmentOptions(prev => prev.some(opt => opt.value === newOpt.value) ? prev : [...prev, newOpt]);
+          setSegmentOptions((prev) =>
+            prev.some((opt) => opt.value === newOpt.value)
+              ? prev
+              : [...prev, newOpt]
+          );
           segOption = newOpt;
         }
         setSelectedSegment(segOption);
       } else {
         setSelectedSegment(null);
       }
-      
+
       // Grupo
       if (item.group) {
-        let grpOption = groupOptions.find(opt => opt.value === item.group);
+        let grpOption = groupOptions.find((opt) => opt.value === item.group);
         if (!grpOption) {
           const newOpt = { label: String(item.group), value: item.group };
-          setGroupOptions(prev => prev.some(opt => opt.value === newOpt.value) ? prev : [...prev, newOpt]);
+          setGroupOptions((prev) =>
+            prev.some((opt) => opt.value === newOpt.value)
+              ? prev
+              : [...prev, newOpt]
+          );
           grpOption = newOpt;
         }
         setSelectedGroup(grpOption);
       } else {
         setSelectedGroup(null);
       }
-      
+
       // Reseta campos adicionais
       setAlertQuantity(item.alertQuantity ?? "");
       setPosition(item.position ?? "");
       setDescription(item.description ?? "");
     }
-    
+
     setOpenDrawer(false);
   };
 
@@ -322,21 +367,26 @@ export default function Page() {
                     >
                       Editar
                     </Button>
-                    {item ? (item.disabled ? (
-                      <IconButton
-                        onClick={() => setOpenModalActive(true)}
-                        tooltip="Ativar"
-                        buttonProps={{ color: "success", variant: "outlined" }}
-                        icon="SquareCheck"
-                      />
-                    ) : (
-                      <IconButton
-                        onClick={() => setOpenModalInactive(true)}
-                        tooltip="Desativar"
-                        buttonProps={{ color: "error", variant: "outlined" }}
-                        icon="Trash"
-                      />
-                    )) : null}
+                    {item ? (
+                      item.disabled ? (
+                        <IconButton
+                          onClick={() => setOpenModalActive(true)}
+                          tooltip="Ativar"
+                          buttonProps={{
+                            color: "success",
+                            variant: "outlined",
+                          }}
+                          icon="SquareCheck"
+                        />
+                      ) : (
+                        <IconButton
+                          onClick={() => setOpenModalInactive(true)}
+                          tooltip="Desativar"
+                          buttonProps={{ color: "error", variant: "outlined" }}
+                          icon="Trash"
+                        />
+                      )
+                    ) : null}
                     <Dialog
                       open={openModalInactive}
                       onClose={() => setOpenModalInactive(false)}
@@ -492,8 +542,15 @@ export default function Page() {
             </Card>
             <Box className="historyContainer">
               <Box className="historyHeader">
-                <Icon name="History" size={14} color="var(--neutral-60)" />
-                <Detail4>Histórico de Movimentação</Detail4>
+                <Icon name="History" size={16} color="var(--neutral-60)" />
+                <Detail1 sx={{ color: "var(--neutral-70)" }}>
+                  Histórico de Movimentação
+                </Detail1>
+                <IconButton
+                  icon="ListFilter"
+                  tooltip="Filtro"
+                  buttonProps={{ size: "small" }}
+                ></IconButton>
               </Box>
               <TableHistoryItems />
             </Box>
@@ -542,7 +599,11 @@ export default function Page() {
                     />
                     <TextField
                       value={alertQuantity}
-                      onChange={(e) => setAlertQuantity(e.target.value === "" ? "" : Number(e.target.value))}
+                      onChange={(e) =>
+                        setAlertQuantity(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
                       label="Quantidade de alerta"
                       type="number"
                       fullWidth
@@ -557,8 +618,12 @@ export default function Page() {
                       options={measurementUnits}
                       getOptionLabel={(option) => option.label}
                       value={selectedMeasureUnity}
-                      onChange={(_, newValue) => setSelectedMeasureUnity(newValue)}
-                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      onChange={(_, newValue) =>
+                        setSelectedMeasureUnity(newValue)
+                      }
+                      isOptionEqualToValue={(option, val) =>
+                        option.value === val?.value
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -590,7 +655,9 @@ export default function Page() {
                       getOptionLabel={(option) => option.label}
                       value={selectedSegment}
                       onChange={(_, newValue) => setSelectedSegment(newValue)}
-                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      isOptionEqualToValue={(option, val) =>
+                        option.value === val?.value
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -604,7 +671,9 @@ export default function Page() {
                       getOptionLabel={(option) => option.label}
                       value={selectedGroup}
                       onChange={(_, newValue) => setSelectedGroup(newValue)}
-                      isOptionEqualToValue={(option, val) => option.value === val?.value}
+                      isOptionEqualToValue={(option, val) =>
+                        option.value === val?.value
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -622,9 +691,9 @@ export default function Page() {
                       placeholder="Digite a descrição do produto aqui..."
                     />
                   </Box>
-                  <Button 
-                    variant="contained" 
-                    type="submit" 
+                  <Button
+                    variant="contained"
+                    type="submit"
                     sx={{ mt: "8px" }}
                     disabled={!isDirty}
                   >
