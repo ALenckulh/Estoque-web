@@ -27,6 +27,7 @@ import { api } from "@/utils/axios";
 import { useUser } from "@/hooks/userHook";
 import { useToast } from "@/hooks/toastHook";
 import { validateProductName } from "@/utils/validations";
+import { useQuery } from "@tanstack/react-query";
 
 type Option = {
   label: string;
@@ -222,6 +223,22 @@ export default function Page() {
     };
   }, [myUserEnterpriseId]);
 
+  // Fetch alert counts
+  const { data: alertData } = useQuery({
+    queryKey: ["itemAlerts", myUserEnterpriseId],
+    enabled: !!myUserEnterpriseId,
+    queryFn: async () => {
+      if (!myUserEnterpriseId) return { totalNegativo: 0, totalAlerta: 0 };
+      const resp = await api.get("/item/listItemAlert", {
+        params: { enterprise_id: myUserEnterpriseId },
+      });
+      return {
+        totalNegativo: resp?.data?.totalNegativo ?? 0,
+        totalAlerta: resp?.data?.totalAlerta ?? 0,
+      };
+    },
+  });
+
   return (
     <div>
       <Appbar
@@ -252,7 +269,7 @@ export default function Page() {
                   }}
                 />
                 <Detail2 sx={{ color: "var(--neutral-60)", fontSize: "12px" }}>
-                  4 itens no negativo
+                  {alertData?.totalNegativo ?? 0} itens no negativo
                 </Detail2>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -265,7 +282,7 @@ export default function Page() {
                   }}
                 />
                 <Detail2 sx={{ color: "var(--neutral-60)", fontSize: "12px" }}>
-                  4 itens em baixa
+                  {alertData?.totalAlerta ?? 0} itens em baixa
                 </Detail2>
               </Box>
             </Box>

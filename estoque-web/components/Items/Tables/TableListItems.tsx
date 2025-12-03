@@ -184,9 +184,9 @@ export default function TableListItems({ filters }: TableListItemsProps) {
         }
         
         // Se quantidade > 0 e menor que alerta, usar laranja
-        if (qty > 0 && qty < alert) {
+        if (qty >= 0 && qty <= alert) {
           return (
-            <span style={{ color: "var(--alert-10)" }}>
+            <span style={{ color: "var(--alert-30)" }}>
               {renderTooltip(String(qty))}
             </span>
           );
