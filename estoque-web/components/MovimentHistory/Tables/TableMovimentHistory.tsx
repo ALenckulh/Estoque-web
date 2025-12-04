@@ -42,8 +42,10 @@ interface RowDataItem {
 }
 
 export default function TableHistoryEntity({
+  itemId,
   filters,
 }: {
+  itemId?: string | number;
   filters?: { safe_delete?: boolean; type?: "entrada" | "saida" };
 }) {
   const { myUserEnterpriseId } = useUser();
@@ -60,23 +62,25 @@ export default function TableHistoryEntity({
   const [toggleScope, setToggleScope] = useState<"line" | "group" | null>(null);
 
   const { data: rowData = [] } = useQuery({
-    queryKey: ["movements", myUserEnterpriseId, filters?.safe_delete, filters?.type],
+    queryKey: ["movements", myUserEnterpriseId, itemId, filters?.safe_delete, filters?.type],
     enabled: !!myUserEnterpriseId,
     queryFn: async () => {
       if (!myUserEnterpriseId) return [] as RowDataItem[];
       const resp = await api.get("/movement", {
         params: {
           enterprise_id: myUserEnterpriseId,
-          // send safe_delete only when defined
           ...(filters?.safe_delete !== undefined
             ? { safe_delete: String(filters.safe_delete) }
             : {}),
-          // send type only when defined
           ...(filters?.type ? { type: filters.type } : {}),
         },
       });
       const list = (resp?.data?.movements ?? []) as any[];
-      return list.map((m) => ({
+      // Se itemId for fornecido, filtra; senão, mostra todos
+      return (itemId
+        ? list.filter((m) => String(m.item_id) === String(itemId))
+        : list
+      ).map((m) => ({
         movementId: Number(m.id ?? 0),
         groupId: Number(m.group_id),
         fiscalNote: m.nota_fiscal ?? "",
