@@ -4,10 +4,15 @@ import { supabaseAdmin } from "@/utils/supabase/supabaseAdmin";
 
 interface ListMovementsParams {
   enterpriseId?: string | null;
+  filters?: {
+    safe_delete?: boolean;
+    type?: "entrada" | "saida";
+  };
 }
 
 export async function listMovements({
   enterpriseId,
+  filters,
 }: ListMovementsParams) {
 
   // Validação 1: enterprise_id é obrigatório
@@ -21,7 +26,7 @@ export async function listMovements({
     throw new Error("Parâmetro 'enterprise_id' deve ser um número válido e maior que zero.");
   }
 
-  const data = await fetchMovementsByEnterprise(entId);
+  const data = await fetchMovementsByEnterprise(entId, filters);
 
   // Build a map of user_id -> email
   const userIds = Array.from(

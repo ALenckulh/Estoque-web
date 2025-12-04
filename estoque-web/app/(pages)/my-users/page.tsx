@@ -25,6 +25,8 @@ import {
   TextField,
   Tooltip,
   CircularProgress,
+  Popover,
+  Autocomplete,
 } from "@mui/material";
 import { findMyUserId } from "@/lib/services/user/find-my-user-id";
 import Link from "next/link";
@@ -40,6 +42,11 @@ import {
   validateSignInPassword,
   validateUsername,
 } from "@/utils/validations";
+
+type Option = {
+  label: string;
+  value: string | number;
+};
 
 const DRAWER_CONTAINER_STYLE = {
   display: "flex",
@@ -95,9 +102,22 @@ export default function Page() {
   const [editUsername, setEditUsername] = useState("");
   const [editIsAdmin, setEditIsAdmin] = useState(false);
   const [newIsAdmin, setNewIsAdmin] = useState(false);
+  const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
+  const [filterStatus, setFilterStatus] = useState<Option | null>(null);
   // Guardar valores iniciais para detectar alterações (dirty state)
   const [initialUsername, setInitialUsername] = useState("");
   const [initialIsAdmin, setInitialIsAdmin] = useState(false);
+
+  // Carregar filtros do localStorage ao montar
+  useEffect(() => {
+    const saved = localStorage.getItem("userFilters");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.status) setFilterStatus(parsed.status);
+      } catch {}
+    }
+  }, []);
   const [errors, setErrors] = useState<Record<string, string>>({
     newUsername: "",
     newEmail: "",
@@ -401,6 +421,27 @@ export default function Page() {
         (f) => f.length > 0
       ));
 
+  const statusOptions: Option[] = [
+    { label: "Ativo", value: "ativo" },
+    { label: "Inativo", value: "inativo" },
+  ];
+
+  const isFilterEmpty = !filterStatus;
+  const hasActiveFilters = !isFilterEmpty;
+
+  const handleClearFilters = () => {
+    setFilterStatus(null);
+    localStorage.removeItem("userFilters");
+  };
+
+  // Salvar filtros automaticamente quando mudam
+  useEffect(() => {
+    if (filterStatus) {
+      const filtersToSave = { status: filterStatus };
+      localStorage.setItem("userFilters", JSON.stringify(filtersToSave));
+    }
+  }, [filterStatus]);
+
   return (
     <div>
       <Appbar
@@ -419,19 +460,106 @@ export default function Page() {
           }}
         >
           <Body4 sx={{ color: "var(--neutral-60)" }}>Meus usuários</Body4>
-          <Button
-            variant="contained"
-            startIcon={<Icon name="Plus" />}
-            onClick={() => {
-              setSuccessMessage("");
-              setIsCreateDrawerOpen(true);
-            }}
-          >
-            Criar usuário
-          </Button>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Box sx={{ position: "relative" }}>
+              <Button
+                variant="outlined"
+                startIcon={<Icon name="ListFilter" />}
+                onClick={(e) => setAnchorPopover(e.currentTarget)}
+                sx={{
+                  minWidth: 40,
+                  width: 40,
+                  height: 40,
+                  p: "8px",
+                  "& .MuiButton-startIcon": { m: 0 },
+                }}
+                aria-label={
+                  hasActiveFilters ? "Filtros ativos" : "Abrir filtros"
+                }
+              />
+              {hasActiveFilters && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 7,
+                    right: 7,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: "primary.main",
+                    boxShadow: "0 0 0 2px #fff",
+                  }}
+                />
+              )}
+              <Popover
+                open={Boolean(anchorPopover)}
+                anchorEl={anchorPopover}
+                onClose={() => setAnchorPopover(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                transformOrigin={{ vertical: "top", horizontal: "center" }}
+                slotProps={{ paper: { sx: { width: 300, p: 3 } } }}
+              >
+                <Subtitle2 sx={{ mb: "40px", color: "var(--neutral-80)" }}>
+                  Filtrar Usuários
+                </Subtitle2>
+                <form
+                  className="formContainer"
+                  style={{ width: "100%", gap: "20px" }}
+                >
+                  <Autocomplete
+                    options={statusOptions}
+                    getOptionLabel={(option) => option.label}
+                    value={filterStatus}
+                    onChange={(_, newValue) => setFilterStatus(newValue)}
+                    isOptionEqualToValue={(option, val) =>
+                      option.value === val?.value
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Estado"
+                        placeholder="Selecione..."
+                      />
+                    )}
+                  />
+                  <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      startIcon={<Icon name="FilterX" />}
+                      disabled={isFilterEmpty}
+                      onClick={handleClearFilters}
+                      fullWidth
+                    >
+                      Limpar
+                    </Button>
+                  </Box>
+                </form>
+              </Popover>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<Icon name="Plus" />}
+              onClick={() => {
+                setSuccessMessage("");
+                setIsCreateDrawerOpen(true);
+              }}
+            >
+              Criar usuário
+            </Button>
+          </Box>
         </Box>
 
-        <TableListUsers />
+        <TableListUsers
+          filters={{
+            safe_delete:
+              filterStatus?.value === "ativo"
+                ? false
+                : filterStatus?.value === "inativo"
+                ? true
+                : undefined,
+          }}
+        />
 
         <ToastContainer toasts={toasts} />
 

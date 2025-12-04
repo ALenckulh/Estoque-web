@@ -41,7 +41,13 @@ interface RowDataItem {
   disabled?: boolean;
 }
 
-export default function TableHistoryEntity() {
+export default function TableHistoryEntity({
+  itemId,
+  filters,
+}: {
+  itemId?: string | number;
+  filters?: { safe_delete?: boolean; type?: "entrada" | "saida" };
+}) {
   const { myUserEnterpriseId } = useUser();
   const queryClient = useQueryClient();
   const { toasts, showToast } = useToast();
@@ -56,25 +62,35 @@ export default function TableHistoryEntity() {
   const [toggleScope, setToggleScope] = useState<"line" | "group" | null>(null);
 
   const { data: rowData = [] } = useQuery({
-    queryKey: ["movements", myUserEnterpriseId],
-    enabled: !!myUserEnterpriseId,
+    queryKey: ["movements", myUserEnterpriseId, itemId, filters?.safe_delete, filters?.type],
+    enabled: !!myUserEnterpriseId && !!itemId,
     queryFn: async () => {
-      if (!myUserEnterpriseId) return [] as RowDataItem[];
+      if (!myUserEnterpriseId || !itemId) return [] as RowDataItem[];
       const resp = await api.get("/movement", {
-        params: { enterprise_id: myUserEnterpriseId },
+        params: {
+          enterprise_id: myUserEnterpriseId,
+          item_id: itemId,
+          ...(filters?.safe_delete !== undefined
+            ? { safe_delete: String(filters.safe_delete) }
+            : {}),
+          ...(filters?.type ? { type: filters.type } : {}),
+        },
       });
       const list = (resp?.data?.movements ?? []) as any[];
-      return list.map((m) => ({
-        movementId: Number(m.id ?? 0),
-        groupId: Number(m.group_id),
-        fiscalNote: m.nota_fiscal ?? "",
-        entityId: Number(m.enterprise_id),
-        itemId: Number(m.item_id),
-        user: String(m.user_email ?? m.user_id ?? ""),
-        movimentDate: m.date ?? "",
-        quantity: Number(m.quantity ?? 0),
-        disabled: Boolean(m.safe_delete),
-      })) as RowDataItem[];
+      // Garante que só aparecem movimentações do itemId selecionado
+      return list
+        .filter((m) => String(m.item_id) === String(itemId))
+        .map((m) => ({
+          movementId: Number(m.id ?? 0),
+          groupId: Number(m.group_id),
+          fiscalNote: m.nota_fiscal ?? "",
+          entityId: Number(m.enterprise_id),
+          itemId: Number(m.item_id),
+          user: String(m.user_email ?? m.user_id ?? ""),
+          movimentDate: m.date ?? "",
+          quantity: Number(m.quantity ?? 0),
+          disabled: Boolean(m.safe_delete),
+        })) as RowDataItem[];
     },
   });
 
@@ -191,9 +207,13 @@ export default function TableHistoryEntity() {
 
           const style = n < 0 ? { color: "var(--danger-0)" } : undefined;
 
+          if (n < 0) {
+            return <span style={style}>{n}</span>;
+          }
+
           return (
-            <div style={{ paddingLeft: "10px" }}>
-              <span style={style}>{n}</span>
+            <div style={{ paddingLeft: "8px" }}>
+              <span>{n}</span>
             </div>
           );
         },

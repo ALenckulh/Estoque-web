@@ -27,6 +27,7 @@ import { api } from "@/utils/axios";
 import { useUser } from "@/hooks/userHook";
 import { useToast } from "@/hooks/toastHook";
 import { validateProductName } from "@/utils/validations";
+import { useQuery } from "@tanstack/react-query";
 
 type Option = {
   label: string;
@@ -94,22 +95,21 @@ export default function Page() {
     setFilterStatus(null);
     setFilterQuantityLevel(null);
     localStorage.removeItem("itemFilters");
-    setAnchorPopover(null);
   };
 
-  // Salva filtros no localStorage
-  const handleApplyFilters = () => {
-    const filtersToSave = {
-      group: filterGroup,
-      date: filterDate,
-      unit: filterUnit,
-      status: filterStatus,
-      quantity: filterQuantityLevel,
-    };
-    localStorage.setItem("itemFilters", JSON.stringify(filtersToSave));
-    setAnchorPopover(null);
-    // A tabela já recarrega pois o estado dos filtros muda
-  };
+  // Salva filtros no localStorage automaticamente quando mudam
+  useEffect(() => {
+    if (filterGroup || filterDate || filterUnit || filterStatus || filterQuantityLevel) {
+      const filtersToSave = {
+        group: filterGroup,
+        date: filterDate,
+        unit: filterUnit,
+        status: filterStatus,
+        quantity: filterQuantityLevel,
+      };
+      localStorage.setItem("itemFilters", JSON.stringify(filtersToSave));
+    }
+  }, [filterGroup, filterDate, filterUnit, filterStatus, filterQuantityLevel]);
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     const nameError = validateProductName(productName);
@@ -223,6 +223,22 @@ export default function Page() {
     };
   }, [myUserEnterpriseId]);
 
+  // Fetch alert counts
+  const { data: alertData } = useQuery({
+    queryKey: ["itemAlerts", myUserEnterpriseId],
+    enabled: !!myUserEnterpriseId,
+    queryFn: async () => {
+      if (!myUserEnterpriseId) return { totalNegativo: 0, totalAlerta: 0 };
+      const resp = await api.get("/item/listItemAlert", {
+        params: { enterprise_id: myUserEnterpriseId },
+      });
+      return {
+        totalNegativo: resp?.data?.totalNegativo ?? 0,
+        totalAlerta: resp?.data?.totalAlerta ?? 0,
+      };
+    },
+  });
+
   return (
     <div>
       <Appbar
@@ -238,7 +254,6 @@ export default function Page() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            mb: "20px",
           }}
         >
           <Body4 sx={{ color: "var(--neutral-60)" }}>Itens listados</Body4>
@@ -254,7 +269,7 @@ export default function Page() {
                   }}
                 />
                 <Detail2 sx={{ color: "var(--neutral-60)", fontSize: "12px" }}>
-                  4 itens no negativo
+                  {alertData?.totalNegativo ?? 0} itens no negativo
                 </Detail2>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -267,7 +282,7 @@ export default function Page() {
                   }}
                 />
                 <Detail2 sx={{ color: "var(--neutral-60)", fontSize: "12px" }}>
-                  4 itens em baixa
+                  {alertData?.totalAlerta ?? 0} itens em baixa
                 </Detail2>
               </Box>
             </Box>
@@ -408,15 +423,6 @@ export default function Page() {
                       fullWidth
                     >
                       Limpar
-                    </Button>
-                    <Button
-                      variant="contained"
-                      startIcon={<Icon name="Check" />}
-                      onClick={handleApplyFilters}
-                      disabled={isFilterEmpty}
-                      fullWidth
-                    >
-                      Aplicar
                     </Button>
                   </Box>
                 </form>

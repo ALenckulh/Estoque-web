@@ -38,10 +38,12 @@ export async function GET(request: Request) {
       filterDisabled = undefined;
     }
 
-    const entities = await listEntities(enterprise_id);
-    // Apenas aplicar filtro se o parâmetro foi fornecido
-    const filtered = filterDisabled === undefined ? entities : (entities || []).filter((e: any) => Boolean(e.safe_delete) === filterDisabled);
-    return NextResponse.json({ success: true, entities: filtered });
+    // Pass filters to service; DB handles filtering
+    const entities = await listEntities(enterprise_id, {
+      safe_delete: filterDisabled,
+    });
+
+    return NextResponse.json({ success: true, entities });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err.message },

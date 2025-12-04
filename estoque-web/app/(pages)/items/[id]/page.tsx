@@ -1,7 +1,7 @@
 "use client";
 
 import { Appbar } from "@/components/Appbar/appbar";
-import TableHistoryItems from "@/components/Items/Tables/TableHistoryItems";
+import TableMovimentHistory from "@/components/MovimentHistory/Tables/TableMovimentHistory";
 import { RowDataItem } from "@/components/Items/Tables/TableListItems";
 import { Icon } from "@/components/ui/Icon";
 import { IconButton } from "@/components/ui/IconButton";
@@ -25,10 +25,17 @@ import React, { useEffect, useState } from "react";
 import { useItemQuery, useUpdateItemMutation, useToggleSafeDeleteMutation } from "@/hooks/useItemQuery";
 import CopyTooltip from "@/components/ui/CopyTooltip";
 import { ToastContainer } from "@/components/ui/Toast/Toast";
-import { Body1, Detail1, Detail4, Subtitle2 } from "@/components/ui/Typography";
+import {
+  Body1,
+  Detail1,
+  Detail4,
+  Subtitle1,
+  Subtitle2,
+} from "@/components/ui/Typography";
 import { NotFound } from "@/components/Feedback/NotFound";
 import { useToast } from "@/hooks/toastHook";
 import { validateProductName } from "@/utils/validations";
+import Popover from "@mui/material/Popover";
 
 type Option = {
   label: string;
@@ -50,7 +57,28 @@ export default function Page() {
   const { toasts, showToast } = useToast();
   const [productName, setProductName] = useState<string>("");
   const [productErrors, setProductErrors] = useState<{ name?: string }>({});
-  const [selectedMeasureUnity, setSelectedMeasureUnity] = useState<Option | null>(null);
+  const [selectedMeasureUnity, setSelectedMeasureUnity] =
+    useState<Option | null>(null);
+
+  // Filtros de movimentação (UI apenas)
+  const [filterStatus, setFilterStatus] = useState<Option | null>(null);
+  const [filterType, setFilterType] = useState<Option | null>(null);
+  const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
+  const hasActiveFilters = !!filterStatus || !!filterType;
+
+  const statusOptions: Option[] = [
+    { label: "Ativo", value: "ativo" },
+    { label: "Inativo", value: "inativo" },
+  ];
+  const typeOptions: Option[] = [
+    { label: "Entrada", value: "entrada" },
+    { label: "Saída", value: "saida" },
+  ];
+
+  const handleClearFilters = () => {
+    setFilterStatus(null);
+    setFilterType(null);
+  };
   const [manufacturer, setManufacturer] = useState<string>("");
   const [selectedSegment, setSelectedSegment] = useState<Option | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<Option | null>(null);
@@ -59,15 +87,19 @@ export default function Page() {
   const [description, setDescription] = useState<string>("");
 
   const [initialProductName, setInitialProductName] = useState<string>("");
-  const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(null);
+  const [initialMeasureUnity, setInitialMeasureUnity] = useState<Option | null>(
+    null
+  );
   const [initialManufacturer, setInitialManufacturer] = useState<string>("");
   const [initialSegment, setInitialSegment] = useState<Option | null>(null);
   const [initialGroup, setInitialGroup] = useState<Option | null>(null);
-  const [initialAlertQuantity, setInitialAlertQuantity] = useState<number | "">("");
+  const [initialAlertQuantity, setInitialAlertQuantity] = useState<number | "">(
+    ""
+  );
   const [initialPosition, setInitialPosition] = useState<string>("");
   const [initialDescription, setInitialDescription] = useState<string>("");
 
-  const isDirty = 
+  const isDirty =
     productName !== initialProductName ||
     selectedMeasureUnity?.value !== initialMeasureUnity?.value ||
     manufacturer !== initialManufacturer ||
@@ -254,6 +286,46 @@ export default function Page() {
         setManufacturer(String(item.manufacturer));
         setInitialManufacturer(String(item.manufacturer));
       }
+      // Segmento - adiciona opção se não existir
+      if (item.segment) {
+        let segOption = segmentOptions.find(
+          (opt: Option): boolean => opt.value === item.segment
+        );
+        if (!segOption) {
+          segOption = { label: String(item.segment), value: item.segment };
+          setSegmentOptions((prev) =>
+            prev.some((opt: Option): boolean => opt.value === segOption!.value)
+              ? prev
+              : [...prev, segOption!]
+          );
+        }
+        setSelectedSegment(
+          segOption || { label: String(item.segment), value: item.segment }
+        );
+        setInitialSegment(
+          segOption || { label: String(item.segment), value: item.segment }
+        );
+      }
+      // Grupo - adiciona opção se não existir
+      if (item.group) {
+        let grpOption = groupOptions.find(
+          (opt: Option): boolean => opt.value === item.group
+        );
+        if (!grpOption) {
+          grpOption = { label: String(item.group), value: item.group };
+          setGroupOptions((prev) =>
+            prev.some((opt: Option): boolean => opt.value === grpOption!.value)
+              ? prev
+              : [...prev, grpOption!]
+          );
+        }
+        setSelectedGroup(
+          grpOption || { label: String(item.group), value: item.group }
+        );
+        setInitialGroup(
+          grpOption || { label: String(item.group), value: item.group }
+        );
+      }
     }
   }, [item]);
 
@@ -366,7 +438,7 @@ export default function Page() {
       setProductName(item.name);
     }
     setProductErrors({});
-    
+
     // Reseta os Autocompletes para os valores originais
     if (item) {
       // Unidade de medida
@@ -384,7 +456,7 @@ export default function Page() {
       } else {
         setManufacturer("");
       }
-      
+
       // Segmento
       if (item.segment_id || item.segment_name) {
         const segmentValue = item.segment_id ?? item.segment;
@@ -400,7 +472,7 @@ export default function Page() {
       } else {
         setSelectedSegment(null);
       }
-      
+
       // Grupo
       if (item.group_id || item.group_name) {
         const groupValue = item.group_id ?? item.group;
@@ -416,14 +488,14 @@ export default function Page() {
       } else {
         setSelectedGroup(null);
       }
-      
+
       // Reseta campos adicionais
       const alertQ = item.quantity_alert ?? item.alertQuantity;
       setAlertQuantity(alertQ !== undefined ? alertQ : "");
       setPosition(item.position ?? "");
       setDescription(item.description ?? "");
     }
-    
+
     setOpenDrawer(false);
   };
 
@@ -602,7 +674,7 @@ export default function Page() {
                       >
                         <Subtitle2
                           sx={{
-                            color: value ? "inherit" : "var(--neutral-60)",
+                            color: value ? "inherit" : "var(--neutral-50)",
                           }}
                           className="ellipsis"
                         >
@@ -630,7 +702,7 @@ export default function Page() {
                       >
                         <Subtitle2
                           sx={{
-                            color: value ? "inherit" : "var(--neutral-60)",
+                            color: value ? "inherit" : "var(--neutral-50)",
                           }}
                           className="ellipsis"
                         >
@@ -647,7 +719,7 @@ export default function Page() {
                     sx={{
                       color: item?.description
                         ? "inherit"
-                        : "var(--neutral-60)",
+                        : "var(--neutral-50)",
                     }}
                   >
                     {item?.description
@@ -659,10 +731,96 @@ export default function Page() {
             </Card>
             <Box className="historyContainer">
               <Box className="historyHeader">
-                <Icon name="History" size={14} color="var(--neutral-60)" />
-                <Detail4>Histórico de Movimentação</Detail4>
+                <Icon name="History" size={16} color="var(--neutral-60)" />
+                <Detail1 sx={{ color: "var(--neutral-70)" }}>
+                  Histórico de Movimentação
+                </Detail1>
+                <Box sx={{ position: "relative" }}>
+                  <IconButton
+                    icon="ListFilter"
+                    tooltip={hasActiveFilters ? "Filtros ativos" : "Filtro"}
+                    buttonProps={{ size: "small" }}
+                    onClick={(e) => setAnchorPopover(e.currentTarget)}
+                  />
+                  {hasActiveFilters && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        width: 8,
+                        height: 8,
+                        borderRadius: "50%",
+                        bgcolor: "primary.main",
+                        boxShadow: "0 0 0 2px #fff",
+                      }}
+                    />
+                  )}
+                  <Popover
+                    open={Boolean(anchorPopover)}
+                    anchorEl={anchorPopover}
+                    onClose={() => setAnchorPopover(null)}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                    transformOrigin={{ vertical: "top", horizontal: "center" }}
+                    slotProps={{ paper: { sx: { width: 320, p: 3 } } }}
+                  >
+                    <Subtitle2 sx={{ mb: "32px", color: "var(--neutral-80)" }}>
+                      Filtrar Movimentações
+                    </Subtitle2>
+                    <form className="formContainer" style={{ width: "100%", gap: "20px" }}>
+                      <Autocomplete
+                        options={statusOptions}
+                        getOptionLabel={(o) => o.label}
+                        value={filterStatus}
+                        onChange={(_, v) => setFilterStatus(v)}
+                        isOptionEqualToValue={(o, v) => o.value === v?.value}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Estado" placeholder="Selecione..." />
+                        )}
+                      />
+                      <Autocomplete
+                        options={typeOptions}
+                        getOptionLabel={(o) => o.label}
+                        value={filterType}
+                        onChange={(_, v) => setFilterType(v)}
+                        isOptionEqualToValue={(o, v) => o.value === v?.value}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Tipo" placeholder="Selecione..." />
+                        )}
+                      />
+                      <Box sx={{ display: "flex", gap: "12px", mt: "24px" }}>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          startIcon={<Icon name="FilterX" />}
+                          disabled={!hasActiveFilters}
+                          onClick={handleClearFilters}
+                          fullWidth
+                        >
+                          Limpar
+                        </Button>
+                      </Box>
+                    </form>
+                  </Popover>
+                </Box>
               </Box>
-              <TableHistoryItems />
+              <TableMovimentHistory
+                itemId={itemId}
+                filters={{
+                  safe_delete:
+                    filterStatus?.value === "ativo"
+                      ? false
+                      : filterStatus?.value === "inativo"
+                        ? true
+                        : undefined,
+                  type:
+                    filterType?.value === "entrada"
+                      ? "entrada"
+                      : filterType?.value === "saida"
+                        ? "saida"
+                        : undefined,
+                }}
+              />
             </Box>
             <Box sx={{ height: "12px" }}>
               <p></p>
@@ -711,7 +869,11 @@ export default function Page() {
                     />
                     <TextField
                       value={alertQuantity}
-                      onChange={(e) => setAlertQuantity(e.target.value === "" ? "" : Number(e.target.value))}
+                      onChange={(e) =>
+                        setAlertQuantity(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
                       label="Quantidade de alerta"
                       type="number"
                       fullWidth
@@ -802,9 +964,9 @@ export default function Page() {
                       disabled={item?.safe_delete}
                     />
                   </Box>
-                  <Button 
-                    variant="contained" 
-                    type="submit" 
+                  <Button
+                    variant="contained"
+                    type="submit"
                     sx={{ mt: "8px" }}
                     disabled={!isDirty}
                   >

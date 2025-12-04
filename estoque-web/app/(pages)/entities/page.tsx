@@ -14,7 +14,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { validateEntityName } from "@/utils/validations";
 import { api } from "@/utils/axios";
 import { useUser } from "@/hooks/userHook";
@@ -39,6 +39,18 @@ export default function Page() {
   const [anchorPopover, setAnchorPopover] = useState<null | HTMLElement>(null);
   const [filterStatus, setFilterStatus] = useState<Option | null>(null);
   const [errors, setErrors] = useState<{ entityName?: string }>({});
+
+  // Carregar filtros do localStorage ao montar
+  useEffect(() => {
+    const saved = localStorage.getItem("entityFilters");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.status) setFilterStatus(parsed.status);
+      } catch {}
+    }
+  }, []);
+
   const isFilterEmpty = !filterStatus;
   const hasActiveFilters = !isFilterEmpty;
 
@@ -86,7 +98,16 @@ export default function Page() {
 
   const handleClearFilters = () => {
     setFilterStatus(null);
+    localStorage.removeItem("entityFilters");
   };
+
+  // Salvar filtros automaticamente quando mudam
+  useEffect(() => {
+    if (filterStatus) {
+      const filtersToSave = { status: filterStatus };
+      localStorage.setItem("entityFilters", JSON.stringify(filtersToSave));
+    }
+  }, [filterStatus]);
 
   return (
     <div>
@@ -174,20 +195,10 @@ export default function Page() {
                       color="error"
                       startIcon={<Icon name="FilterX" />}
                       disabled={isFilterEmpty}
-                      onClick={() => {
-                        handleClearFilters();
-                      }}
+                      onClick={handleClearFilters}
                       fullWidth
                     >
                       Limpar
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => setAnchorPopover(null)}
-                      disabled={isFilterEmpty}
-                      fullWidth
-                    >
-                      Aplicar
                     </Button>
                   </Box>
                 </form>
@@ -202,7 +213,16 @@ export default function Page() {
             </Button>
           </Box>
         </Box>
-        <TableListEntity />
+        <TableListEntity
+          filters={{
+            safe_delete:
+              filterStatus?.value === "ativo"
+                ? false
+                : filterStatus?.value === "inativo"
+                ? true
+                : undefined,
+          }}
+        />
         <Box sx={{ height: "12px" }}>
           <p></p>
         </Box>
