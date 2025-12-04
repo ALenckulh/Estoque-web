@@ -3,7 +3,7 @@ import { updateSafeDeleteItemDB } from "@/lib/data-base/item/update-safe-delete-
 
 export async function deleteItem(id: number): Promise<Item> {
   try {
-      const deletedItem = await updateSafeDeleteItemDB(id);
+      const deletedItem = await updateSafeDeleteItemDB(id, true);
   
       return deletedItem;
     } catch (error) {
