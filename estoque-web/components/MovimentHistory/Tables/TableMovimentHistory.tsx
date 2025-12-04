@@ -320,7 +320,7 @@ export default function TableHistoryEntity({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
+          <Button color="secondary" variant="contained" onClick={() => setOpenDialog(false)}>Cancelar</Button>
           <Button
             variant="contained"
             color={selectedDisabled ? "success" : "error"}

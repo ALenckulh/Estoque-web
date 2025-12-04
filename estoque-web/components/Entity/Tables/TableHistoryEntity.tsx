@@ -17,12 +17,26 @@ import {
 } from "@/components/Tables/CelRenderes";
 import { AG_GRID_LOCALE_PT_BR } from "@/utils/agGridLocalePtBr";
 import { api } from "@/utils/axios";
+import { IconButton } from "@/components/ui/IconButton";
+import { useToast } from "@/hooks/toastHook";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  Menu,
+} from "@mui/material";
+import MenuItem from "@/components/ui/MenuItem";
+import { useUser } from "@/hooks/userHook";
 
 // Registrar todos os módulos Community
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface RowData {
   groupId: number;
+  movementId: number;
   fiscalNote: string;
   itemId: number;
   itemName: string;
@@ -42,6 +56,14 @@ interface TableHistoryEntityProps {
 
 export default function TableHistoryEntity({ entityId, filters }: TableHistoryEntityProps) {
   const [rowData, setRowData] = useState<RowData[]>([]);
+  const { toasts, showToast } = useToast();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+  const [selectedMovementId, setSelectedMovementId] = useState<number | null>(null);
+  const [selectedDisabled, setSelectedDisabled] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [toggleScope, setToggleScope] = useState<"line" | "group" | null>(null);
+  const { myUserEnterpriseId } = useUser();
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +78,7 @@ export default function TableHistoryEntity({ entityId, filters }: TableHistoryEn
         const movements = resp?.data?.historico_movimentacao || [];
         const mapped: RowData[] = movements.map((m: any) => ({
           groupId: Number(m.id_grupo ?? 0),
+          movementId: Number(m.id_mov ?? 0),
           fiscalNote: String(m.nota_fiscal ?? ""),
           itemId: Number(m.item_id ?? 0),
           itemName: String(m.item_name ?? ""),
@@ -184,6 +207,39 @@ export default function TableHistoryEntity({ entityId, filters }: TableHistoryEn
         return renderTooltip(String(params.value ?? "-"), tooltip);
       },
     },
+    {
+      headerName: "Ações",
+      width: 70,
+      pinned: "right",
+      sortable: false,
+      cellRenderer: (params: { data: RowData }) => {
+        const isDisabled = Boolean(params.data?.disabled);
+        const groupId = Number(params.data?.groupId);
+        const movementId = Number(params.data?.movementId);
+        const tooltipText = isDisabled
+          ? "Ativar movimentação"
+          : "Desativar movimentação";
+
+        return (
+          <div style={{ marginTop: "4px" }}>
+            <IconButton
+              icon={"EllipsisVertical"}
+              buttonProps={{
+                variant: "text",
+              }}
+              tooltip={tooltipText}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.stopPropagation();
+                setSelectedGroupId(groupId);
+                setSelectedMovementId(movementId);
+                setSelectedDisabled(isDisabled);
+                setAnchorEl(e.currentTarget);
+              }}
+            />
+          </div>
+        );
+      },
+    },
   ]);
 
   return (
@@ -202,6 +258,126 @@ export default function TableHistoryEntity({ entityId, filters }: TableHistoryEn
         localeText={AG_GRID_LOCALE_PT_BR}
         loadingOverlayComponent={() => {}}
       />
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {selectedMovementId !== null && selectedMovementId > 0 && (
+          <MenuItem
+            onClick={() => {
+              setToggleScope("line");
+              setAnchorEl(null);
+              setOpenDialog(true);
+            }}
+            icon={selectedDisabled ? "SquareCheck" : "Trash"}
+          >
+            {selectedDisabled ? "Ativar a linha" : "Desativar a linha"}
+          </MenuItem>
+        )}
+        <MenuItem
+          onClick={() => {
+            setToggleScope("group");
+            setAnchorEl(null);
+            setOpenDialog(true);
+          }}
+          icon={selectedDisabled ? "SquareCheck" : "Trash"}
+        >
+          {selectedDisabled ? "Ativar o grupo" : "Desativar o grupo"}
+        </MenuItem>
+      </Menu>
+
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Confirmar ação</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {selectedDisabled
+              ? "Tem certeza que deseja ativar esta movimentação?"
+              : "Tem certeza que deseja desativar esta movimentação?"}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button color="secondary" variant="contained" onClick={() => setOpenDialog(false)}>Cancelar</Button>
+          <Button
+            variant="contained"
+            color={selectedDisabled ? "success" : "error"}
+            onClick={async () => {
+              try {
+                if (!entityId) {
+                  showToast("Movimentação ou entidade inválida", "error", "X");
+                  return;
+                }
+                const payload =
+                  toggleScope === "line"
+                    ? {
+                        movement_id: Number(selectedMovementId),
+                        enterprise_id: Number(myUserEnterpriseId),
+                      }
+                    : {
+                        group_id: Number(selectedGroupId),
+                        enterprise_id: Number(myUserEnterpriseId),
+                      };
+                const resp = await api.post(
+                  "/movement/toggle-safe-delete",
+                  payload
+                );
+                if (resp?.data?.success) {
+                  // Recarrega os dados
+                  const params: any = { id: entityId };
+                  if (typeof filters?.safe_delete === "boolean") params.safe_delete = filters.safe_delete;
+                  if (filters?.type) params.type = filters.type;
+                  const refreshResp = await api.get("/movement/list-entity-movements", { params });
+                  const movements = refreshResp?.data?.historico_movimentacao || [];
+                  const mapped: RowData[] = movements.map((m: any) => ({
+                    groupId: Number(m.id_grupo ?? 0),
+                    movementId: Number(m.id_mov ?? 0),
+                    fiscalNote: String(m.nota_fiscal ?? ""),
+                    itemId: Number(m.item_id ?? 0),
+                    itemName: String(m.item_name ?? ""),
+                    user: String(m.usuario_responsavel ?? ""),
+                    date: String(m.data_movimentacao ?? ""),
+                    quantity: Number(m.quantidade_movimentada ?? 0),
+                    disabled: Boolean(m.safe_delete),
+                  }));
+                  setRowData(mapped);
+                  showToast(
+                    selectedDisabled
+                      ? toggleScope === "line"
+                        ? "Linha ativada com sucesso"
+                        : "Grupo ativado com sucesso"
+                      : toggleScope === "line"
+                        ? "Linha desativada com sucesso"
+                        : "Grupo desativado com sucesso",
+                    "success",
+                    selectedDisabled ? "SquareCheck" : "Trash"
+                  );
+                } else {
+                  const msg =
+                    resp?.data?.message || "Erro ao atualizar movimentação";
+                  showToast(msg, "error", "X");
+                }
+              } catch (err: any) {
+                showToast(
+                  err?.message || "Erro ao atualizar movimentação",
+                  "error",
+                  "X"
+                );
+              } finally {
+                setOpenDialog(false);
+                setSelectedGroupId(null);
+                setSelectedMovementId(null);
+                setSelectedDisabled(false);
+                setToggleScope(null);
+              }
+            }}
+          >
+            {selectedDisabled ? "Ativar" : "Desativar"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
