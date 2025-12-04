@@ -36,7 +36,7 @@ export function Appbar({
   onTabChange,
 }: AppbarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { setFoundUserId, setMyUserId, setMyUserEnterpriseId } = useUser();
+  const { setFoundUserId, setMyUserId, setMyUserEnterpriseId, setIsAdmin, isAdmin } = useUser();
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -66,10 +66,16 @@ export function Appbar({
     setFoundUserId?.(null);
     setMyUserId?.(null);
     setMyUserEnterpriseId?.(null);
+    setIsAdmin?.(false);
+    
+    // Limpar localStorage completamente
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+    }
   
     handleNavigate("/sign-in");
   }
-}, [setFoundUserId, setMyUserId, setMyUserEnterpriseId]);
+}, [setFoundUserId, setMyUserId, setMyUserEnterpriseId, setIsAdmin]);
 
   const handleTabChange = (tabId: string) => {
     if (onTabChange) {
@@ -140,9 +146,11 @@ export function Appbar({
               horizontal: "right",
             }}
           >
-            <MenuItem onClick={() => handleNavigate("/my-users")} icon="Users">
-              Meus usuários
-            </MenuItem>
+            {isAdmin && (
+              <MenuItem onClick={() => handleNavigate("/my-users")} icon="Users">
+                Meus usuários
+              </MenuItem>
+            )}
             <MenuItem onClick={() => handleNavigate("/help")} icon={"MessageCircleQuestion"}>
               Ajuda
             </MenuItem>

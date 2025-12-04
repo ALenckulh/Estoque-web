@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import userContext from "@/contexts/userContext";
 import loadAndStoreUserEnterprise from "@/lib/services/user/load-user-enterprise";
+import { findMyUserId } from "@/lib/services/user/find-my-user-id";
 
 interface UserProviderProps {
   children: ReactNode;
@@ -16,16 +17,11 @@ export function UserProvider({ children }: UserProviderProps) {
   const [myUserId, setMyUserId] = useState<string | null>(null);
   const [myUserEnterpriseId, setMyUserEnterpriseId] = useState<string | null>(null);
   const [OpenDialog, setOpenDialog] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
   // Wrapper setter that also persists to localStorage
   const updateMyUserEnterpriseId = (id: string | null) => {
     setMyUserEnterpriseId(id);
-    // log for debugging: show enterprise id when it's updated
-    if (typeof window !== "undefined") {
-      try {
-        console.log("myUserEnterpriseId -> updateMyUserEnterpriseId:", id);
-      } catch (e) {}
-    }
     if (typeof window !== "undefined") {
       try {
         if (id) localStorage.setItem("myUserEnterpriseId", id);
@@ -36,30 +32,61 @@ export function UserProvider({ children }: UserProviderProps) {
     }
   };
 
+  // Wrapper setter for isAdmin that also persists to localStorage
+  const updateIsAdmin = (value: boolean | undefined) => {
+    setIsAdmin(value);
+    if (typeof window !== "undefined") {
+      try {
+        if (value !== undefined) {
+          localStorage.setItem("isAdmin", String(value));
+        } else {
+          localStorage.removeItem("isAdmin");
+        }
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+  };
+
   // On mount try to populate from localStorage or fetch once
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Load myUserId first
+    (async () => {
+      try {
+        const userId = await findMyUserId();
+        if (userId) {
+          setMyUserId(userId);
+        }
+      } catch (e) {
+        console.error("Error loading myUserId:", e);
+      }
+    })();
+
     const cached = localStorage.getItem("myUserEnterpriseId");
+    const cachedIsAdmin = localStorage.getItem("isAdmin");
+    
     if (cached) {
       setMyUserEnterpriseId(cached);
-      try {
-        console.log("myUserEnterpriseId -> hydrated from localStorage:", cached);
-      } catch (e) {}
     } else {
       (async () => {
         try {
           const value = await loadAndStoreUserEnterprise();
           if (value) {
             setMyUserEnterpriseId(value);
-            try {
-              console.log("myUserEnterpriseId -> loaded from API:", value);
-            } catch (e) {}
           }
         } catch (e) {
           // ignore
         }
       })();
+    }
+
+    // Load isAdmin from cache only on mount
+    if (cachedIsAdmin !== null) {
+      setIsAdmin(cachedIsAdmin === "true");
+    } else {
+      setIsAdmin(undefined);
     }
   }, []);
 
@@ -76,6 +103,29 @@ export function UserProvider({ children }: UserProviderProps) {
       })();
     }
   }, [myUserId, myUserEnterpriseId]);
+
+  // Reload isAdmin when myUserId changes
+  useEffect(() => {
+    if (myUserId) {
+      (async () => {
+        try {
+          const resp = await fetch(`/api/user/${myUserId}`, { credentials: "same-origin" });
+          if (!resp.ok) {
+            updateIsAdmin(false);
+            return;
+          }
+
+          const json = await resp.json().catch(() => null);
+          const user = json?.data?.user ?? json?.user ?? null;
+          const isAdminValue = Boolean(user?.is_admin);
+          updateIsAdmin(isAdminValue);
+        } catch (e) {
+          console.error("Error loading isAdmin:", e);
+          updateIsAdmin(false);
+        }
+      })();
+    }
+  }, [myUserId]);
 
   return (
     <userContext.Provider
@@ -94,6 +144,8 @@ export function UserProvider({ children }: UserProviderProps) {
         OpenDialog,
         setOpenDialog,
         setMyUserEnterpriseId: updateMyUserEnterpriseId,
+        isAdmin,
+        setIsAdmin: updateIsAdmin,
       }}
     >
       {children}

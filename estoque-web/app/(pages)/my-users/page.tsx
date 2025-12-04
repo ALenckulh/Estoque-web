@@ -42,6 +42,8 @@ import {
   validateSignInPassword,
   validateUsername,
 } from "@/utils/validations";
+import { Unauthorized } from "@/components/Feedback/Unauthorized";
+import { Loading } from "@/components/Feedback/Loading";
 
 type Option = {
   label: string;
@@ -144,6 +146,8 @@ export default function Page() {
     editDrawerOpen,
     setEditDrawerOpen,
     setMyUserId,
+    isAdmin,
+    setIsAdmin,
   } = useUser();
 
   useEffect(() => {
@@ -441,6 +445,16 @@ export default function Page() {
       localStorage.setItem("userFilters", JSON.stringify(filtersToSave));
     }
   }, [filterStatus]);
+
+  // Show Unauthorized component if not admin (only after isAdmin is loaded)
+  if (isAdmin === false) {
+    return <Unauthorized description="Você não tem permissão para acessar esta página." />;
+  }
+
+  // Show loading while checking admin status
+  if (isAdmin === undefined || isAdmin === null) {
+    return <Loading />;
+  }
 
   return (
     <div>

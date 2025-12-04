@@ -83,17 +83,28 @@
 								"key": "x-enterprise-id",
 								"value": "{{enterprise_id}}",
 								"type": "text"
+							},
+							{
+								"key": "x-filter-disableds",
+								"value": "false",
+								"description": "Filtrar por estado (true = desativados, false = ativos)",
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/entity/listEntity",
+							"raw": "{{baseUrl}}/api/entity/listEntity?enterprise_id={{enterprise_id}}&safe_delete=false",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "entity", "listEntity"],
 							"query": [
 								{
 									"key": "enterprise_id",
-									"value": "{{enterprise_id}}",
-									"disabled": true
+									"value": "{{enterprise_id}}"
+								},
+								{
+									"key": "safe_delete",
+									"value": "false",
+									"description": "Filtrar por estado (true/false)"
 								}
 							]
 						}
@@ -225,14 +236,41 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/item/listItem",
+							"raw": "{{baseUrl}}/api/item/listItem?enterprise_id={{enterprise_id}}&safe_delete=false&group_id=1&quantity=negativo",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "item", "listItem"],
 							"query": [
 								{
 									"key": "enterprise_id",
-									"value": "{{enterprise_id}}",
+									"value": "{{enterprise_id}}"
+								},
+								{
+									"key": "safe_delete",
+									"value": "false",
+									"description": "Filtrar por estado (true/false)"
+								},
+								{
+									"key": "group_id",
+									"value": "1",
+									"description": "Filtrar por ID do grupo",
 									"disabled": true
+								},
+								{
+									"key": "created_at",
+									"value": "2024-01-01",
+									"description": "Filtrar por data de criação",
+									"disabled": true
+								},
+								{
+									"key": "unit_id",
+									"value": "1",
+									"description": "Filtrar por ID da unidade",
+									"disabled": true
+								},
+								{
+									"key": "quantity",
+									"value": "negativo",
+									"description": "Filtrar por quantidade (negativo/baixo/normal)"
 								}
 							]
 						}
@@ -387,17 +425,28 @@
 								"key": "x-enterprise-id",
 								"value": "{{enterprise_id}}",
 								"type": "text"
+							},
+							{
+								"key": "x-filter-disableds",
+								"value": "false",
+								"description": "Filtrar por estado",
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/user/listUser",
+							"raw": "{{baseUrl}}/api/user/listUser?enterprise_id={{enterprise_id}}&safe_delete=false",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "user", "listUser"],
 							"query": [
 								{
 									"key": "enterprise_id",
-									"value": "{{enterprise_id}}",
-									"disabled": true
+									"value": "{{enterprise_id}}"
+								},
+								{
+									"key": "safe_delete",
+									"value": "false",
+									"description": "Filtrar por estado (true/false)"
 								}
 							]
 						}
@@ -611,9 +660,17 @@
 					"name": "Listar Movements",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "x-filter-disabled",
+								"value": "false",
+								"description": "Filtrar por estado (true = desativados, false = ativos)",
+								"type": "text",
+								"disabled": true
+							}
+						],
 						"url": {
-							"raw": "{{baseUrl}}/api/movement?enterprise_id={{enterprise_id}}&page=1&pageSize=20",
+							"raw": "{{baseUrl}}/api/movement?enterprise_id={{enterprise_id}}&safe_delete=false&type=entrada",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "movement"],
 							"query": [
@@ -622,22 +679,14 @@
 									"value": "{{enterprise_id}}"
 								},
 								{
-									"key": "page",
-									"value": "1"
+									"key": "safe_delete",
+									"value": "false",
+									"description": "Filtrar por estado (true/false)"
 								},
 								{
-									"key": "pageSize",
-									"value": "20"
-								},
-								{
-									"key": "group_id",
-									"value": "1",
-									"disabled": true
-								},
-								{
-									"key": "user_id",
-									"value": "",
-									"disabled": true
+									"key": "type",
+									"value": "entrada",
+									"description": "Tipo de movimentação (entrada/saida)"
 								}
 							]
 						}
@@ -656,12 +705,191 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"group_id\": 1,\n  \"nota_fiscal\": \"NF-12345\",\n  \"date\": \"2025-11-10T10:00:00Z\",\n  \"user_id\": \"{{user_id}}\",\n  \"enterprise_id\": {{enterprise_id}},\n  \"item_id\": {{item_id}},\n  \"quantity\": 50\n}"
+							"raw": "{\n  \"group_id\": 1,\n  \"nota_fiscal\": \"NF-12345\",\n  \"date\": \"2025-12-03T10:00:00Z\",\n  \"user_id\": \"{{user_id}}\",\n  \"enterprise_id\": {{enterprise_id}},\n  \"item_id\": {{item_id}},\n  \"participate_id\": 1,\n  \"quantity\": 50\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/movement",
 							"host": ["{{baseUrl}}"],
 							"path": ["api", "movement"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Movimentações de Item",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-filter-disableds",
+								"value": "false",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/movement/list-item?item_id={{item_id}}&enterprise_id={{enterprise_id}}&safe_delete=false&type=entrada",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "movement", "list-item"],
+							"query": [
+								{
+									"key": "item_id",
+									"value": "{{item_id}}"
+								},
+								{
+									"key": "enterprise_id",
+									"value": "{{enterprise_id}}"
+								},
+								{
+									"key": "safe_delete",
+									"value": "false",
+									"description": "Filtrar por estado"
+								},
+								{
+									"key": "type",
+									"value": "entrada",
+									"description": "Tipo (entrada/saida)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Movimentações de Entity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/movement/list-entity-movements?id={{entity_id}}&safe_delete=false&type=entrada",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "movement", "list-entity-movements"],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{entity_id}}"
+								},
+								{
+									"key": "safe_delete",
+									"value": "false",
+									"description": "Filtrar por estado"
+								},
+								{
+									"key": "type",
+									"value": "entrada",
+									"description": "Tipo (entrada/saida)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Movement (Individual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"movement_id\": 1,\n  \"enterprise_id\": {{enterprise_id}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/movement/toggle-safe-delete",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "movement", "toggle-safe-delete"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Toggle Movement (Grupo)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"group_id\": 1,\n  \"enterprise_id\": {{enterprise_id}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/movement/toggle-safe-delete",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "movement", "toggle-safe-delete"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Check App User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/check-app-user",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "check-app-user"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign Out",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/sign-out",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "sign-out"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Item Alerts",
+			"item": [
+				{
+					"name": "Listar Item Alerts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-enterprise-id",
+								"value": "{{enterprise_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/item/listItemAlert?enterprise_id={{enterprise_id}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "item", "listItemAlert"],
+							"query": [
+								{
+									"key": "enterprise_id",
+									"value": "{{enterprise_id}}"
+								}
+							]
 						}
 					},
 					"response": []
