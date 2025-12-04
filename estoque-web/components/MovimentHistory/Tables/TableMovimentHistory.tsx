@@ -63,13 +63,12 @@ export default function TableHistoryEntity({
 
   const { data: rowData = [] } = useQuery({
     queryKey: ["movements", myUserEnterpriseId, itemId, filters?.safe_delete, filters?.type],
-    enabled: !!myUserEnterpriseId && !!itemId,
+    enabled: !!myUserEnterpriseId,
     queryFn: async () => {
-      if (!myUserEnterpriseId || !itemId) return [] as RowDataItem[];
+      if (!myUserEnterpriseId) return [] as RowDataItem[];
       const resp = await api.get("/movement", {
         params: {
           enterprise_id: myUserEnterpriseId,
-          item_id: itemId,
           ...(filters?.safe_delete !== undefined
             ? { safe_delete: String(filters.safe_delete) }
             : {}),
@@ -77,20 +76,21 @@ export default function TableHistoryEntity({
         },
       });
       const list = (resp?.data?.movements ?? []) as any[];
-      // Garante que só aparecem movimentações do itemId selecionado
-      return list
-        .filter((m) => String(m.item_id) === String(itemId))
-        .map((m) => ({
-          movementId: Number(m.id ?? 0),
-          groupId: Number(m.group_id),
-          fiscalNote: m.nota_fiscal ?? "",
-          entityId: Number(m.enterprise_id),
-          itemId: Number(m.item_id),
-          user: String(m.user_email ?? m.user_id ?? ""),
-          movimentDate: m.date ?? "",
-          quantity: Number(m.quantity ?? 0),
-          disabled: Boolean(m.safe_delete),
-        })) as RowDataItem[];
+      // Se itemId for fornecido, filtra; senão, mostra todos
+      return (itemId
+        ? list.filter((m) => String(m.item_id) === String(itemId))
+        : list
+      ).map((m) => ({
+        movementId: Number(m.id ?? 0),
+        groupId: Number(m.group_id),
+        fiscalNote: m.nota_fiscal ?? "",
+        entityId: Number(m.enterprise_id),
+        itemId: Number(m.item_id),
+        user: String(m.user_email ?? m.user_id ?? ""),
+        movimentDate: m.date ?? "",
+        quantity: Number(m.quantity ?? 0),
+        disabled: Boolean(m.safe_delete),
+      })) as RowDataItem[];
     },
   });
 
