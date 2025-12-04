@@ -71,9 +71,7 @@ export async function createMovement({
       if (type === "entrada") {
         newQuantity += effectiveQuantity;
       } else if (type === "saida") {
-        if (item.quantity < effectiveQuantity) {
-          throw new Error(`Estoque insuficiente para o item ${item.name}`);
-        }
+        // Permitir movimentações mesmo com estoque insuficiente (pode ficar negativo)
         newQuantity -= effectiveQuantity;
       }
 
