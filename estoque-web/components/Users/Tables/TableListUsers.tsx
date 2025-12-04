@@ -32,6 +32,7 @@ export interface DataUser {
   email: string;
   is_admin: boolean;
   safe_delete: boolean;
+  is_owner: boolean;
 }
 
 interface TableListUsersProps {
@@ -75,12 +76,18 @@ export default function TableListUsers({ filters }: TableListUsersProps) {
     return undefined;
   };
 
-  // Garante que o usuário atual apareça no topo
+  // Garante que o usuário atual apareça no topo e filtra is_owner exceto o próprio usuário
   const displayedRows = useMemo(() => {
-    const currentUser = rowData.find((r) => r.id === myUserId);
+    // Filtra is_owner users, exceto quando é o usuário atual
+    const filteredRows = rowData.filter((r) => {
+      if (r.is_owner) return r.id === myUserId;
+      return true;
+    });
+    
+    const currentUser = filteredRows.find((r) => r.id === myUserId);
     return currentUser
-      ? [currentUser, ...rowData.filter((r) => r.id !== myUserId)]
-      : rowData;
+      ? [currentUser, ...filteredRows.filter((r) => r.id !== myUserId)]
+      : filteredRows;
   }, [rowData, myUserId]);
 
   // Definições de colunas
@@ -156,16 +163,19 @@ export default function TableListUsers({ filters }: TableListUsersProps) {
         headerName: "Ações",
         width: 70,
         cellRenderer: (params: {
-          data: { safe_delete: boolean; id: string };
+          data: { safe_delete: boolean; id: string; is_owner: boolean };
         }) => {
           const safe_delete = params.data.safe_delete;
           const id = params.data.id;
+          const is_owner = params.data.is_owner;
           const isSelf = id === myUserId;
-          const tooltipText = isSelf
-            ? "Não é permitido desativar o próprio usuário, peça para outro usuário admin desativá-lo"
-            : safe_delete
-              ? "Ativar usuário"
-              : "Inativar usuário";
+          const tooltipText = is_owner
+            ? "Não é permitido desativar o usuario criador do estoque"
+            : isSelf
+              ? "Não é permitido desativar o próprio usuário, peça para outro usuário admin desativá-lo"
+              : safe_delete
+                ? "Ativar usuário"
+                : "Inativar usuário";
 
           return (
             <div style={{ marginTop: "4px" }}>
@@ -174,11 +184,11 @@ export default function TableListUsers({ filters }: TableListUsersProps) {
                 buttonProps={{
                   variant: "text",
                   color: safe_delete ? "success" : "error",
-                  disabled: isSelf,
+                  disabled: isSelf || is_owner,
                 }}
                 tooltip={tooltipText}
                 onClick={
-                  isSelf
+                  isSelf || is_owner
                     ? undefined
                     : (e: React.MouseEvent<HTMLButtonElement>) => {
                         e.stopPropagation();

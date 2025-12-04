@@ -15,6 +15,8 @@ export interface UserContextType {
   setMyUserEnterpriseId?: (id: string | null) => void;
   OpenDialog: boolean;
   setOpenDialog: (open: boolean) => void;
+  isAdmin?: boolean;
+  setIsAdmin?: (isAdmin: boolean) => void;
 }
 
 const userContext = createContext<UserContextType | null>(null);
