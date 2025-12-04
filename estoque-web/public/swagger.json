@@ -11,6 +11,28 @@
     }
   ],
   "paths": {
+    "/api/auth/check-app-user": {
+      "get": {
+        "summary": "Verifica usuário logado na aplicação",
+        "responses": { "200": { "description": "Sessão válida" }, "401": { "description": "Não autenticado" } }
+      }
+    },
+    "/api/auth/request-reset": {
+      "post": {
+        "summary": "Solicita reset de senha",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "email": { "type": "string" } }, "required": ["email"] } } } },
+        "responses": { "200": { "description": "Email de recuperação enviado" } }
+      }
+    },
+    "/api/auth/sign-out": {
+      "post": { "summary": "Efetua logout", "responses": { "200": { "description": "Logout efetuado" } } }
+    },
+    "/api/auth/sync-session": {
+      "get": { "summary": "Sincroniza sessão do usuário", "responses": { "200": { "description": "Sessão sincronizada" } } }
+    },
+    "/api/auth/verify-recovery": {
+      "post": { "summary": "Verifica token de recuperação", "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "token": { "type": "string" } }, "required": ["token"] } } } }, "responses": { "200": { "description": "Token válido" }, "400": { "description": "Token inválido" } } }
+    },
     "/api/entity": {
       "post": {
         "summary": "Cria uma nova entidade",
@@ -104,9 +126,141 @@
         }
       }
     }
+    ,
+    "/api/entity/{id}": {
+      "get": {
+        "summary": "Obtém entidade por ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Entidade" }, "404": { "description": "Não encontrada" } }
+      }
+    },
+    "/api/entity_display": {
+      "get": { "summary": "Lista entidades display", "responses": { "200": { "description": "OK" } } }
+    },
+    "/api/group/listGroup": {
+      "get": { "summary": "Lista grupos de movimentação", "responses": { "200": { "description": "OK" } } }
+    },
+    "/api/item": {
+      "post": {
+        "summary": "Cria item",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Item" } } } },
+        "responses": { "201": { "description": "Criado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Item" } } } }, "400": { "description": "Erro" } }
+      },
+      "get": {
+        "summary": "Obtém item por ID (query)",
+        "parameters": [{ "name": "id", "in": "query", "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Item" } } } }, "404": { "description": "Não encontrado" } }
+      }
+    },
+    "/api/item/{id}": {
+      "get": { "summary": "Obtém item por ID (path)", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Item" } } } }, "404": { "description": "Não encontrado" } } }
+    },
+    "/api/item/listItem": {
+      "get": { "summary": "Lista itens", "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Item" } } } } } } }
+    },
+    "/api/item/listItemAlert": {
+      "get": { "summary": "Lista alertas de estoque de itens", "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Item" } } } } } } }
+    },
+    "/api/item_display": { "get": { "summary": "Lista itens display", "responses": { "200": { "description": "OK" } } } },
+    "/api/movement": {
+      "post": {
+        "summary": "Cria movimentação (entrada/saída)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateMovement" } } } },
+        "responses": { "200": { "description": "Movimentação registrada", "content": { "application/json": { "schema": { "type": "object", "properties": { "message": { "type": "string" }, "group_id": { "type": "integer" }, "movements": { "type": "array", "items": { "$ref": "#/components/schemas/Movement" } } } } } } }, "400": { "description": "Erro na movimentação" } }
+      },
+      "get": {
+        "summary": "Lista movimentações por empresa",
+        "parameters": [ { "name": "enterprise_id", "in": "query", "required": true, "schema": { "type": "integer" } }, { "name": "safe_delete", "in": "query", "schema": { "type": "string" } }, { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["entrada","saida"] } } ],
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Movement" } } } } } }
+      }
+    },
+    "/api/movement/list-entity-movements": {
+      "get": {
+        "summary": "Lista movimentações por entidade",
+        "parameters": [ { "name": "id", "in": "query", "required": true, "schema": { "type": "string" } }, { "name": "safe_delete", "in": "query", "schema": { "type": "boolean" } }, { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["entrada","saida"] } } ],
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "historico_movimentacao": { "type": "array", "items": { "$ref": "#/components/schemas/Movement" } } } } } } }, "404": { "description": "Entidade não encontrada" } }
+      }
+    },
+    "/api/movement/list-item": { "get": { "summary": "Lista movimentações por item", "parameters": [ { "name": "id", "in": "query", "required": true, "schema": { "type": "string" } } ], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "object", "properties": { "historico_movimentacao": { "type": "array", "items": { "$ref": "#/components/schemas/Movement" } } } } } } } } } },
+    "/api/movement/toggle-safe-delete": {
+      "post": {
+        "summary": "Ativa/Desativa movimentação (linha/grupo)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "movement_id": { "type": "integer" }, "group_id": { "type": "integer" }, "enterprise_id": { "type": "integer" } }, "anyOf": [ { "required": ["movement_id","enterprise_id"] }, { "required": ["group_id","enterprise_id"] } ] } } } },
+        "responses": { "200": { "description": "Atualizado" }, "400": { "description": "Parâmetros inválidos" } }
+      }
+    },
+    "/api/segment/listSegment": { "get": { "summary": "Lista segmentos", "responses": { "200": { "description": "OK" } } } },
+    "/api/unit/listUnit": { "get": { "summary": "Lista unidades", "responses": { "200": { "description": "OK" } } } },
+    "/api/user": {
+      "post": { "summary": "Cria usuário", "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }, "responses": { "201": { "description": "Criado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }, "400": { "description": "Erro" } } },
+      "get": { "summary": "Obtém usuário por ID (query)", "parameters": [{ "name": "id", "in": "query", "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }, "404": { "description": "Não encontrado" } } }
+    },
+    "/api/user/{id}": { "get": { "summary": "Obtém usuário por ID (path)", "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } }, "404": { "description": "Não encontrado" } } } },
+    "/api/user/listUser": { "get": { "summary": "Lista usuários", "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } } } } } }
   },
   "components": {
     "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "enterprise_id": { "type": "integer" },
+          "is_admin": { "type": "boolean" },
+          "safe_delete": { "type": "boolean" },
+          "is_owner": { "type": "boolean" },
+          "name": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "required": ["id","enterprise_id","is_admin","safe_delete","is_owner"]
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "enterprise_id": { "type": "integer" },
+          "name": { "type": "string" },
+          "quantity": { "type": "number" },
+          "safe_delete": { "type": "boolean" },
+          "min_quantity": { "type": "number" }
+        },
+        "required": ["id","enterprise_id","name","quantity"]
+      },
+      "Movement": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "group_id": { "type": "integer" },
+          "enterprise_id": { "type": "integer" },
+          "item_id": { "type": "integer" },
+          "user_id": { "type": "string" },
+          "user_email": { "type": "string" },
+          "date": { "type": "string" },
+          "quantity": { "type": "number" },
+          "nota_fiscal": { "type": "string" },
+          "lote": { "type": "string" },
+          "safe_delete": { "type": "boolean" },
+          "type": { "type": "string", "enum": ["entrada","saida"] }
+        }
+      },
+      "EntityDisplay": { "type": "object", "properties": { "id": {"type":"integer"}, "name": {"type":"string"} } },
+      "ItemDisplay": { "type": "object", "properties": { "id": {"type":"integer"}, "name": {"type":"string"} } },
+      "Group": { "type": "object", "properties": { "id": {"type":"integer"}, "created_at": {"type":"string"} } },
+      "Segment": { "type": "object", "properties": { "id": {"type":"integer"}, "name": {"type":"string"} } },
+      "Unit": { "type": "object", "properties": { "id": {"type":"integer"}, "name": {"type":"string"}, "abbreviation": {"type":"string"} } },
+      "CreateMovement": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["entrada","saida"] },
+          "lote": { "type": "string" },
+          "nota_fiscal": { "type": "string" },
+          "date": { "type": "string" },
+          "user_id": { "type": "string" },
+          "participate_id": { "type": "integer" },
+          "enterprise_id": { "type": "integer" },
+          "items": { "type": "array", "items": { "type": "object", "properties": { "item_id": { "type": "integer" }, "quantity": { "type": "number" } }, "required": ["item_id","quantity"] } }
+        },
+        "required": ["type","date","user_id","enterprise_id","items"]
+      },
       "Entity": {
         "type": "object",
         "properties": {
