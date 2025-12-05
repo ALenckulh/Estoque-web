@@ -203,8 +203,21 @@ export default function TableHistoryEntity({ entityId, filters }: TableHistoryEn
         "cell-disabled": (params) => !!params.data?.disabled,
       },
       cellRenderer: (params: ICellRendererParams<RowData>) => {
-        const tooltip = params.data?.disabled ? "Movimentação está desativada" : "";
-        return renderTooltip(String(params.value ?? "-"), tooltip);
+        const value = params.value ?? params.data?.quantity;
+        const n = Number(value);
+        if (value === undefined || value === null || Number.isNaN(n)) return <span>-</span>;
+
+        const style = n < 0 ? { color: "var(--danger-0)" } : undefined;
+
+        if (n < 0) {
+          return <span style={style}>{n}</span>;
+        }
+
+        return (
+          <div style={{ paddingLeft: "8px" }}>
+            <span>{n}</span>
+          </div>
+        );
       },
     },
     {
